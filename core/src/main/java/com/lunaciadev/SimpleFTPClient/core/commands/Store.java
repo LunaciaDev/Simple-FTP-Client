@@ -92,6 +92,8 @@ public class Store extends Command implements Runnable {
                         dataSocket.close();
                     } catch (Exception e) {
                         // TODO: handle exception
+                        Gdx.app.error("Exception", e.getMessage());
+                        e.printStackTrace();
                     }
                 }
             });
@@ -117,6 +119,8 @@ public class Store extends Command implements Runnable {
             }
         } catch (Exception e) {
             // TODO: handle exception
+            Gdx.app.error("Exception", e.getMessage());
+            e.printStackTrace();
         }
     }
 

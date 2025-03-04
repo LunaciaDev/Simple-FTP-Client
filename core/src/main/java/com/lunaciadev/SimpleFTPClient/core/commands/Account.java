@@ -44,6 +44,8 @@ public class Account extends Command implements Runnable {
         }
         catch (Exception e) {
             // TODO handle exception
+            Gdx.app.error("Exception", e.getMessage());
+            e.printStackTrace();
         }
     }
 

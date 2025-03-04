@@ -110,6 +110,8 @@ public class Retrieve extends Command implements Runnable {
                         dataSocket.close();
                     } catch (Exception e) {
                         // TODO: handle exception
+                        Gdx.app.error("Exception", e.getMessage());
+                        e.printStackTrace();
                     }
                 }
             });
@@ -135,6 +137,8 @@ public class Retrieve extends Command implements Runnable {
             }
         } catch (Exception e) {
             // TODO: handle exception
+            Gdx.app.error("Exception", e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -144,7 +148,9 @@ public class Retrieve extends Command implements Runnable {
                 Files.delete(downloadTarget);
             }
             catch (Exception e) {
-                // TODO do something about it
+                // TODO: handle exception
+                Gdx.app.error("Exception", e.getMessage());
+                e.printStackTrace();
             }
 
             finish(false);

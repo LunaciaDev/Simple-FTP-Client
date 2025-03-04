@@ -25,7 +25,8 @@ public class FTPCommandTemplate extends Command implements Runnable {
         try {
             
         } catch (Exception e) {
-            // TODO: handle exception
+            Gdx.app.error("Exception", e.getMessage());
+            e.printStackTrace();
         }
     }
 

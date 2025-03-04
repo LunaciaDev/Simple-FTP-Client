@@ -82,6 +82,8 @@ public class List extends Command implements Runnable {
                         dataSocket.close();
                     } catch (Exception e) {
                         // TODO: handle exception
+                        Gdx.app.error("Exception", e.getMessage());
+                        e.printStackTrace();
                     }
                 }
             });
@@ -108,6 +110,8 @@ public class List extends Command implements Runnable {
 
         } catch (Exception e) {
             // TODO: handle exception
+            Gdx.app.error("Exception", e.getMessage());
+            e.printStackTrace();
         }
     }
 
