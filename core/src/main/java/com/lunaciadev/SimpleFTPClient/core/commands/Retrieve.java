@@ -64,6 +64,20 @@ public class Retrieve extends Command implements Runnable {
                     return;
             }
 
+            // set transfer mode to IMAGE (keep the file as-is during transfer)
+            socketWriter.write("TYPE I\r\n");
+            socketWriter.flush();
+            response = parseResponse(socketListener.readLine());
+
+            switch (response[0].charAt(0)) {
+                case '2':
+                    break;
+
+                default:
+                    checkResult(false);
+                    return;
+            }
+
             // prepare the listener before sending the command.
             dataService.submit(new Runnable() {
                 @Override
