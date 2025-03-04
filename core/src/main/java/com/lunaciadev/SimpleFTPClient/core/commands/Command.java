@@ -1,8 +1,6 @@
-package com.lunaciadev.SimpleFTPClient.utils;
+package com.lunaciadev.SimpleFTPClient.core.commands;
 
-public class ControlResponseHandler {
-    public ControlResponseHandler controlResponseHandler;
-
+public class Command {
     /**
      * Break down a response to 2 part: it's code and message.
      * 

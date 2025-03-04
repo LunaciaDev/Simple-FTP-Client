@@ -9,6 +9,7 @@ import java.util.concurrent.Executors;
 import com.lunaciadev.SimpleFTPClient.core.commands.Account;
 import com.lunaciadev.SimpleFTPClient.core.commands.Authenticate;
 import com.lunaciadev.SimpleFTPClient.core.commands.Connect;
+import com.lunaciadev.SimpleFTPClient.core.commands.Quit;
 import com.lunaciadev.SimpleFTPClient.utils.Signal;
 
 /**
@@ -46,6 +47,13 @@ public class FTP {
      * @param result {@link Boolean} {@code True} if the authentication is successful, {@code False} otherwise.
      */
     public Signal sendAccountCompleted = new Signal();
+
+    /**
+     * Signal sent when {@link FTP#quit()} finished.
+     * 
+     * @param result {@link Boolean} {@code True} if the command is successful, {@code False} otherwise.
+     */
+    public Signal quitCompleted = new Signal();
 
     public FTP() {
         service = Executors.newSingleThreadExecutor();
@@ -110,5 +118,26 @@ public class FTP {
 
     private void sentAccountCallback(Object... args) {
         sendAccountCompleted.emit(args);
+    }
+
+    public void quit() {
+        Quit task = new Quit(socketListener, socketWriter);
+        task.completed.connect(this::quitCallback);
+        service.submit(task);
+    }
+
+    private void quitCallback(Object... args) {
+        if (!(boolean) args[0]) {
+            quitCompleted.emit(false);
+            return;
+        }
+
+        try {
+            controlSocket.close();
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
+
+        quitCompleted.emit(true);
     }
 }

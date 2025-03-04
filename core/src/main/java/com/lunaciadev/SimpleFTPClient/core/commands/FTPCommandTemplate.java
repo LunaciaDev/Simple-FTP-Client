@@ -6,7 +6,7 @@ import java.io.BufferedWriter;
 import com.badlogic.gdx.Gdx;
 import com.lunaciadev.SimpleFTPClient.utils.Signal;
 
-public class FTPCommandTemplate implements Runnable{
+public class FTPCommandTemplate extends Command implements Runnable {
     private BufferedReader socketListener;
     private BufferedWriter socketWriter;
 
@@ -22,7 +22,11 @@ public class FTPCommandTemplate implements Runnable{
 
     @Override
     public void run() {
-        
+        try {
+            
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
     }
 
     private void finish() {

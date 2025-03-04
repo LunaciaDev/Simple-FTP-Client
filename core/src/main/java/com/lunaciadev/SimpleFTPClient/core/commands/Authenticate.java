@@ -4,13 +4,11 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 
 import com.badlogic.gdx.Gdx;
-import com.lunaciadev.SimpleFTPClient.utils.ControlResponseHandler;
 import com.lunaciadev.SimpleFTPClient.utils.Signal;
 
-public class Authenticate implements Runnable {
+public class Authenticate extends Command implements Runnable {
     private BufferedReader socketListener;
     private BufferedWriter socketWriter;
-    private ControlResponseHandler handler;
 
     private String username, password;
 
@@ -21,7 +19,6 @@ public class Authenticate implements Runnable {
         this.socketWriter = socketWriter;
         this.username = username;
         this.password = password;
-        handler = new ControlResponseHandler();
     }
 
     @Override
@@ -31,7 +28,7 @@ public class Authenticate implements Runnable {
         try {
             socketWriter.write(String.format("USER %s\r\n", username));
             socketWriter.flush();
-            response = handler.handleResponse(socketListener.readLine());
+            response = handleResponse(socketListener.readLine());
 
             switch (response[0].charAt(0)) {
                 case '2':
@@ -51,7 +48,7 @@ public class Authenticate implements Runnable {
             // Need password now.
             socketWriter.write(String.format("PASS %s\r\n", password));
             socketWriter.flush();
-            response = handler.handleResponse(socketListener.readLine());
+            response = handleResponse(socketListener.readLine());
 
             switch (response[0].charAt(0)) {
                 case '2':
