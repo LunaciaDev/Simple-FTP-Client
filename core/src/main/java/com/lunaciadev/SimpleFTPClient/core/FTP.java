@@ -9,6 +9,7 @@ import java.util.concurrent.Executors;
 import com.lunaciadev.SimpleFTPClient.core.commands.Account;
 import com.lunaciadev.SimpleFTPClient.core.commands.Authenticate;
 import com.lunaciadev.SimpleFTPClient.core.commands.Connect;
+import com.lunaciadev.SimpleFTPClient.core.commands.List;
 import com.lunaciadev.SimpleFTPClient.core.commands.Quit;
 import com.lunaciadev.SimpleFTPClient.utils.Signal;
 
@@ -19,7 +20,8 @@ import com.lunaciadev.SimpleFTPClient.utils.Signal;
  */
 
 public class FTP {
-    private ExecutorService service;
+    private ExecutorService controlService;
+    private ExecutorService dataService;
     
     private Socket controlSocket;
     private BufferedReader socketListener;
@@ -55,8 +57,17 @@ public class FTP {
      */
     public Signal quitCompleted = new Signal();
 
+    /**
+     * Signal sent when {@link FTP#list()} finished
+     * 
+     * @param status {@link Boolean} {@code True} if the command is successful, {@code False} otherwise.
+     * @param payload {@link String} the result.
+     */
+    public Signal listCompleted = new Signal();
+
     public FTP() {
-        service = Executors.newSingleThreadExecutor();
+        controlService = Executors.newSingleThreadExecutor();
+        dataService = Executors.newSingleThreadExecutor();
     }
 
     /**
@@ -73,7 +84,7 @@ public class FTP {
         Connect task = new Connect(ftpServer, port);
         task.completed.connect(this::connectCallback);
 
-        service.submit(task);
+        controlService.submit(task);
     }
 
     private void connectCallback(Object... args) {
@@ -98,7 +109,7 @@ public class FTP {
     public void authenticate(String username, String password) {
         Authenticate task = new Authenticate(socketListener, socketWriter, username, password);
         task.completed.connect(this::authenticateCallback);
-        service.submit(task);
+        controlService.submit(task);
     }
 
     private void authenticateCallback(Object... args) {
@@ -113,17 +124,20 @@ public class FTP {
     public void sendAccount(String account) {
         Account task = new Account(socketListener, socketWriter, account);
         task.completed.connect(this::sentAccountCallback);
-        service.submit(task);
+        controlService.submit(task);
     }
 
     private void sentAccountCallback(Object... args) {
         sendAccountCompleted.emit(args);
     }
 
+    /**
+     * Log out from the FTP Server.
+     */
     public void quit() {
         Quit task = new Quit(socketListener, socketWriter);
         task.completed.connect(this::quitCallback);
-        service.submit(task);
+        controlService.submit(task);
     }
 
     private void quitCallback(Object... args) {
@@ -139,5 +153,18 @@ public class FTP {
         }
 
         quitCompleted.emit(true);
+    }
+
+    /**
+     * Since this is baked list command for the ui, we can just simply call LIST without any argument as we only have to show the current directory.
+     */
+    public void list() {
+        List task = new List(socketListener, socketWriter, dataService);
+        task.completed.connect(this::listCallback);
+        controlService.submit(task);
+    }
+
+    private void listCallback(Object... args) {
+        listCompleted.emit(args);
     }
 }

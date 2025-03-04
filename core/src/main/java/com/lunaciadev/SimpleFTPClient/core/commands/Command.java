@@ -10,4 +10,11 @@ public class Command {
     public String[] handleResponse(String response) {
         return response.strip().split(" ", 1);
     }
+
+    public String[] parsePasvResponse(String response) {
+        String[] temp = response.strip().split(" ");
+        temp = temp[temp.length - 1].replaceFirst("\\(", "").replaceFirst("\\)", "").replaceFirst("\\.", "").split(",");
+
+        return temp;
+    }
 }
