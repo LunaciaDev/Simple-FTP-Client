@@ -109,6 +109,6 @@ public class FTP {
     }
 
     private void sentAccountCallback(Object... args) {
-
+        sendAccountCompleted.emit(args);
     }
 }
