@@ -55,16 +55,18 @@ public class List extends Command implements Runnable {
                 @Override
                 public void run() {
                     try {
-                        Socket dataSocket = new Socket(String.join(".", addr[0], addr[1], addr[2], addr[3]), Integer.parseInt(addr[4]) << 8 + Integer.parseInt(addr[5]));
+                        Socket dataSocket = new Socket(String.join(".", addr[0], addr[1], addr[2], addr[3]), Integer.parseInt(addr[4]) * 256 + Integer.parseInt(addr[5]));
                         BufferedReader dataReader = new BufferedReader(new InputStreamReader(dataSocket.getInputStream()));
                         StringBuilder response = new StringBuilder();
                         String temp;
 
                         while (!allDataReceived) {
                             while ((temp = dataReader.readLine()) != null) {
-                                response.append(temp);
+                                response.append(temp).append("\n");
                             }
                         }
+
+                        response.setLength(response.length() - 1);
 
                         final String result = response.toString();
 

@@ -25,7 +25,7 @@ public class Quit extends Command implements Runnable {
         String[] response;
 
         try {
-            socketWriter.write("QUIT");
+            socketWriter.write("QUIT\r\n");
             socketWriter.flush();
             response = handleResponse(socketListener.readLine());
 
