@@ -28,7 +28,7 @@ public class Authenticate extends Command implements Runnable {
         try {
             socketWriter.write(String.format("USER %s\r\n", username));
             socketWriter.flush();
-            response = handleResponse(socketListener.readLine());
+            response = parseResponse(socketListener.readLine());
 
             switch (response[0].charAt(0)) {
                 case '2':
@@ -48,7 +48,7 @@ public class Authenticate extends Command implements Runnable {
             // Need password now.
             socketWriter.write(String.format("PASS %s\r\n", password));
             socketWriter.flush();
-            response = handleResponse(socketListener.readLine());
+            response = parseResponse(socketListener.readLine());
 
             switch (response[0].charAt(0)) {
                 case '2':

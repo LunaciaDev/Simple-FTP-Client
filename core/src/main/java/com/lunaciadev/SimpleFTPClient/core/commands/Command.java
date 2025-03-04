@@ -7,7 +7,7 @@ public class Command {
      * @param response The server's response.
      * @return 2 string. The first is the code, the second is the message.
      */
-    public String[] handleResponse(String response) {
+    public String[] parseResponse(String response) {
         return response.strip().split(" ", 2);
     }
 

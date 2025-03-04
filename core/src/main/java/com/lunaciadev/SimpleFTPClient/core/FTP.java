@@ -11,6 +11,7 @@ import com.lunaciadev.SimpleFTPClient.core.commands.Authenticate;
 import com.lunaciadev.SimpleFTPClient.core.commands.Connect;
 import com.lunaciadev.SimpleFTPClient.core.commands.List;
 import com.lunaciadev.SimpleFTPClient.core.commands.Quit;
+import com.lunaciadev.SimpleFTPClient.core.commands.Retrieve;
 import com.lunaciadev.SimpleFTPClient.utils.Signal;
 
 /**
@@ -64,6 +65,13 @@ public class FTP {
      * @param payload {@link String} the result.
      */
     public Signal listCompleted = new Signal();
+
+    /**
+     * Signal sent when {@link FTP#retrieve(String, String)} finished.
+     * 
+     * @param result {@link Boolean} {@code True} if the command is successful, {@code False} otherwise.
+     */
+    public Signal retrieveCompleted = new Signal();
 
     public FTP() {
         controlService = Executors.newSingleThreadExecutor();
@@ -166,5 +174,21 @@ public class FTP {
 
     private void listCallback(Object... args) {
         listCompleted.emit(args);
+    }
+    
+    /**
+     * Retrieve a file from the FTP Server.
+     * 
+     * @param fileName The name of the file.
+     * @param localCWD The current working directory of the client.
+     */
+    public void retrieve(String fileName, String localCWD) {
+        Retrieve task = new Retrieve(socketListener, socketWriter, fileName, localCWD);
+        task.completed.connect(this::retrieveCallback);
+        controlService.submit(task);
+    }
+
+    private void retrieveCallback(Object... args) {
+        retrieveCompleted.emit(args);
     }
 }

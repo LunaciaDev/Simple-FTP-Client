@@ -27,7 +27,7 @@ public class Account extends Command implements Runnable {
         try {
             socketWriter.write(String.format("USER %s\r\n", account));
             socketWriter.flush();
-            response = handleResponse(socketListener.readLine());
+            response = parseResponse(socketListener.readLine());
 
             switch (response[0].charAt(0)) {
                 case '2':
