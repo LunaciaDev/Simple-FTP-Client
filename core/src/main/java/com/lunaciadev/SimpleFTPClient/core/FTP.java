@@ -6,8 +6,9 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import com.lunaciadev.SimpleFTPClient.core.commands.FTPAuthenticate;
-import com.lunaciadev.SimpleFTPClient.core.commands.FTPConnect;
+import com.lunaciadev.SimpleFTPClient.core.commands.Account;
+import com.lunaciadev.SimpleFTPClient.core.commands.Authenticate;
+import com.lunaciadev.SimpleFTPClient.core.commands.Connect;
 import com.lunaciadev.SimpleFTPClient.utils.Signal;
 
 /**
@@ -39,6 +40,13 @@ public class FTP {
      */
     public Signal authenticateCompleted = new Signal();
 
+    /**
+     * Signal sent when {@link FTP#sendAccount(String)} finished.
+     * 
+     * @param result {@link Boolean} {@code True} if the authentication is successful, {@code False} otherwise.
+     */
+    public Signal sendAccountCompleted = new Signal();
+
     public FTP() {
         service = Executors.newSingleThreadExecutor();
     }
@@ -54,7 +62,7 @@ public class FTP {
             port = 21;
         }
 
-        FTPConnect task = new FTPConnect(ftpServer, port);
+        Connect task = new Connect(ftpServer, port);
         task.completed.connect(this::connectCallback);
 
         service.submit(task);
@@ -80,11 +88,27 @@ public class FTP {
      * @param password
      */
     public void authenticate(String username, String password) {
-        FTPAuthenticate task = new FTPAuthenticate(socketListener, socketWriter, username, password);
+        Authenticate task = new Authenticate(socketListener, socketWriter, username, password);
         task.completed.connect(this::authenticateCallback);
+        service.submit(task);
     }
 
     private void authenticateCallback(Object... args) {
         authenticateCompleted.emit(args);
+    }
+
+    /**
+     * Send account information to the FTP Server. Only needed if {@link FTP#authenticate(String, String)} requires.
+     * 
+     * @param account
+     */
+    public void sendAccount(String account) {
+        Account task = new Account(socketListener, socketWriter, account);
+        task.completed.connect(this::sentAccountCallback);
+        service.submit(task);
+    }
+
+    private void sentAccountCallback(Object... args) {
+
     }
 }

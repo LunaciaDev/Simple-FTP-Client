@@ -7,18 +7,16 @@ import com.badlogic.gdx.Gdx;
 import com.lunaciadev.SimpleFTPClient.utils.ControlResponseHandler;
 import com.lunaciadev.SimpleFTPClient.utils.Signal;
 
-public class FTPAuthenticate implements Runnable {
+public class Authenticate implements Runnable {
     private BufferedReader socketListener;
     private BufferedWriter socketWriter;
-    private String username, password;
     private ControlResponseHandler handler;
 
-    /**
-     * 
-     */
+    private String username, password;
+
     public Signal completed = new Signal();
 
-    public FTPAuthenticate(BufferedReader socketListener, BufferedWriter socketWriter, String username, String password) {
+    public Authenticate(BufferedReader socketListener, BufferedWriter socketWriter, String username, String password) {
         this.socketListener = socketListener;
         this.socketWriter = socketWriter;
         this.username = username;

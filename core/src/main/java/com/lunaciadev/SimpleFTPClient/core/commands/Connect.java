@@ -9,7 +9,7 @@ import java.net.Socket;
 import com.badlogic.gdx.Gdx;
 import com.lunaciadev.SimpleFTPClient.utils.Signal;
 
-public class FTPConnect implements Runnable {
+public class Connect implements Runnable {
     private String server;
     private Integer port;
 
@@ -24,7 +24,7 @@ public class FTPConnect implements Runnable {
      */
     public Signal completed = new Signal();
 
-    public FTPConnect(String server, Integer port) {
+    public Connect(String server, Integer port) {
         this.server = server;
         this.port = port;
     }
