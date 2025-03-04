@@ -6,6 +6,7 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.lunaciadev.SimpleFTPClient.core.commands.FTPAuthenticate;
 import com.lunaciadev.SimpleFTPClient.core.commands.FTPConnect;
 import com.lunaciadev.SimpleFTPClient.utils.Signal;
 
@@ -28,7 +29,15 @@ public class FTP {
      * @param result {@link Boolean} {@code True} if the connection is successful, {@code False} otherwise
      * @param message {@link String} The error message, if any.
      */
-    private Signal connectCompleted = new Signal();
+    public Signal connectCompleted = new Signal();
+
+    /**
+     * Signal sent when {@link FTP#authenticate(String, String)} finished.
+     * 
+     * @param result {@link Boolean} {@code True} if the authentication is successful. If {@code False}, check the next field.
+     * @param accountNeeded {@link Boolean} if {@code True}, need account to finish authentication. Otherwise, the username/password was rejected.
+     */
+    public Signal authenticateCompleted = new Signal();
 
     public FTP() {
         service = Executors.newSingleThreadExecutor();
@@ -62,5 +71,20 @@ public class FTP {
         socketWriter = (BufferedWriter) args[3];
 
         connectCompleted.emit(true, args[4]);
+    }
+
+    /**
+     * Authenticate to the FTP Server. The UI should not call this if not connected.
+     * 
+     * @param username
+     * @param password
+     */
+    public void authenticate(String username, String password) {
+        FTPAuthenticate task = new FTPAuthenticate(socketListener, socketWriter, username, password);
+        task.completed.connect(this::authenticateCallback);
+    }
+
+    private void authenticateCallback(Object... args) {
+        authenticateCompleted.emit(args);
     }
 }
