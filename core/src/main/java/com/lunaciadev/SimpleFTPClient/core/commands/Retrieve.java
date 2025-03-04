@@ -7,7 +7,7 @@ import java.io.BufferedWriter;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
+import java.nio.file.StandardCopyOption;
 import java.util.concurrent.ExecutorService;
 
 import com.badlogic.gdx.Gdx;
@@ -19,6 +19,7 @@ public class Retrieve extends Command implements Runnable {
     private ExecutorService dataService;
     private volatile boolean allDataReceived = false;
     private boolean malformedData = false;
+    private Path downloadTarget;
 
     private String fileName;
     private String localCWD;
@@ -43,12 +44,11 @@ public class Retrieve extends Command implements Runnable {
          * Current implementation download the file from scratch.
          */
 
-        Path downloadTarget = Path.of(localCWD + fileName + ".tmp");
+        downloadTarget = Path.of(localCWD + fileName + ".tmp");
         String[] response;
         String[] addr;
 
-        try (BufferedOutputStream out = new BufferedOutputStream(Files.newOutputStream(downloadTarget,
-                StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING));) {
+        try (BufferedOutputStream out = new BufferedOutputStream(Files.newOutputStream(downloadTarget));) {
 
             socketWriter.write("PASV\r\n");
             socketWriter.flush();
@@ -97,6 +97,9 @@ public class Retrieve extends Command implements Runnable {
                             }
                         }
 
+                        Path finalFile = Path.of(localCWD, fileName);
+                        Files.move(downloadTarget, finalFile, StandardCopyOption.REPLACE_EXISTING);
+
                         Gdx.app.postRunnable(new Runnable() {
                             @Override
                             public void run() {
@@ -136,10 +139,19 @@ public class Retrieve extends Command implements Runnable {
     }
 
     private void checkResult(boolean status) {
-        if (malformedData)
+        if (malformedData) {
+            try {
+                Files.delete(downloadTarget);
+            }
+            catch (Exception e) {
+                // TODO do something about it
+            }
+
             finish(false);
-        else
+        }
+        else {
             finish(status);
+        }
     }
 
     private void finish(boolean status) {
