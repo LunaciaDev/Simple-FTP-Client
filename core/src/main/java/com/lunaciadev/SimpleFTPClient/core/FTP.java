@@ -113,7 +113,8 @@ public class FTP {
                 break;
             
             case ACCT:
-
+                login_handleAcctCommand(responseCode, responseString);
+                break;
         }
     }
 
@@ -237,11 +238,15 @@ public class FTP {
             case '4':
             case '5':
                 login_attemptFinished.emit(false, responseString);
+                break;
 
             case '2':
                 login_attemptFinished.emit(true, responseString);
+                break;
         }
     }
+
+    /******  ******/
 }
 
 /* TEMPLATE for command response handler, we will be writing these for a long while. Cannot template javadocs, good luck future me.
