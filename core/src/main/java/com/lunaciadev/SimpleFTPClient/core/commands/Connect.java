@@ -36,6 +36,9 @@ public class Connect implements Runnable {
             final BufferedReader socketReader = new BufferedReader(new InputStreamReader(controlSocket.getInputStream()));
             final BufferedWriter socketWriter = new BufferedWriter(new OutputStreamWriter(controlSocket.getOutputStream()));
 
+            // remove the welcome message.
+            socketReader.readLine();
+
             Gdx.app.postRunnable(new Runnable() {
                 @Override
                 public void run() {

@@ -37,7 +37,7 @@ public class List extends Command implements Runnable {
         String[] addr;
 
         try {
-            socketWriter.write("PASV");
+            socketWriter.write("PASV\r\n");
             socketWriter.flush();
             response = handleResponse(socketListener.readLine());
 
@@ -82,6 +82,8 @@ public class List extends Command implements Runnable {
                 }
             });
 
+            socketWriter.write("LIST\r\n");
+            socketWriter.flush();
             while (true) {
                 response = handleResponse(socketListener.readLine());
 

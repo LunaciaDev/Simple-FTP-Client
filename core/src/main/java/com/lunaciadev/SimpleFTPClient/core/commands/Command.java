@@ -8,7 +8,7 @@ public class Command {
      * @return 2 string. The first is the code, the second is the message.
      */
     public String[] handleResponse(String response) {
-        return response.strip().split(" ", 1);
+        return response.strip().split(" ", 2);
     }
 
     public String[] parsePasvResponse(String response) {
