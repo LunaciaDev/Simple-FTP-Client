@@ -6,6 +6,7 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import com.badlogic.gdx.Gdx;
 import com.lunaciadev.SimpleFTPClient.core.commands.Account;
 import com.lunaciadev.SimpleFTPClient.core.commands.Authenticate;
 import com.lunaciadev.SimpleFTPClient.core.commands.Connect;
@@ -158,6 +159,8 @@ public class FTP {
             controlSocket.close();
         } catch (Exception e) {
             // TODO: handle exception
+            Gdx.app.error("Exception", e.getMessage());
+            e.printStackTrace();
         }
 
         quitCompleted.emit(true);
