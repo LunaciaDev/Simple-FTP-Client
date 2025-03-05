@@ -46,18 +46,27 @@ public class Retrieve extends Command implements Runnable {
          */
 
         downloadTarget = Path.of(localCWD + fileName + ".tmp");
-        String[] response;
+        String[] parsedResponse;
         String[] addr;
 
         try (BufferedOutputStream out = new BufferedOutputStream(Files.newOutputStream(downloadTarget));) {
-
             socketWriter.write("PASV\r\n");
             socketWriter.flush();
-            response = parseResponse(socketListener.readLine());
 
-            switch (response[0].charAt(0)) {
+            final String pasvResponse = socketListener.readLine();
+
+            Gdx.app.postRunnable(new Runnable() {
+                @Override
+                public void run() {
+                    ftpControlReceived.emit(pasvResponse);
+                }
+            });
+
+            parsedResponse = parseResponse(pasvResponse);
+
+            switch (parsedResponse[0].charAt(0)) {
                 case '2':
-                    addr = parsePasvResponse(response[1]);
+                    addr = parsePasvResponse(parsedResponse[1]);
                     break;
 
                 default:
@@ -68,9 +77,19 @@ public class Retrieve extends Command implements Runnable {
             // set transfer mode to IMAGE (keep the file as-is during transfer)
             socketWriter.write("TYPE I\r\n");
             socketWriter.flush();
-            response = parseResponse(socketListener.readLine());
 
-            switch (response[0].charAt(0)) {
+            final String typeResponse = socketListener.readLine();
+
+            Gdx.app.postRunnable(new Runnable() {
+                @Override
+                public void run() {
+                    ftpControlReceived.emit(typeResponse);
+                }
+            });
+
+            parsedResponse = parseResponse(typeResponse);
+
+            switch (parsedResponse[0].charAt(0)) {
                 case '2':
                     break;
 
@@ -120,9 +139,17 @@ public class Retrieve extends Command implements Runnable {
             socketWriter.write(String.format("RETR %s\r\n", fileName));
             socketWriter.flush();
             while (true) {
-                response = parseResponse(socketListener.readLine());
+                final String retrResponse = socketListener.readLine();
 
-                switch (response[0].charAt(0)) {
+                Gdx.app.postRunnable(new Runnable() {
+                    @Override
+                    public void run() {
+                        ftpControlReceived.emit(retrResponse);
+                    }
+                });
+                parsedResponse = parseResponse(retrResponse);
+
+                switch (parsedResponse[0].charAt(0)) {
                     case '2':
                         allDataReceived = true;
                         return;

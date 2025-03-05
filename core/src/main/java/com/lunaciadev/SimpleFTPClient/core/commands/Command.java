@@ -1,6 +1,10 @@
 package com.lunaciadev.SimpleFTPClient.core.commands;
 
+import com.lunaciadev.SimpleFTPClient.utils.Signal;
+
 public class Command {
+    public Signal ftpControlReceived = new Signal();
+
     /**
      * Break down a response to 2 part: it's code and message.
      * 

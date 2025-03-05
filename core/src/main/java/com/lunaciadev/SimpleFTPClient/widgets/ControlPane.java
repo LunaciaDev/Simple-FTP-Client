@@ -4,6 +4,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
 import com.badlogic.gdx.scenes.scene2d.ui.HorizontalGroup;
+import com.lunaciadev.SimpleFTPClient.core.FTPClient;
 import com.lunaciadev.SimpleFTPClient.data.DataPackage;
 import com.lunaciadev.SimpleFTPClient.utils.Signal;
 
@@ -24,6 +25,13 @@ public class ControlPane {
      * @param isConnect {@link Boolean} Asking for a connection or disconnection.
      */
     public Signal connectButtonClicked = new Signal();
+
+    /**
+     * Emitted when the disconnect button is clicked.
+     * 
+     * @param isConnect {@link Boolean} Asking for a connection or disconnection.
+     */
+    public Signal disconnectButtonClicked = new Signal();
 
     /**
      * Emitted when the refresh button is clicked.
@@ -97,7 +105,7 @@ public class ControlPane {
     }
 
     /**
-     * Slot, signal TBA
+     * Slot, connected to {@link FTPClient#connectCompleted}
      */
     public void onConnectStatusUpdate(Object... args) {
         if ((boolean) args[0]) {

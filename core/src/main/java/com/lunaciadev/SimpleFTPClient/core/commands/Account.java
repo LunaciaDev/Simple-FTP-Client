@@ -22,14 +22,24 @@ public class Account extends Command implements Runnable {
 
     @Override
     public void run() {
-        String[] response;
+        String[] parsedResponse;
 
         try {
             socketWriter.write(String.format("USER %s\r\n", account));
             socketWriter.flush();
-            response = parseResponse(socketListener.readLine());
+            
+            final String response = socketListener.readLine();
 
-            switch (response[0].charAt(0)) {
+            parsedResponse = parseResponse(socketListener.readLine());
+
+            Gdx.app.postRunnable(new Runnable() {
+                @Override
+                public void run() {
+                    ftpControlReceived.emit(response);
+                }
+            });
+
+            switch (parsedResponse[0].charAt(0)) {
                 case '2':
                     finish(true);
                     return;

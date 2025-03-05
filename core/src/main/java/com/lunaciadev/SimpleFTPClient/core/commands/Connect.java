@@ -9,7 +9,7 @@ import java.net.Socket;
 import com.badlogic.gdx.Gdx;
 import com.lunaciadev.SimpleFTPClient.utils.Signal;
 
-public class Connect implements Runnable {
+public class Connect extends Command implements Runnable {
     private String server;
     private Integer port;
 
@@ -37,11 +37,12 @@ public class Connect implements Runnable {
             final BufferedWriter socketWriter = new BufferedWriter(new OutputStreamWriter(controlSocket.getOutputStream()));
 
             // remove the welcome message.
-            socketReader.readLine();
+            final String response = socketReader.readLine();
 
             Gdx.app.postRunnable(new Runnable() {
                 @Override
                 public void run() {
+                    ftpControlReceived.emit(response);
                     completed.emit(true, controlSocket, socketReader, socketWriter, "");
                 }
             });

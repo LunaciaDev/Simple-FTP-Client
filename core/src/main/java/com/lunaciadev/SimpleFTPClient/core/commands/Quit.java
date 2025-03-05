@@ -22,14 +22,24 @@ public class Quit extends Command implements Runnable {
 
     @Override
     public void run() {
-        String[] response;
+        String[] parsedResponse;
 
         try {
             socketWriter.write("QUIT\r\n");
             socketWriter.flush();
-            response = parseResponse(socketListener.readLine());
 
-            switch (response[0].charAt(0)) {
+            final String quitResponse = socketListener.readLine();
+
+            Gdx.app.postRunnable(new Runnable() {
+                @Override
+                public void run() {
+                    ftpControlReceived.emit(quitResponse);
+                }
+            });
+
+            parsedResponse = parseResponse(quitResponse);
+
+            switch (parsedResponse[0].charAt(0)) {
                 case '2':
                     finish(true);
                     break;

@@ -23,14 +23,24 @@ public class Login extends Command implements Runnable {
 
     @Override
     public void run() {
-        String[] response;
+        String[] parsedResponse;
 
         try {
             socketWriter.write(String.format("USER %s\r\n", username));
             socketWriter.flush();
-            response = parseResponse(socketListener.readLine());
 
-            switch (response[0].charAt(0)) {
+            final String userResponse = socketListener.readLine();
+
+            Gdx.app.postRunnable(new Runnable() {
+                @Override
+                public void run() {
+                    ftpControlReceived.emit(userResponse);
+                }
+            });
+
+            parsedResponse = parseResponse(userResponse);
+
+            switch (parsedResponse[0].charAt(0)) {
                 case '2':
                     finish(true, false);
                     return;
@@ -48,9 +58,19 @@ public class Login extends Command implements Runnable {
             // Need password now.
             socketWriter.write(String.format("PASS %s\r\n", password));
             socketWriter.flush();
-            response = parseResponse(socketListener.readLine());
 
-            switch (response[0].charAt(0)) {
+            final String passResponse = socketListener.readLine();
+
+            Gdx.app.postRunnable(new Runnable() {
+                @Override
+                public void run() {
+                    ftpControlReceived.emit(passResponse);
+                }
+            });
+
+            parsedResponse = parseResponse(passResponse);
+
+            switch (parsedResponse[0].charAt(0)) {
                 case '2':
                     finish(true, false);
                     return;

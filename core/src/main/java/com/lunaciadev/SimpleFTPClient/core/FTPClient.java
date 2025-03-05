@@ -30,6 +30,8 @@ public class FTPClient {
     private BufferedReader socketListener;
     private BufferedWriter socketWriter;
 
+    /****** SIGNALS *****/
+
     /**
      * Signal sent when {@link FTPClient#connect(String, Integer)} finished.
      * 
@@ -82,6 +84,15 @@ public class FTPClient {
      */
     public Signal storeCompleted = new Signal();
 
+    /**
+     * Emitted when any command receive an FTP Control Response.
+     * 
+     * @param response {@link String} The response.
+     */
+    public Signal ftpControlResponse = new Signal();
+
+    /****** END SIGNAL REGION ******/
+
     public FTPClient() {
         controlService = Executors.newSingleThreadExecutor();
         dataService = Executors.newSingleThreadExecutor();
@@ -99,12 +110,12 @@ public class FTPClient {
         }
 
         Connect task = new Connect(ftpServer, port);
-        task.completed.connect(this::connectCallback);
-
+        task.completed.connect(this::onConnectCompleted);
+        task.ftpControlReceived.connect(this::onFTPControlReceived);
         controlService.submit(task);
     }
 
-    private void connectCallback(Object... args) {
+    private void onConnectCompleted(Object... args) {
         if (!(boolean) args[0]) {
             connectCompleted.emit(false, args[4]);
             return;
@@ -125,11 +136,12 @@ public class FTPClient {
      */
     public void login(String username, String password) {
         Login task = new Login(socketListener, socketWriter, username, password);
-        task.completed.connect(this::authenticateCallback);
+        task.completed.connect(this::onLoginCompleted);
+        task.ftpControlReceived.connect(this::onFTPControlReceived);
         controlService.submit(task);
     }
 
-    private void authenticateCallback(Object... args) {
+    private void onLoginCompleted(Object... args) {
         loginCompleted.emit(args);
     }
 
@@ -140,24 +152,26 @@ public class FTPClient {
      */
     public void sendAccount(String account) {
         Account task = new Account(socketListener, socketWriter, account);
-        task.completed.connect(this::sentAccountCallback);
+        task.completed.connect(this::onSendAccountCompleted);
+        task.ftpControlReceived.connect(this::onFTPControlReceived);
         controlService.submit(task);
     }
 
-    private void sentAccountCallback(Object... args) {
+    private void onSendAccountCompleted(Object... args) {
         sendAccountCompleted.emit(args);
     }
 
     /**
      * Log out from the FTP Server.
      */
-    public void quit() {
+    public void quit(Object... args) {
         Quit task = new Quit(socketListener, socketWriter);
-        task.completed.connect(this::quitCallback);
+        task.completed.connect(this::onQuitCompleted);
+        task.ftpControlReceived.connect(this::onFTPControlReceived);
         controlService.submit(task);
     }
 
-    private void quitCallback(Object... args) {
+    private void onQuitCompleted(Object... args) {
         if (!(boolean) args[0]) {
             quitCompleted.emit(false);
             return;
@@ -177,13 +191,14 @@ public class FTPClient {
     /**
      * Since this is baked list command for the ui, we can just simply call LIST without any argument as we only have to show the current directory.
      */
-    public void list() {
+    public void list(Object... args) {
         List task = new List(socketListener, socketWriter, dataService);
-        task.completed.connect(this::listCallback);
+        task.completed.connect(this::onListCompleted);
+        task.ftpControlReceived.connect(this::onFTPControlReceived);
         controlService.submit(task);
     }
 
-    private void listCallback(Object... args) {
+    private void onListCompleted(Object... args) {
         listCompleted.emit(args);
     }
     
@@ -195,11 +210,12 @@ public class FTPClient {
      */
     public void retrieve(String fileName, String localCWD) {
         Retrieve task = new Retrieve(socketListener, socketWriter, fileName, localCWD, dataService);
-        task.completed.connect(this::retrieveCallback);
+        task.completed.connect(this::onRetrieveCompleted);
+        task.ftpControlReceived.connect(this::onFTPControlReceived);
         controlService.submit(task);
     }
 
-    private void retrieveCallback(Object... args) {
+    private void onRetrieveCompleted(Object... args) {
         retrieveCompleted.emit(args);
     }
 
@@ -211,11 +227,16 @@ public class FTPClient {
      */
     public void store(String fileName, String localCWD) {
         Store task = new Store(socketListener, socketWriter, fileName, localCWD, dataService);
-        task.completed.connect(this::storeCallback);
+        task.completed.connect(this::onStoreCompleted);
+        task.ftpControlReceived.connect(this::onFTPControlReceived);
         controlService.submit(task);
     }
 
-    public void storeCallback(Object... args) {
+    private void onStoreCompleted(Object... args) {
         storeCompleted.emit(args);
+    }
+
+    private void onFTPControlReceived(Object... args) {
+        ftpControlResponse.emit(args);
     }
 }

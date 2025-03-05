@@ -34,6 +34,13 @@ public class MainScreen implements Screen {
 
         this.ftpClient = new FTPClient();
 
+        controlPane.disconnectButtonClicked.connect(ftpClient::quit);
+        controlPane.refreshButtonClicked.connect(ftpClient::list);
+
+        ftpClient.listCompleted.connect(listOutput::addOutput);
+        ftpClient.connectCompleted.connect(controlPane::onConnectStatusUpdate);
+        ftpClient.ftpControlResponse.connect(socketOutput::addOutput);
+
         setLayout();
     }
 

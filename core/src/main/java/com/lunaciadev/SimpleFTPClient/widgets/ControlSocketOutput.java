@@ -3,6 +3,7 @@ package com.lunaciadev.SimpleFTPClient.widgets;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.utils.Queue;
+import com.lunaciadev.SimpleFTPClient.core.FTPClient;
 import com.lunaciadev.SimpleFTPClient.data.DataPackage;
 
 public class ControlSocketOutput {
@@ -27,13 +28,10 @@ public class ControlSocketOutput {
     }
 
     /**
-     * Add a string to the control output.
-     * One line at a time!
-     * 
-     * @param data
+     * Slot, connected to {@link FTPClient#ftpControlResponse}
      */
-    public void addOutput(String data) {
-        data = data.strip();
+    public void addOutput(Object... args) {
+        String data = ((String) args[0]);
 
         if (historySize < MAX_HIST_SIZE) {
             dataHistory.addLast(data);
