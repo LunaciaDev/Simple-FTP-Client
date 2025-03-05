@@ -13,6 +13,7 @@ import com.lunaciadev.SimpleFTPClient.core.commands.Connect;
 import com.lunaciadev.SimpleFTPClient.core.commands.List;
 import com.lunaciadev.SimpleFTPClient.core.commands.Quit;
 import com.lunaciadev.SimpleFTPClient.core.commands.Retrieve;
+import com.lunaciadev.SimpleFTPClient.core.commands.Store;
 import com.lunaciadev.SimpleFTPClient.utils.Signal;
 
 /**
@@ -73,6 +74,13 @@ public class FTP {
      * @param result {@link Boolean} {@code True} if the command is successful, {@code False} otherwise.
      */
     public Signal retrieveCompleted = new Signal();
+
+    /**
+     * Signal sent when {@link FTP#store(String, String)} finished.
+     * 
+     * @param result {@link Boolean} {@code True} if the command is successful, {@code False} otherwise.
+     */
+    public Signal storeCompleted = new Signal();
 
     public FTP() {
         controlService = Executors.newSingleThreadExecutor();
@@ -180,7 +188,7 @@ public class FTP {
     }
     
     /**
-     * Retrieve a file from the FTP Server.
+     * Download a file from the FTP Server
      * 
      * @param fileName The name of the file.
      * @param localCWD The current working directory of the client.
@@ -193,5 +201,21 @@ public class FTP {
 
     private void retrieveCallback(Object... args) {
         retrieveCompleted.emit(args);
+    }
+
+    /**
+     * Upload the file to the FTP Server
+     * 
+     * @param fileName The name of the file
+     * @param localCWD The current working directory of the client
+     */
+    public void store(String fileName, String localCWD) {
+        Store task = new Store(socketListener, socketWriter, fileName, localCWD, dataService);
+        task.completed.connect(this::storeCallback);
+        controlService.submit(task);
+    }
+
+    public void storeCallback(Object... args) {
+        storeCompleted.emit(args);
     }
 }

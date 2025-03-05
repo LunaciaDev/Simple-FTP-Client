@@ -23,9 +23,13 @@ public class Store extends Command implements Runnable {
     private String localCWD;
 
     public Signal completed = new Signal();
-    public Store(BufferedReader socketListener, BufferedWriter socketWriter) {
+
+    public Store(BufferedReader socketListener, BufferedWriter socketWriter, String fileName, String localCWD, ExecutorService service) {
         this.socketListener = socketListener;
         this.socketWriter = socketWriter;
+        this.fileName = fileName;
+        this.localCWD = localCWD;
+        this.dataService = service;
     }
 
     @Override
