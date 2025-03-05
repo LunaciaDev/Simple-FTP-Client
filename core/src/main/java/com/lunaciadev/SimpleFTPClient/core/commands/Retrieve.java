@@ -26,11 +26,12 @@ public class Retrieve extends Command implements Runnable {
 
     public Signal completed = new Signal();
 
-    public Retrieve(BufferedReader socketListener, BufferedWriter socketWriter, String fileName, String localCWD) {
+    public Retrieve(BufferedReader socketListener, BufferedWriter socketWriter, String fileName, String localCWD, ExecutorService service) {
         this.socketListener = socketListener;
         this.socketWriter = socketWriter;
         this.fileName = fileName;
         this.localCWD = localCWD;
+        this.dataService = service;
     }
 
     @Override

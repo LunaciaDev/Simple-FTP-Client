@@ -6,7 +6,7 @@ import java.io.BufferedWriter;
 import com.badlogic.gdx.Gdx;
 import com.lunaciadev.SimpleFTPClient.utils.Signal;
 
-public class Authenticate extends Command implements Runnable {
+public class Login extends Command implements Runnable {
     private BufferedReader socketListener;
     private BufferedWriter socketWriter;
 
@@ -14,7 +14,7 @@ public class Authenticate extends Command implements Runnable {
 
     public Signal completed = new Signal();
 
-    public Authenticate(BufferedReader socketListener, BufferedWriter socketWriter, String username, String password) {
+    public Login(BufferedReader socketListener, BufferedWriter socketWriter, String username, String password) {
         this.socketListener = socketListener;
         this.socketWriter = socketWriter;
         this.username = username;

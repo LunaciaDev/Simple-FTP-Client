@@ -8,7 +8,7 @@ import java.util.concurrent.Executors;
 
 import com.badlogic.gdx.Gdx;
 import com.lunaciadev.SimpleFTPClient.core.commands.Account;
-import com.lunaciadev.SimpleFTPClient.core.commands.Authenticate;
+import com.lunaciadev.SimpleFTPClient.core.commands.Login;
 import com.lunaciadev.SimpleFTPClient.core.commands.Connect;
 import com.lunaciadev.SimpleFTPClient.core.commands.List;
 import com.lunaciadev.SimpleFTPClient.core.commands.Quit;
@@ -39,12 +39,12 @@ public class FTP {
     public Signal connectCompleted = new Signal();
 
     /**
-     * Signal sent when {@link FTP#authenticate(String, String)} finished.
+     * Signal sent when {@link FTP#login(String, String)} finished.
      * 
      * @param result {@link Boolean} {@code True} if the authentication is successful. If {@code False}, check the next field.
      * @param accountNeeded {@link Boolean} if {@code True}, need account to finish authentication. Otherwise, the username/password was rejected.
      */
-    public Signal authenticateCompleted = new Signal();
+    public Signal loginCompleted = new Signal();
 
     /**
      * Signal sent when {@link FTP#sendAccount(String)} finished.
@@ -123,18 +123,18 @@ public class FTP {
      * @param username
      * @param password
      */
-    public void authenticate(String username, String password) {
-        Authenticate task = new Authenticate(socketListener, socketWriter, username, password);
+    public void login(String username, String password) {
+        Login task = new Login(socketListener, socketWriter, username, password);
         task.completed.connect(this::authenticateCallback);
         controlService.submit(task);
     }
 
     private void authenticateCallback(Object... args) {
-        authenticateCompleted.emit(args);
+        loginCompleted.emit(args);
     }
 
     /**
-     * Send account information to the FTP Server. Only needed if {@link FTP#authenticate(String, String)} requires.
+     * Send account information to the FTP Server. Only needed if {@link FTP#login(String, String)} requires.
      * 
      * @param account
      */
@@ -194,7 +194,7 @@ public class FTP {
      * @param localCWD The current working directory of the client.
      */
     public void retrieve(String fileName, String localCWD) {
-        Retrieve task = new Retrieve(socketListener, socketWriter, fileName, localCWD);
+        Retrieve task = new Retrieve(socketListener, socketWriter, fileName, localCWD, dataService);
         task.completed.connect(this::retrieveCallback);
         controlService.submit(task);
     }
