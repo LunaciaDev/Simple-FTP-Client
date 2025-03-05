@@ -22,7 +22,7 @@ import com.lunaciadev.SimpleFTPClient.utils.Signal;
  * Each command execution is pushed into a worker thread.
  */
 
-public class FTP {
+public class FTPClient {
     private ExecutorService controlService;
     private ExecutorService dataService;
     
@@ -31,7 +31,7 @@ public class FTP {
     private BufferedWriter socketWriter;
 
     /**
-     * Signal sent when {@link FTP#connect(String, Integer)} finished.
+     * Signal sent when {@link FTPClient#connect(String, Integer)} finished.
      * 
      * @param result {@link Boolean} {@code True} if the connection is successful, {@code False} otherwise
      * @param message {@link String} The error message, if any.
@@ -39,7 +39,7 @@ public class FTP {
     public Signal connectCompleted = new Signal();
 
     /**
-     * Signal sent when {@link FTP#login(String, String)} finished.
+     * Signal sent when {@link FTPClient#login(String, String)} finished.
      * 
      * @param result {@link Boolean} {@code True} if the authentication is successful. If {@code False}, check the next field.
      * @param accountNeeded {@link Boolean} if {@code True}, need account to finish authentication. Otherwise, the username/password was rejected.
@@ -47,21 +47,21 @@ public class FTP {
     public Signal loginCompleted = new Signal();
 
     /**
-     * Signal sent when {@link FTP#sendAccount(String)} finished.
+     * Signal sent when {@link FTPClient#sendAccount(String)} finished.
      * 
      * @param result {@link Boolean} {@code True} if the authentication is successful, {@code False} otherwise.
      */
     public Signal sendAccountCompleted = new Signal();
 
     /**
-     * Signal sent when {@link FTP#quit()} finished.
+     * Signal sent when {@link FTPClient#quit()} finished.
      * 
      * @param result {@link Boolean} {@code True} if the command is successful, {@code False} otherwise.
      */
     public Signal quitCompleted = new Signal();
 
     /**
-     * Signal sent when {@link FTP#list()} finished
+     * Signal sent when {@link FTPClient#list()} finished
      * 
      * @param status {@link Boolean} {@code True} if the command is successful, {@code False} otherwise.
      * @param payload {@link String} the result.
@@ -69,20 +69,20 @@ public class FTP {
     public Signal listCompleted = new Signal();
 
     /**
-     * Signal sent when {@link FTP#retrieve(String, String)} finished.
+     * Signal sent when {@link FTPClient#retrieve(String, String)} finished.
      * 
      * @param result {@link Boolean} {@code True} if the command is successful, {@code False} otherwise.
      */
     public Signal retrieveCompleted = new Signal();
 
     /**
-     * Signal sent when {@link FTP#store(String, String)} finished.
+     * Signal sent when {@link FTPClient#store(String, String)} finished.
      * 
      * @param result {@link Boolean} {@code True} if the command is successful, {@code False} otherwise.
      */
     public Signal storeCompleted = new Signal();
 
-    public FTP() {
+    public FTPClient() {
         controlService = Executors.newSingleThreadExecutor();
         dataService = Executors.newSingleThreadExecutor();
     }
@@ -134,7 +134,7 @@ public class FTP {
     }
 
     /**
-     * Send account information to the FTP Server. Only needed if {@link FTP#login(String, String)} requires.
+     * Send account information to the FTP Server. Only needed if {@link FTPClient#login(String, String)} requires.
      * 
      * @param account
      */
