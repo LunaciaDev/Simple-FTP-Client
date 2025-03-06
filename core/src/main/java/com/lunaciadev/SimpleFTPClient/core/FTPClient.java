@@ -239,7 +239,7 @@ public class FTPClient {
         ftpControlResponse.emit(args);
     }
 
-    public void stop() {
+    public void dispose() {
         controlService.shutdown();
         dataService.shutdown();
     }

@@ -10,6 +10,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.lunaciadev.SimpleFTPClient.core.FTPClient;
 import com.lunaciadev.SimpleFTPClient.data.DataPackage;
 import com.lunaciadev.SimpleFTPClient.utils.ConnectUtils;
+import com.lunaciadev.SimpleFTPClient.utils.FileDialog;
 import com.lunaciadev.SimpleFTPClient.widgets.ControlPane;
 import com.lunaciadev.SimpleFTPClient.widgets.ControlSocketOutput;
 import com.lunaciadev.SimpleFTPClient.widgets.ListOutput;
@@ -27,6 +28,7 @@ public class MainScreen implements Screen {
     private ConnectUtils loginUtils;
 
     private FTPClient ftpClient;
+    private FileDialog fileDialog;
 
     public MainScreen(DataPackage dataPackage) {
         this.stage = new Stage(new ScreenViewport());
@@ -39,12 +41,15 @@ public class MainScreen implements Screen {
         this.loginUtils = new ConnectUtils();
 
         this.ftpClient = new FTPClient();
+        this.fileDialog = new FileDialog();
 
         Gdx.input.setInputProcessor(stage);
 
         controlPane.disconnectButtonClicked.connect(ftpClient::quit);
         controlPane.refreshButtonClicked.connect(ftpClient::list);
         controlPane.connectButtonClicked.connect(connectDialog::onConnectDialogRequested);
+
+        controlPane.uploadButtonClicked.connect(fileDialog::uploadFileDialog);
 
         connectDialog.loginButtonClicked.connect(loginUtils::startConnectProcess);
 
@@ -120,7 +125,8 @@ public class MainScreen implements Screen {
 
     @Override
     public void dispose() {
-        ftpClient.stop();
+        ftpClient.dispose();
+        fileDialog.dispose();
     }
     
 }
