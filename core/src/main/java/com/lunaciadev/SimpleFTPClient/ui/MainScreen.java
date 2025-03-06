@@ -1,5 +1,6 @@
 package com.lunaciadev.SimpleFTPClient.ui;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Stage;
@@ -8,7 +9,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.lunaciadev.SimpleFTPClient.core.FTPClient;
 import com.lunaciadev.SimpleFTPClient.data.DataPackage;
-import com.lunaciadev.SimpleFTPClient.utils.LoginUtils;
+import com.lunaciadev.SimpleFTPClient.utils.ConnectUtils;
 import com.lunaciadev.SimpleFTPClient.widgets.ControlPane;
 import com.lunaciadev.SimpleFTPClient.widgets.ControlSocketOutput;
 import com.lunaciadev.SimpleFTPClient.widgets.ListOutput;
@@ -23,7 +24,7 @@ public class MainScreen implements Screen {
     private ListOutput listOutput;
     private ProgressInfo progressInfo;
     private ConnectDialog connectDialog;
-    private LoginUtils loginUtils;
+    private ConnectUtils loginUtils;
 
     private FTPClient ftpClient;
 
@@ -35,9 +36,11 @@ public class MainScreen implements Screen {
         this.listOutput = new ListOutput(dataPackage);
         this.progressInfo = new ProgressInfo(dataPackage);
         this.connectDialog = new ConnectDialog(dataPackage);
-        this.loginUtils = new LoginUtils();
+        this.loginUtils = new ConnectUtils();
 
         this.ftpClient = new FTPClient();
+
+        Gdx.input.setInputProcessor(stage);
 
         controlPane.disconnectButtonClicked.connect(ftpClient::quit);
         controlPane.refreshButtonClicked.connect(ftpClient::list);
@@ -45,12 +48,16 @@ public class MainScreen implements Screen {
 
         connectDialog.loginButtonClicked.connect(loginUtils::startConnectProcess);
 
+        loginUtils.requestConnection.connect(ftpClient::connect);
+        loginUtils.requestLogin.connect(ftpClient::login);
+
         ftpClient.listCompleted.connect(listOutput::addOutput);
         ftpClient.connectCompleted.connect(connectDialog::onConnectCommandFinished);
         ftpClient.connectCompleted.connect(loginUtils::startLoginProcess);
         ftpClient.loginCompleted.connect(connectDialog::onLoginCommandFinished);
         ftpClient.loginCompleted.connect(controlPane::onConnectStatusUpdate);
         ftpClient.ftpControlResponse.connect(socketOutput::addOutput);
+        ftpClient.quitCompleted.connect(controlPane::onDisconnect);
 
         setLayout();
     }
@@ -58,6 +65,7 @@ public class MainScreen implements Screen {
     private void setLayout() {
         stage.addActor(connectDialog.getDialog());
         connectDialog.setStage(stage);
+        connectDialog.getDialog().hide();
 
         rootTable = new Table();
         rootTable.setFillParent(true);
@@ -90,14 +98,12 @@ public class MainScreen implements Screen {
 
     @Override
     public void resize(int width, int height) {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'resize'");
+        stage.getViewport().update(width, height, true);
     }
 
     @Override
     public void pause() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'pause'");
+        return;
     }
 
     @Override
@@ -114,8 +120,7 @@ public class MainScreen implements Screen {
 
     @Override
     public void dispose() {
-        // TODO Auto-generated method stub
-        throw new UnsupportedOperationException("Unimplemented method 'dispose'");
+        ftpClient.stop();
     }
     
 }

@@ -1,7 +1,7 @@
 package com.lunaciadev.SimpleFTPClient.utils;
 
-public class LoginUtils {
-    public LoginUtils() {}
+public class ConnectUtils {
+    public ConnectUtils() {}
 
     private String username;
     private String password;
@@ -13,7 +13,7 @@ public class LoginUtils {
      * 
      * @param address {@link String}
      */
-    Signal requestConnection = new Signal();
+    public Signal requestConnection = new Signal();
 
     /**
      * Emitted at the second stage of connection
@@ -21,15 +21,15 @@ public class LoginUtils {
      * @param username {@link String}
      * @param password {@link String}
      */
-    Signal requestLogin = new Signal();
+    public Signal requestLogin = new Signal();
 
     /****** END SIGNALS ******/
 
     public void startConnectProcess(Object... args) {
-        username = (String) args[1];
-        password = (String) args[2];
+        username = (String) args[2];
+        password = (String) args[3];
 
-        requestConnection.emit(args[0]);
+        requestConnection.emit(args[0], Integer.parseInt((String) args[1]));
     }
 
     public void startLoginProcess(Object... args) {

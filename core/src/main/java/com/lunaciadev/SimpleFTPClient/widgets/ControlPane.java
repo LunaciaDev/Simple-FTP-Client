@@ -21,15 +21,11 @@ public class ControlPane {
 
     /**
      * Emitted when the connect button is clicked.
-     * 
-     * @param isConnect {@link Boolean} Asking for a connection or disconnection.
      */
     public Signal connectButtonClicked = new Signal();
 
     /**
      * Emitted when the disconnect button is clicked.
-     * 
-     * @param isConnect {@link Boolean} Asking for a connection or disconnection.
      */
     public Signal disconnectButtonClicked = new Signal();
 
@@ -68,10 +64,10 @@ public class ControlPane {
                 super.clicked(event, x, y);
 
                 if (!isConnected) {
-                    connectButtonClicked.emit(true);
+                    connectButtonClicked.emit();
                 }
                 else {
-                    connectButtonClicked.emit(false);
+                    disconnectButtonClicked.emit();
                 }
             }
         });
@@ -115,7 +111,10 @@ public class ControlPane {
             downloadButton.setDisabled(false);
             uploadButton.setDisabled(false);
         }
-        else {
+    }
+
+    public void onDisconnect(Object... args) {
+        if ((boolean) args[0]) {
             isConnected = false;
             connectButton.setText("Connect");
             refreshButton.setDisabled(true);

@@ -15,6 +15,7 @@ public class ConnectDialog {
     private TextField serverAddress;
     private TextField usernameField;
     private TextField passwordField;
+    private TextField portField;
     private Label errorLabel;
 
     private Stage stage;
@@ -25,6 +26,7 @@ public class ConnectDialog {
      * Emitted when the login button is clicked.
      * 
      * @param address {@link String} The FTP server address
+     * @param port {@link String}
      * @param username {@link String}
      * @param password {@link String}
      */
@@ -37,18 +39,25 @@ public class ConnectDialog {
         serverAddress = new TextField("", dataPackage.getSkin());
         usernameField = new TextField("", dataPackage.getSkin());
         passwordField = new TextField("", dataPackage.getSkin());
+        portField = new TextField("", dataPackage.getSkin());
+
+        passwordField.setPasswordMode(true);
+        portField.setTextFieldFilter(new TextField.TextFieldFilter.DigitsOnlyFilter());
+
         setLayout(dataPackage);
     }
 
     private void setLayout(DataPackage dataPackage) {
-        dialog.add(new Label("FTP Server Address: ", dataPackage.getSkin()));
-        dialog.add(serverAddress);
-        dialog.row();
-        dialog.add(new Label("Username: ", dataPackage.getSkin()));
-        dialog.add(usernameField);
-        dialog.row();
-        dialog.add(new Label("Password: ", dataPackage.getSkin()));
-        dialog.add(passwordField);
+        dialog.getContentTable().add(new Label("FTP Server Address: ", dataPackage.getSkin()));
+        dialog.getContentTable().add(serverAddress);
+        dialog.getContentTable().add(new Label("Port: ", dataPackage.getSkin()));
+        dialog.getContentTable().add(portField);
+        dialog.getContentTable().row();
+        dialog.getContentTable().add(new Label("Username: ", dataPackage.getSkin()));
+        dialog.getContentTable().add(usernameField);
+        dialog.getContentTable().row();
+        dialog.getContentTable().add(new Label("Password: ", dataPackage.getSkin()));
+        dialog.getContentTable().add(passwordField);
 
         TextButton showPassword = new TextButton("Show", dataPackage.getSkin());
         showPassword.addListener(new ClickListener() {
@@ -59,10 +68,9 @@ public class ConnectDialog {
             }
         });
 
-        dialog.add(showPassword);
-        passwordField.setPasswordMode(true);
-        dialog.row();
-        dialog.add(errorLabel);
+        dialog.getContentTable().add(showPassword);
+        dialog.getContentTable().row();
+        dialog.getContentTable().add(errorLabel);
 
         TextButton loginButton = new TextButton("Login", dataPackage.getSkin());
         TextButton cancelButton = new TextButton("Cancel", dataPackage.getSkin());
@@ -71,7 +79,7 @@ public class ConnectDialog {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 super.clicked(event, x, y);
-                loginButtonClicked.emit(serverAddress.getText(), usernameField.getText(), passwordField.getText());
+                loginButtonClicked.emit(serverAddress.getText(), portField.getText(), usernameField.getText(), passwordField.getText());
             }
         });
 

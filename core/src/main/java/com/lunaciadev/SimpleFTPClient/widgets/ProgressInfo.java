@@ -13,6 +13,7 @@ public class ProgressInfo {
     public ProgressInfo(DataPackage dataPackage) {
         progressValue = new Label("", dataPackage.getSkin());
         progressBar = new ProgressBar(0, 1, 0.01f, false, dataPackage.getSkin());
+        group = new HorizontalGroup();
         setLayout();
     }
 

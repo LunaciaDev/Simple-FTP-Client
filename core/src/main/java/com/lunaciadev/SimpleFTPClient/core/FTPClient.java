@@ -100,14 +100,10 @@ public class FTPClient {
 
     /**
      * Connect to the specified ftpServer's control port.
-     * 
-     * @param ftpServer Can be an IPv4 or it's domain name.
-     * @param port Specify the control port. Pass null to use the default port 21.
      */
-    public void connect(String ftpServer, Integer port) {
-        if (port == null) {
-            port = 21;
-        }
+    public void connect(Object... args) {
+        String ftpServer = (String) args[0];
+        int port = (int) args[1];
 
         Connect task = new Connect(ftpServer, port);
         task.completed.connect(this::onConnectCompleted);
@@ -134,7 +130,10 @@ public class FTPClient {
      * @param username
      * @param password
      */
-    public void login(String username, String password) {
+    public void login(Object... args) {
+        String username = (String) args[0];
+        String password = (String) args[1];
+
         Login task = new Login(socketListener, socketWriter, username, password);
         task.completed.connect(this::onLoginCompleted);
         task.ftpControlReceived.connect(this::onFTPControlReceived);
@@ -238,5 +237,10 @@ public class FTPClient {
 
     private void onFTPControlReceived(Object... args) {
         ftpControlResponse.emit(args);
+    }
+
+    public void stop() {
+        controlService.shutdown();
+        dataService.shutdown();
     }
 }
