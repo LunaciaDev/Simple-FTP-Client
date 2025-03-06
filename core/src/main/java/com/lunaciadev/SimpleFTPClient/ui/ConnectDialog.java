@@ -17,6 +17,8 @@ public class ConnectDialog {
     private TextField passwordField;
     private Label errorLabel;
 
+    private Stage stage;
+
     /****** SIGNALS ******/
 
     /**
@@ -88,8 +90,8 @@ public class ConnectDialog {
     /**
      * Slot, triggered by TBA
      */
-    public void onConnectCommandFinished(boolean status) {
-        if (!status) {
+    public void onConnectCommandFinished(Object... args) {
+        if (!(boolean) args[0]) {
             errorLabel.setText("Cannot connect to the server. Please check the address and your Internet connection.");
         }
     }
@@ -97,8 +99,8 @@ public class ConnectDialog {
     /**
      * Slot, triggered by TBA
      */
-    public void onLoginCommandFinished(boolean status) {
-        if (!status) {
+    public void onLoginCommandFinished(Object... args) {
+        if (!(boolean) args[0]) {
             errorLabel.setText("Username or Password is incorrect.");
         }
         else {
@@ -109,11 +111,15 @@ public class ConnectDialog {
     /**
      * Slot, triggerd by TBA
      */
-    public void onConnectDialogRequested(Stage stage) {
+    public void onConnectDialogRequested(Object... args) {
         dialog.show(stage);
     }
 
     public Dialog getDialog() {
         return dialog;
+    }
+
+    public void setStage(Stage stage) {
+        this.stage = stage;
     }
 }

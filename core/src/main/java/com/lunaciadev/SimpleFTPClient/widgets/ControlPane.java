@@ -105,7 +105,7 @@ public class ControlPane {
     }
 
     /**
-     * Slot, connected to {@link FTPClient#connectCompleted}
+     * Slot, connected to {@link FTPClient#loginCompleted}
      */
     public void onConnectStatusUpdate(Object... args) {
         if ((boolean) args[0]) {

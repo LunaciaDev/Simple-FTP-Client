@@ -8,6 +8,7 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.lunaciadev.SimpleFTPClient.core.FTPClient;
 import com.lunaciadev.SimpleFTPClient.data.DataPackage;
+import com.lunaciadev.SimpleFTPClient.utils.LoginUtils;
 import com.lunaciadev.SimpleFTPClient.widgets.ControlPane;
 import com.lunaciadev.SimpleFTPClient.widgets.ControlSocketOutput;
 import com.lunaciadev.SimpleFTPClient.widgets.ListOutput;
@@ -21,6 +22,8 @@ public class MainScreen implements Screen {
     private ControlSocketOutput socketOutput;
     private ListOutput listOutput;
     private ProgressInfo progressInfo;
+    private ConnectDialog connectDialog;
+    private LoginUtils loginUtils;
 
     private FTPClient ftpClient;
 
@@ -31,20 +34,31 @@ public class MainScreen implements Screen {
         this.socketOutput = new ControlSocketOutput(dataPackage);
         this.listOutput = new ListOutput(dataPackage);
         this.progressInfo = new ProgressInfo(dataPackage);
+        this.connectDialog = new ConnectDialog(dataPackage);
+        this.loginUtils = new LoginUtils();
 
         this.ftpClient = new FTPClient();
 
         controlPane.disconnectButtonClicked.connect(ftpClient::quit);
         controlPane.refreshButtonClicked.connect(ftpClient::list);
+        controlPane.connectButtonClicked.connect(connectDialog::onConnectDialogRequested);
+
+        connectDialog.loginButtonClicked.connect(loginUtils::startConnectProcess);
 
         ftpClient.listCompleted.connect(listOutput::addOutput);
-        ftpClient.connectCompleted.connect(controlPane::onConnectStatusUpdate);
+        ftpClient.connectCompleted.connect(connectDialog::onConnectCommandFinished);
+        ftpClient.connectCompleted.connect(loginUtils::startLoginProcess);
+        ftpClient.loginCompleted.connect(connectDialog::onLoginCommandFinished);
+        ftpClient.loginCompleted.connect(controlPane::onConnectStatusUpdate);
         ftpClient.ftpControlResponse.connect(socketOutput::addOutput);
 
         setLayout();
     }
 
     private void setLayout() {
+        stage.addActor(connectDialog.getDialog());
+        connectDialog.setStage(stage);
+
         rootTable = new Table();
         rootTable.setFillParent(true);
         stage.addActor(rootTable);
