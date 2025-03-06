@@ -1,5 +1,9 @@
 package com.lunaciadev.SimpleFTPClient.widgets;
 
+import java.nio.file.Files;
+import java.nio.file.Path;
+
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.ui.HorizontalGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ProgressBar;
@@ -31,12 +35,17 @@ public class ProgressInfo {
     }
 
     public void taskStarted(Object... args) {
-        progressBar.setRange(0, (long) args[1]);
+        try {
+            progressBar.setRange(0, Files.size((Path) args[0]));
+        }
+        catch (Exception e) {
+            Gdx.app.error("Exception", e.getMessage());
+        }
     }
 
     public void updateBar(Object... args) {
         progressBar.setValue(progressBar.getValue() + (int) args[0]);
-        progressValue.setText(String.format("%.0f%", progressBar.getValue() / progressBar.getMaxValue() * 100));
+        progressValue.setText(String.format("%.0f%%", progressBar.getValue() / progressBar.getMaxValue() * 100));
     }
 
     public void taskFinished(Object... args) {

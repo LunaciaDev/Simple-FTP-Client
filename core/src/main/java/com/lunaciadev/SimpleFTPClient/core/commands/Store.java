@@ -16,7 +16,6 @@ public class Store extends Command implements Runnable {
     private BufferedReader socketListener;
     private BufferedWriter socketWriter;
     private ExecutorService dataService;
-    private volatile boolean allDataReceived = false;
     private boolean malformedData = false;
 
     private Path uploadTarget;
@@ -99,21 +98,21 @@ public class Store extends Command implements Runnable {
                         // block indefinitely?
                         byte[] buffer = new byte[8192];
 
-                        while (!allDataReceived) {
-                            while (true)  {
-                                final int temp = in.read(buffer);
-                                if (temp == -1) return;
+                        while (true)  {
+                            final int temp = in.read(buffer);
+                            if (temp == -1) break;
 
-                                out.write(buffer);
+                            out.write(buffer);
 
-                                Gdx.app.postRunnable(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        partialTransferred.emit(temp);
-                                    }
-                                });
-                            }
+                            Gdx.app.postRunnable(new Runnable() {
+                                @Override
+                                public void run() {
+                                    partialTransferred.emit(temp);
+                                }
+                            });
                         }
+
+                        dataSocket.close();
 
                         Gdx.app.postRunnable(new Runnable() {
                             @Override
@@ -121,8 +120,6 @@ public class Store extends Command implements Runnable {
                                 checkResult(true);
                             }
                         });
-
-                        dataSocket.close();
                     } catch (Exception e) {
                         // TODO: handle exception
                         Gdx.app.error("Exception", e.getMessage());
@@ -147,16 +144,14 @@ public class Store extends Command implements Runnable {
 
                 switch (parsedResponse[0].charAt(0)) {
                     case '2':
-                        allDataReceived = true;
-                        return;
+                        break;
 
                     case '1':
                         break;
 
                     default:
-                        allDataReceived = true;
                         malformedData = true;
-                        return;
+                        break;
                 }
             }
         } catch (Exception e) {
