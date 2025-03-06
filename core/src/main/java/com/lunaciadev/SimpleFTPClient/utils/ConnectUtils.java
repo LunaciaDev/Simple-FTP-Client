@@ -23,6 +23,8 @@ public class ConnectUtils {
      */
     public Signal requestLogin = new Signal();
 
+    public Signal requestRefresh = new Signal();
+
     /****** END SIGNALS ******/
 
     public void startConnectProcess(Object... args) {
@@ -36,5 +38,9 @@ public class ConnectUtils {
         if (!(boolean) args[0]) return;
 
         requestLogin.emit(username, password);
+    }
+
+    public void onLoginFinished(Object... args) {
+        requestRefresh.emit();
     }
 }

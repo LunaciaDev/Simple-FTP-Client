@@ -12,7 +12,7 @@ public class ProgressInfo {
 
     public ProgressInfo(DataPackage dataPackage) {
         progressValue = new Label("", dataPackage.getSkin());
-        progressBar = new ProgressBar(0, 1, 0.01f, false, dataPackage.getSkin());
+        progressBar = new ProgressBar(0, 1, 1, false, dataPackage.getSkin());
         group = new HorizontalGroup();
         setLayout();
     }
@@ -30,15 +30,23 @@ public class ProgressInfo {
         return group;
     }
 
-    public void resetBar() {
-        progressBar.setValue(0);
-        progressValue.setText("Ready");
+    public void taskStarted(Object... args) {
+        progressBar.setRange(0, (long) args[1]);
     }
 
-    public void updateBar(float progress) {
-        progressBar.setValue(progress);
+    public void updateBar(Object... args) {
+        progressBar.setValue(progressBar.getValue() + (int) args[0]);
+        progressValue.setText(String.format("%.0f%", progressBar.getValue() / progressBar.getMaxValue() * 100));
+    }
 
-        if (progress >= 1) progressValue.setText("Complete");
-        else progressValue.setText(String.format("%.0f%", progress * 100));
+    public void taskFinished(Object... args) {
+        if (!(boolean) args[0]) {
+            progressValue.setText("Failed");
+        }
+        else {
+            progressValue.setText("Completed");
+        }
+
+        progressBar.setValue(0);
     }
 }

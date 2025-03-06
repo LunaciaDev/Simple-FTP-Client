@@ -19,22 +19,21 @@ public class Store extends Command implements Runnable {
     private volatile boolean allDataReceived = false;
     private boolean malformedData = false;
 
-    private String fileName;
-    private String localCWD;
+    private Path uploadTarget;
 
     public Signal completed = new Signal();
 
-    public Store(BufferedReader socketListener, BufferedWriter socketWriter, String fileName, String localCWD, ExecutorService service) {
+    public Signal partialTransferred = new Signal();
+
+    public Store(BufferedReader socketListener, BufferedWriter socketWriter, Path uploadTarget, ExecutorService service) {
         this.socketListener = socketListener;
         this.socketWriter = socketWriter;
-        this.fileName = fileName;
-        this.localCWD = localCWD;
+        this.uploadTarget = uploadTarget;
         this.dataService = service;
     }
 
     @Override
     public void run() {
-        Path uploadTarget = Path.of(localCWD + fileName);
         String[] parsedResponse;
         String[] addr;
 
@@ -101,8 +100,18 @@ public class Store extends Command implements Runnable {
                         byte[] buffer = new byte[8192];
 
                         while (!allDataReceived) {
-                            while ((in.read(buffer)) != -1) {
+                            while (true)  {
+                                final int temp = in.read(buffer);
+                                if (temp == -1) return;
+
                                 out.write(buffer);
+
+                                Gdx.app.postRunnable(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        partialTransferred.emit(temp);
+                                    }
+                                });
                             }
                         }
 
@@ -122,7 +131,7 @@ public class Store extends Command implements Runnable {
                 }
             });
 
-            socketWriter.write(String.format("STOR %s\r\n", fileName));
+            socketWriter.write(String.format("STOR %s\r\n", uploadTarget.getFileName()));
             socketWriter.flush();
             while (true) {
                 final String storResponse = socketListener.readLine();

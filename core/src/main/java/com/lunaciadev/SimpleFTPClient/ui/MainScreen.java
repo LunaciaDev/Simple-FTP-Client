@@ -48,21 +48,28 @@ public class MainScreen implements Screen {
         controlPane.disconnectButtonClicked.connect(ftpClient::quit);
         controlPane.refreshButtonClicked.connect(ftpClient::list);
         controlPane.connectButtonClicked.connect(connectDialog::onConnectDialogRequested);
-
         controlPane.uploadButtonClicked.connect(fileDialog::uploadFileDialog);
 
         connectDialog.loginButtonClicked.connect(loginUtils::startConnectProcess);
 
+        fileDialog.uploadFileSelected.connect(ftpClient::store);
+        fileDialog.uploadFileSelected.connect(progressInfo::taskStarted);
+
         loginUtils.requestConnection.connect(ftpClient::connect);
         loginUtils.requestLogin.connect(ftpClient::login);
+        loginUtils.requestRefresh.connect(ftpClient::list);
 
         ftpClient.listCompleted.connect(listOutput::addOutput);
         ftpClient.connectCompleted.connect(connectDialog::onConnectCommandFinished);
         ftpClient.connectCompleted.connect(loginUtils::startLoginProcess);
         ftpClient.loginCompleted.connect(connectDialog::onLoginCommandFinished);
         ftpClient.loginCompleted.connect(controlPane::onConnectStatusUpdate);
+        ftpClient.loginCompleted.connect(loginUtils::onLoginFinished);
         ftpClient.ftpControlResponse.connect(socketOutput::addOutput);
         ftpClient.quitCompleted.connect(controlPane::onDisconnect);
+        ftpClient.storeCompleted.connect(progressInfo::taskFinished);
+        ftpClient.retrieveCompleted.connect(progressInfo::taskFinished);
+        ftpClient.ftpPartialTransfer.connect(progressInfo::updateBar);
 
         setLayout();
     }

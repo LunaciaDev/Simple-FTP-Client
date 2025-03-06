@@ -3,6 +3,7 @@ package com.lunaciadev.SimpleFTPClient.core;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.net.Socket;
+import java.nio.file.Path;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -90,6 +91,8 @@ public class FTPClient {
      * @param response {@link String} The response.
      */
     public Signal ftpControlResponse = new Signal();
+
+    public Signal ftpPartialTransfer = new Signal();
 
     /****** END SIGNAL REGION ******/
 
@@ -219,15 +222,15 @@ public class FTPClient {
     }
 
     /**
-     * Upload the file to the FTP Server
+     * Slot, connected to ...
      * 
-     * @param fileName The name of the file
-     * @param localCWD The current working directory of the client
+     * One argument, a string representing the absolute path to the file.
      */
-    public void store(String fileName, String localCWD) {
-        Store task = new Store(socketListener, socketWriter, fileName, localCWD, dataService);
+    public void store(Object... args) {
+        Store task = new Store(socketListener, socketWriter, (Path) args[0], dataService);
         task.completed.connect(this::onStoreCompleted);
         task.ftpControlReceived.connect(this::onFTPControlReceived);
+        task.partialTransferred.connect(this::partialTransferred);
         controlService.submit(task);
     }
 
@@ -237,6 +240,10 @@ public class FTPClient {
 
     private void onFTPControlReceived(Object... args) {
         ftpControlResponse.emit(args);
+    }
+
+    private void partialTransferred(Object... args) {
+        ftpPartialTransfer.emit(args);
     }
 
     public void dispose() {
