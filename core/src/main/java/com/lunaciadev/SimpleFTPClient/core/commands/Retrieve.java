@@ -11,8 +11,10 @@ import java.nio.file.StandardCopyOption;
 import java.util.concurrent.ExecutorService;
 
 import com.badlogic.gdx.Gdx;
-import com.lunaciadev.SimpleFTPClient.utils.Signal;
 
+/**
+ * TODO fix this thing
+ */
 public class Retrieve extends Command implements Runnable {
     private BufferedReader socketListener;
     private BufferedWriter socketWriter;
@@ -24,11 +26,9 @@ public class Retrieve extends Command implements Runnable {
     private String fileName;
     private String localCWD;
 
-    public Signal completed = new Signal();
-
     public Retrieve() {}
 
-    public void setData(BufferedReader socketListener, BufferedWriter socketWriter, String fileName, String localCWD, ExecutorService service) {
+    public void setData(final BufferedReader socketListener, final BufferedWriter socketWriter, final String fileName, final String localCWD, final ExecutorService service) {
         this.socketListener = socketListener;
         this.socketWriter = socketWriter;
         this.fileName = fileName;
@@ -55,14 +55,11 @@ public class Retrieve extends Command implements Runnable {
             socketWriter.write("PASV\r\n");
             socketWriter.flush();
 
+            forwardControlResponse("PASV\r\n");
+
             final String pasvResponse = socketListener.readLine();
 
-            Gdx.app.postRunnable(new Runnable() {
-                @Override
-                public void run() {
-                    ftpControlReceived.emit(pasvResponse);
-                }
-            });
+            forwardControlResponse(pasvResponse);
 
             parsedResponse = parseResponse(pasvResponse);
 
@@ -80,14 +77,11 @@ public class Retrieve extends Command implements Runnable {
             socketWriter.write("TYPE I\r\n");
             socketWriter.flush();
 
+            forwardControlResponse("TYPE I\r\n");
+
             final String typeResponse = socketListener.readLine();
 
-            Gdx.app.postRunnable(new Runnable() {
-                @Override
-                public void run() {
-                    ftpControlReceived.emit(typeResponse);
-                }
-            });
+            forwardControlResponse(typeResponse);
 
             parsedResponse = parseResponse(typeResponse);
 
@@ -107,11 +101,11 @@ public class Retrieve extends Command implements Runnable {
                     try (Socket dataSocket = new Socket(String.join(".", addr[0], addr[1], addr[2], addr[3]),
                             Integer.parseInt(addr[4]) * 256 + Integer.parseInt(addr[5]));) {
 
-                        BufferedInputStream in = new BufferedInputStream(dataSocket.getInputStream());
+                        final BufferedInputStream in = new BufferedInputStream(dataSocket.getInputStream());
 
                         // 8kB buffer. Has to do this to keep track of read bytes, transferTo would just
                         // block indefinitely?
-                        byte[] buffer = new byte[8192];
+                        final byte[] buffer = new byte[8192];
 
                         while (!allDataReceived) {
                             while ((in.read(buffer)) != -1) {
@@ -119,7 +113,7 @@ public class Retrieve extends Command implements Runnable {
                             }
                         }
 
-                        Path finalFile = Path.of(localCWD, fileName);
+                        final Path finalFile = Path.of(localCWD, fileName);
                         Files.move(downloadTarget, finalFile, StandardCopyOption.REPLACE_EXISTING);
 
                         Gdx.app.postRunnable(new Runnable() {
@@ -130,7 +124,7 @@ public class Retrieve extends Command implements Runnable {
                         });
 
                         dataSocket.close();
-                    } catch (Exception e) {
+                    } catch (final Exception e) {
                         // TODO: handle exception
                         Gdx.app.error("Exception", e.getMessage());
                         e.printStackTrace();
@@ -138,17 +132,16 @@ public class Retrieve extends Command implements Runnable {
                 }
             });
 
-            socketWriter.write(String.format("RETR %s\r\n", fileName));
+            final String retrieveCmd = String.format("RETR %s\r\n", fileName);
+            socketWriter.write(retrieveCmd);
             socketWriter.flush();
+
+            forwardControlResponse(retrieveCmd);
+
             while (true) {
                 final String retrResponse = socketListener.readLine();
+                forwardControlResponse(retrResponse);
 
-                Gdx.app.postRunnable(new Runnable() {
-                    @Override
-                    public void run() {
-                        ftpControlReceived.emit(retrResponse);
-                    }
-                });
                 parsedResponse = parseResponse(retrResponse);
 
                 switch (parsedResponse[0].charAt(0)) {
@@ -165,19 +158,19 @@ public class Retrieve extends Command implements Runnable {
                         return;
                 }
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
             // TODO: handle exception
             Gdx.app.error("Exception", e.getMessage());
             e.printStackTrace();
         }
     }
 
-    private void checkResult(boolean status) {
+    private void checkResult(final boolean status) {
         if (malformedData) {
             try {
                 Files.delete(downloadTarget);
             }
-            catch (Exception e) {
+            catch (final Exception e) {
                 // TODO: handle exception
                 Gdx.app.error("Exception", e.getMessage());
                 e.printStackTrace();
@@ -190,7 +183,7 @@ public class Retrieve extends Command implements Runnable {
         }
     }
 
-    private void finish(boolean status) {
+    private void finish(final boolean status) {
         Gdx.app.postRunnable(new Runnable() {
 
             @Override

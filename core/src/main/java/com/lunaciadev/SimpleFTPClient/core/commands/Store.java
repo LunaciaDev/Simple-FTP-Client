@@ -12,6 +12,15 @@ import java.util.concurrent.ExecutorService;
 import com.badlogic.gdx.Gdx;
 import com.lunaciadev.SimpleFTPClient.utils.Signal;
 
+/**
+ * <p>
+ * Abstraction of FTP's {@code STOR} command.
+ * </p>
+ * 
+ * <p>
+ * Upload a file to the server. Also pass upload progress to the UI too.
+ * </p>
+ */
 public class Store extends Command implements Runnable {
     private BufferedReader socketListener;
     private BufferedWriter socketWriter;
@@ -20,13 +29,11 @@ public class Store extends Command implements Runnable {
 
     private Path uploadTarget;
 
-    public Signal completed = new Signal();
-
     public Signal partialTransferred = new Signal();
 
     public Store() {}
 
-    public void setData(BufferedReader socketListener, BufferedWriter socketWriter, Path uploadTarget, ExecutorService service) {
+    public void setData(final BufferedReader socketListener, final BufferedWriter socketWriter, final Path uploadTarget, final ExecutorService service) {
         this.socketListener = socketListener;
         this.socketWriter = socketWriter;
         this.uploadTarget = uploadTarget;
@@ -42,14 +49,11 @@ public class Store extends Command implements Runnable {
             socketWriter.write("PASV\r\n");
             socketWriter.flush();
 
+            forwardControlResponse("PASV\r\n");
+
             final String pasvResponse = socketListener.readLine();
 
-            Gdx.app.postRunnable(new Runnable() {
-                @Override
-                public void run() {
-                    ftpControlReceived.emit(pasvResponse);
-                }
-            });
+            forwardControlResponse(pasvResponse);
 
             parsedResponse = parseResponse(pasvResponse);
 
@@ -67,14 +71,11 @@ public class Store extends Command implements Runnable {
             socketWriter.write("TYPE I\r\n");
             socketWriter.flush();
 
+            forwardControlResponse("TYPE I\r\n");
+
             final String typeResponse = socketListener.readLine();
 
-            Gdx.app.postRunnable(new Runnable() {
-                @Override
-                public void run() {
-                    ftpControlReceived.emit(typeResponse);
-                }
-            });
+            forwardControlResponse(typeResponse);
 
             parsedResponse = parseResponse(typeResponse);
 
@@ -94,11 +95,11 @@ public class Store extends Command implements Runnable {
                     try (Socket dataSocket = new Socket(String.join(".", addr[0], addr[1], addr[2], addr[3]),
                             Integer.parseInt(addr[4]) * 256 + Integer.parseInt(addr[5]));) {
 
-                        BufferedOutputStream out = new BufferedOutputStream(dataSocket.getOutputStream());
+                        final BufferedOutputStream out = new BufferedOutputStream(dataSocket.getOutputStream());
 
                         // 8kB buffer. Has to do this to keep track of read bytes, transferTo would just
                         // block indefinitely?
-                        byte[] buffer = new byte[8192];
+                        final byte[] buffer = new byte[8192];
 
                         while (true)  {
                             final int temp = in.read(buffer);
@@ -122,7 +123,7 @@ public class Store extends Command implements Runnable {
                                 checkResult(true);
                             }
                         });
-                    } catch (Exception e) {
+                    } catch (final Exception e) {
                         // TODO: handle exception
                         Gdx.app.error("Exception", e.getMessage());
                         e.printStackTrace();
@@ -130,17 +131,16 @@ public class Store extends Command implements Runnable {
                 }
             });
 
-            socketWriter.write(String.format("STOR %s\r\n", uploadTarget.getFileName()));
+            final String storCommand = String.format("STOR %s\r\n", uploadTarget.getFileName());
+            socketWriter.write(storCommand);
             socketWriter.flush();
+
+            forwardControlResponse(storCommand);
+
             while (true) {
                 final String storResponse = socketListener.readLine();
 
-                Gdx.app.postRunnable(new Runnable() {
-                    @Override
-                    public void run() {
-                        ftpControlReceived.emit(storResponse);
-                    }
-                });
+                forwardControlResponse(storResponse);
 
                 parsedResponse = parseResponse(storResponse);
 
@@ -156,21 +156,21 @@ public class Store extends Command implements Runnable {
                         break;
                 }
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
             // TODO: handle exception
             Gdx.app.error("Exception", e.getMessage());
             e.printStackTrace();
         }
     }
 
-    private void checkResult(boolean status) {
+    private void checkResult(final boolean status) {
         if (malformedData)
             finish(false);
         else
             finish(status);
     }
 
-    private void finish(boolean status) {
+    private void finish(final boolean status) {
         Gdx.app.postRunnable(new Runnable() {
 
             @Override

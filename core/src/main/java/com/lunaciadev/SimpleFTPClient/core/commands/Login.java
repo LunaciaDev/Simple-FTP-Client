@@ -4,19 +4,30 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 
 import com.badlogic.gdx.Gdx;
-import com.lunaciadev.SimpleFTPClient.utils.Signal;
 
+/**
+ * <p>
+ * Abstraction of the FTP Login Process.
+ * </p>
+ * 
+ * <p>
+ * Require both username and password. Yes, password is not cleared after we are
+ * done. FTP require password to be sent in plain text anyway. They
+ * would have an easier time WireSharking the password out than attempting
+ * memory reading.
+ * </p>
+ */
 public class Login extends Command implements Runnable {
     private BufferedReader socketListener;
     private BufferedWriter socketWriter;
 
     private String username, password;
 
-    public Signal completed = new Signal();
+    public Login() {
+    }
 
-    public Login() {}
-
-    public void setData(BufferedReader socketListener, BufferedWriter socketWriter, String username, String password) {
+    public void setData(final BufferedReader socketListener, final BufferedWriter socketWriter, final String username,
+            final String password) {
         this.socketListener = socketListener;
         this.socketWriter = socketWriter;
         this.username = username;
@@ -25,20 +36,18 @@ public class Login extends Command implements Runnable {
 
     @Override
     public void run() {
-        String[] parsedResponse;
-
         try {
-            socketWriter.write(String.format("USER %s\r\n", username));
+            String[] parsedResponse;
+            final String userCmd = String.format("USER %s\r\n", username);
+
+            socketWriter.write(userCmd);
             socketWriter.flush();
+
+            forwardControlResponse(userCmd);
 
             final String userResponse = socketListener.readLine();
 
-            Gdx.app.postRunnable(new Runnable() {
-                @Override
-                public void run() {
-                    ftpControlReceived.emit(userResponse);
-                }
-            });
+            forwardControlResponse(userResponse);
 
             parsedResponse = parseResponse(userResponse);
 
@@ -46,7 +55,7 @@ public class Login extends Command implements Runnable {
                 case '2':
                     finish(true, false);
                     return;
-                
+
                 case '1':
                 case '5':
                 case '4':
@@ -61,14 +70,11 @@ public class Login extends Command implements Runnable {
             socketWriter.write(String.format("PASS %s\r\n", password));
             socketWriter.flush();
 
+            forwardControlResponse("PASS ██████\r\n");
+
             final String passResponse = socketListener.readLine();
 
-            Gdx.app.postRunnable(new Runnable() {
-                @Override
-                public void run() {
-                    ftpControlReceived.emit(passResponse);
-                }
-            });
+            forwardControlResponse(passResponse);
 
             parsedResponse = parseResponse(passResponse);
 
@@ -76,7 +82,7 @@ public class Login extends Command implements Runnable {
                 case '2':
                     finish(true, false);
                     return;
-                
+
                 case '1':
                 case '5':
                 case '4':
@@ -87,14 +93,14 @@ public class Login extends Command implements Runnable {
                     finish(false, true);
             }
 
-        } catch (Exception e) {
+        } catch (final Exception e) {
             // TODO: handle exception
             Gdx.app.error("Exception", e.getMessage());
             e.printStackTrace();
         }
     }
 
-    private void finish(boolean status, boolean needAcct) {
+    private void finish(final boolean status, final boolean needAcct) {
         Gdx.app.postRunnable(new Runnable() {
             @Override
             public void run() {

@@ -24,8 +24,8 @@ import com.lunaciadev.SimpleFTPClient.utils.Signal;
  */
 
 public class FTPClient {
-    private ExecutorService controlService;
-    private ExecutorService dataService;
+    private final ExecutorService controlService;
+    private final ExecutorService dataService;
     
     private Socket controlSocket;
     private BufferedReader socketListener;
@@ -98,13 +98,13 @@ public class FTPClient {
 
     /****** COMMANDS ******/
 
-    private Account accountCommand;
-    private Connect connectCommand;
-    private List listCommand;
-    private Login loginCommand;
-    private Quit quitCommand;
-    private Retrieve retrieveCommand;
-    private Store storeCommand;
+    private final Account accountCommand;
+    private final Connect connectCommand;
+    private final List listCommand;
+    private final Login loginCommand;
+    private final Quit quitCommand;
+    private final Retrieve retrieveCommand;
+    private final Store storeCommand;
 
     public FTPClient() {
         controlService = Executors.newSingleThreadExecutor();
@@ -147,20 +147,12 @@ public class FTPClient {
     /**
      * Connect to the specified ftpServer's control port.
      */
-    public void connect(Object... args) {
-        String ftpServer = (String) args[0];
-        int port = (int) args[1];
+    public void connect(final Object... args) {
+        final String ftpServer = (String) args[0];
+        final int port = (int) args[1];
 
         connectCommand.setData(ftpServer, port);
         controlService.submit(connectCommand);
-    }
-
-    private void onConnectCompleted(Object... args) {
-        if (!(boolean) args[0]) return;
-
-        controlSocket = (Socket) args[1];
-        socketListener = (BufferedReader) args[2];
-        socketWriter = (BufferedWriter) args[3];
     }
 
     /**
@@ -169,9 +161,9 @@ public class FTPClient {
      * @param username
      * @param password
      */
-    public void login(Object... args) {
-        String username = (String) args[0];
-        String password = (String) args[1];
+    public void login(final Object... args) {
+        final String username = (String) args[0];
+        final String password = (String) args[1];
 
         loginCommand.setData(socketListener, socketWriter, username, password);
         controlService.submit(loginCommand);
@@ -182,7 +174,7 @@ public class FTPClient {
      * 
      * @param account
      */
-    public void sendAccount(String account) {
+    public void sendAccount(final String account) {
         accountCommand.setData(socketListener, socketWriter, account);
         controlService.submit(accountCommand);
     }
@@ -190,38 +182,26 @@ public class FTPClient {
     /**
      * Log out from the FTP Server.
      */
-    public void quit(Object... args) {
+    public void quit(final Object... args) {
         quitCommand.setData(socketListener, socketWriter);
         controlService.submit(quitCommand);
-    }
-
-    private void onQuitCompleted(Object... args) {
-        if (!(boolean) args[0]) return;
-
-        try {
-            controlSocket.close();
-        } catch (Exception e) {
-            // TODO: handle exception
-            Gdx.app.error("Exception", e.getMessage());
-            e.printStackTrace();
-        }
     }
 
     /**
      * Since this is baked list command for the ui, we can just simply call LIST without any argument as we only have to show the current directory.
      */
-    public void list(Object... args) {
+    public void list(final Object... args) {
         listCommand.setData(socketListener, socketWriter, dataService);
         controlService.submit(listCommand);
     }
-    
+
     /**
      * Download a file from the FTP Server
      * 
      * @param fileName The name of the file.
      * @param localCWD The current working directory of the client.
      */
-    public void retrieve(String fileName, String localCWD) {
+    public void retrieve(final String fileName, final String localCWD) {
         retrieveCommand.setData(socketListener, socketWriter, fileName, localCWD, dataService);
         controlService.submit(retrieveCommand);
     }
@@ -231,21 +211,41 @@ public class FTPClient {
      * 
      * One argument, a string representing the absolute path to the file.
      */
-    public void store(Object... args) {
+    public void store(final Object... args) {
         storeCommand.setData(socketListener, socketWriter, (Path) args[0], dataService);
         controlService.submit(storeCommand);
     }
-
-    private void onFTPControlReceived(Object... args) {
-        ftpControlResponse.emit(args);
-    }
-
-    private void partialTransferred(Object... args) {
-        ftpPartialTransfer.emit(args);
-    }
-
+    
     public void dispose() {
         controlService.shutdown();
         dataService.shutdown();
+    }
+
+    private void onConnectCompleted(final Object... args) {
+        if (!(boolean) args[0]) return;
+
+        controlSocket = (Socket) args[1];
+        socketListener = (BufferedReader) args[2];
+        socketWriter = (BufferedWriter) args[3];
+    }
+
+    private void onQuitCompleted(final Object... args) {
+        if (!(boolean) args[0]) return;
+
+        try {
+            controlSocket.close();
+        } catch (final Exception e) {
+            // TODO: handle exception
+            Gdx.app.error("Exception", e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private void onFTPControlReceived(final Object... args) {
+        ftpControlResponse.emit(args);
+    }
+
+    private void partialTransferred(final Object... args) {
+        ftpPartialTransfer.emit(args);
     }
 }

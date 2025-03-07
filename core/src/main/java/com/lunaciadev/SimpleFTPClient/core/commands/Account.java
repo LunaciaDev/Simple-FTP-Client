@@ -4,19 +4,25 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 
 import com.badlogic.gdx.Gdx;
-import com.lunaciadev.SimpleFTPClient.utils.Signal;
 
+/**
+ * <p>
+ * Abstraction of FTP's {@code ACCT} command.
+ * </p>
+ * 
+ * Require a {@link String} being the user's Account Name. I have no idea what
+ * that mean, but RFC 959 allow server to request this during login.
+ */
 public class Account extends Command implements Runnable {
     private BufferedReader socketListener;
     private BufferedWriter socketWriter;
-    
+
     private String account;
 
-    public Signal completed = new Signal();
+    public Account() {
+    }
 
-    public Account() {}
-
-    public void setData(BufferedReader socketListener, BufferedWriter socketWriter, String account) {
+    public void setData(final BufferedReader socketListener, final BufferedWriter socketWriter, final String account) {
         this.socketListener = socketListener;
         this.socketWriter = socketWriter;
         this.account = account;
@@ -24,28 +30,24 @@ public class Account extends Command implements Runnable {
 
     @Override
     public void run() {
-        String[] parsedResponse;
-
         try {
-            socketWriter.write(String.format("USER %s\r\n", account));
+            String[] parsedResponse;
+            final String command = String.format("ACCT %s\r\n", account);
+            socketWriter.write(command);
             socketWriter.flush();
-            
+            forwardControlResponse(command);
+
             final String response = socketListener.readLine();
 
             parsedResponse = parseResponse(socketListener.readLine());
 
-            Gdx.app.postRunnable(new Runnable() {
-                @Override
-                public void run() {
-                    ftpControlReceived.emit(response);
-                }
-            });
+            forwardControlResponse(response);
 
             switch (parsedResponse[0].charAt(0)) {
                 case '2':
                     finish(true);
                     return;
-                
+
                 case '1':
                 case '5':
                 case '4':
@@ -53,22 +55,21 @@ public class Account extends Command implements Runnable {
                     finish(false);
                     return;
             }
-        }
-        catch (Exception e) {
+        } catch (final Exception e) {
             // TODO handle exception
             Gdx.app.error("Exception", e.getMessage());
             e.printStackTrace();
         }
     }
 
-    private void finish(boolean status) {
+    private void finish(final boolean status) {
         Gdx.app.postRunnable(new Runnable() {
 
             @Override
             public void run() {
                 completed.emit(status);
             }
-            
+
         });
     }
 }

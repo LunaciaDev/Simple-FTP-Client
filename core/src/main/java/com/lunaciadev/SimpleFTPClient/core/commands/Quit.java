@@ -4,18 +4,17 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 
 import com.badlogic.gdx.Gdx;
-import com.lunaciadev.SimpleFTPClient.utils.Signal;
 
+/**
+ * Abstraction of FTP's {@code QUIT} command. Also signal the FTP Client to
+ * close the socket once completed.
+ */
 public class Quit extends Command implements Runnable {
     private BufferedReader socketListener;
     private BufferedWriter socketWriter;
 
-    /**
-     * @param status {@link Boolean} {@code True} if disconnected successfully, {@code False} otherwise.
-     */
-    public Signal completed = new Signal();
-
-    public Quit() {}
+    public Quit() {
+    }
 
     public void setData(BufferedReader socketListener, BufferedWriter socketWriter) {
         this.socketListener = socketListener;
@@ -30,14 +29,11 @@ public class Quit extends Command implements Runnable {
             socketWriter.write("QUIT\r\n");
             socketWriter.flush();
 
+            forwardControlResponse("QUIT\r\n");
+
             final String quitResponse = socketListener.readLine();
 
-            Gdx.app.postRunnable(new Runnable() {
-                @Override
-                public void run() {
-                    ftpControlReceived.emit(quitResponse);
-                }
-            });
+            forwardControlResponse(quitResponse);
 
             parsedResponse = parseResponse(quitResponse);
 
@@ -65,7 +61,7 @@ public class Quit extends Command implements Runnable {
             public void run() {
                 completed.emit(status);
             }
-            
+
         });
     }
 }

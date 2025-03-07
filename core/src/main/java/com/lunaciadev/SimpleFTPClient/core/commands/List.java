@@ -9,6 +9,18 @@ import java.util.concurrent.ExecutorService;
 import com.badlogic.gdx.Gdx;
 import com.lunaciadev.SimpleFTPClient.utils.Signal;
 
+/**
+ * <p>
+ * Abstraction of FTP's {@code LIST} command.
+ * </p>
+ * 
+ * <p>
+ * This command return format is not restricted. FileZilla implemented a parsing
+ * method to have a nice file display based on this command, and it is a giant
+ * block of code and regex. I guess I'll take the easy way out and just display
+ * raw return data.
+ * </p>
+ */
 public class List extends Command implements Runnable {
     private BufferedReader socketListener;
     private BufferedWriter socketWriter;
@@ -16,40 +28,33 @@ public class List extends Command implements Runnable {
     private volatile boolean allDataReceived = false;
     private boolean malformedData = false;
 
-    /**
-     * @param status {@link Boolean} {@code True} if command finished successfully, {@code False} otherwise.
-     * @param listing {@link String} the list result.
-     */
-    public Signal completed = new Signal();
+    private final Signal dataStruct = new Signal();
 
-    private Signal dataStruct = new Signal();
+    public List() {
+    }
 
-    public List() {}
-
-    public void setData(BufferedReader socketListener, BufferedWriter socketWriter, ExecutorService dataService) {
+    public void setData(final BufferedReader socketListener, final BufferedWriter socketWriter,
+            final ExecutorService dataService) {
         this.socketListener = socketListener;
         this.socketWriter = socketWriter;
         this.dataService = dataService;
+
         dataStruct.connect(this::checkResult);
     }
 
     @Override
     public void run() {
-        String[] parsedResponse;
-        String[] addr;
-
         try {
+            String[] parsedResponse;
+            String[] addr;
+
             socketWriter.write("PASV\r\n");
             socketWriter.flush();
+            forwardControlResponse("PASV\n");
 
             final String pasvResponse = socketListener.readLine();
 
-            Gdx.app.postRunnable(new Runnable() {
-                @Override
-                public void run() {
-                    ftpControlReceived.emit(pasvResponse);
-                }
-            });
+            forwardControlResponse(pasvResponse);
 
             parsedResponse = parseResponse(pasvResponse);
 
@@ -57,21 +62,23 @@ public class List extends Command implements Runnable {
                 case '2':
                     addr = parsePasvResponse(parsedResponse[1]);
                     break;
-            
+
                 default:
                     finish(false, null);
                     return;
             }
 
-            // prepare the socket to be ready to read first. 
+            // prepare the socket to be ready to read first.
             // TODO interrupt the thread, just in case if it get stuck in read.
             dataService.submit(new Runnable() {
                 @Override
                 public void run() {
                     try {
-                        Socket dataSocket = new Socket(String.join(".", addr[0], addr[1], addr[2], addr[3]), Integer.parseInt(addr[4]) * 256 + Integer.parseInt(addr[5]));
-                        BufferedReader dataReader = new BufferedReader(new InputStreamReader(dataSocket.getInputStream()));
-                        StringBuilder response = new StringBuilder();
+                        final Socket dataSocket = new Socket(String.join(".", addr[0], addr[1], addr[2], addr[3]),
+                                Integer.parseInt(addr[4]) * 256 + Integer.parseInt(addr[5]));
+                        final BufferedReader dataReader = new BufferedReader(
+                                new InputStreamReader(dataSocket.getInputStream()));
+                        final StringBuilder response = new StringBuilder();
                         String temp;
 
                         while (!allDataReceived) {
@@ -92,7 +99,7 @@ public class List extends Command implements Runnable {
                         });
 
                         dataSocket.close();
-                    } catch (Exception e) {
+                    } catch (final Exception e) {
                         // TODO: handle exception
                         Gdx.app.error("Exception", e.getMessage());
                         e.printStackTrace();
@@ -102,15 +109,10 @@ public class List extends Command implements Runnable {
 
             socketWriter.write("LIST\r\n");
             socketWriter.flush();
+            forwardControlResponse("LIST\n");
             while (true) {
                 final String listResponse = socketListener.readLine();
-
-                Gdx.app.postRunnable(new Runnable() {
-                    @Override
-                    public void run() {
-                        ftpControlReceived.emit(listResponse);
-                    }
-                });
+                forwardControlResponse(listResponse);
 
                 parsedResponse = parseResponse(listResponse);
 
@@ -118,7 +120,7 @@ public class List extends Command implements Runnable {
                     case '2':
                         allDataReceived = true;
                         return;
-                    
+
                     case '1':
                         break;
 
@@ -129,26 +131,28 @@ public class List extends Command implements Runnable {
                 }
             }
 
-        } catch (Exception e) {
+        } catch (final Exception e) {
             // TODO: handle exception
             Gdx.app.error("Exception", e.getMessage());
             e.printStackTrace();
         }
     }
 
-    private void checkResult(Object... args) {
-        if (malformedData) finish(false, null);
-        else finish(true, (String) args[0]);
-    } 
+    private void checkResult(final Object... args) {
+        if (malformedData)
+            finish(false, null);
+        else
+            finish(true, (String) args[0]);
+    }
 
-    private void finish(boolean status, String result) {
+    private void finish(final boolean status, final String result) {
         Gdx.app.postRunnable(new Runnable() {
 
             @Override
             public void run() {
                 completed.emit(status, result);
             }
-            
+
         });
     }
 }
