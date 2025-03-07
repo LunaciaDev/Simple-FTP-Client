@@ -45,31 +45,43 @@ public class MainScreen implements Screen {
 
         Gdx.input.setInputProcessor(stage);
 
-        controlPane.disconnectButtonClicked.connect(ftpClient::quit);
-        controlPane.refreshButtonClicked.connect(ftpClient::list);
+        /****** CONNECTING SIGNALS ******/
+        
+        // Returning FTP Control Responses
+        ftpClient.ftpControlResponse.connect(socketOutput::addOutput);
+
+        // Upload/Download Progress Reporting
+        ftpClient.ftpPartialTransfer.connect(progressInfo::updateBar);
+
+        // Connect to FTP Server
         controlPane.connectButtonClicked.connect(connectDialog::onConnectDialogRequested);
-        controlPane.uploadButtonClicked.connect(fileDialog::uploadFileDialog);
-
         connectDialog.loginButtonClicked.connect(loginUtils::startConnectProcess);
-
-        fileDialog.uploadFileSelected.connect(ftpClient::store);
-        fileDialog.uploadFileSelected.connect(progressInfo::taskStarted);
-
         loginUtils.requestConnection.connect(ftpClient::connect);
-        loginUtils.requestLogin.connect(ftpClient::login);
-        loginUtils.requestRefresh.connect(ftpClient::list);
-
-        ftpClient.listCompleted.connect(listOutput::addOutput);
         ftpClient.connectCompleted.connect(connectDialog::onConnectCommandFinished);
         ftpClient.connectCompleted.connect(loginUtils::startLoginProcess);
+        loginUtils.requestLogin.connect(ftpClient::login);
         ftpClient.loginCompleted.connect(connectDialog::onLoginCommandFinished);
         ftpClient.loginCompleted.connect(controlPane::onConnectStatusUpdate);
         ftpClient.loginCompleted.connect(loginUtils::onLoginFinished);
-        ftpClient.ftpControlResponse.connect(socketOutput::addOutput);
+        loginUtils.requestRefresh.connect(ftpClient::list);
+
+        // Disconnect from FTP Server
+        controlPane.disconnectButtonClicked.connect(ftpClient::quit);
         ftpClient.quitCompleted.connect(controlPane::onDisconnect);
+
+        // Refresh file listing
+
+        controlPane.refreshButtonClicked.connect(ftpClient::list);
+        ftpClient.listCompleted.connect(listOutput::addOutput);
+
+        // Upload File
+        controlPane.uploadButtonClicked.connect(fileDialog::uploadFileDialog);
+        fileDialog.uploadFileSelected.connect(ftpClient::store);
+        fileDialog.uploadFileSelected.connect(progressInfo::taskStarted);
         ftpClient.storeCompleted.connect(progressInfo::taskFinished);
+
+        // Download File
         ftpClient.retrieveCompleted.connect(progressInfo::taskFinished);
-        ftpClient.ftpPartialTransfer.connect(progressInfo::updateBar);
 
         setLayout();
     }
