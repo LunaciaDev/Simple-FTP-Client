@@ -70,7 +70,6 @@ public class MainScreen implements Screen {
         ftpClient.quitCompleted.connect(controlPane::onDisconnect);
 
         // Refresh file listing
-
         controlPane.refreshButtonClicked.connect(ftpClient::list);
         ftpClient.listCompleted.connect(listOutput::addOutput);
 

@@ -146,14 +146,14 @@ public class Store extends Command implements Runnable {
 
                 switch (parsedResponse[0].charAt(0)) {
                     case '2':
-                        break;
+                        return;
 
                     case '1':
                         break;
 
                     default:
                         malformedData = true;
-                        break;
+                        return;
                 }
             }
         } catch (final Exception e) {
