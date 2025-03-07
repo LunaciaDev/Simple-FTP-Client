@@ -14,7 +14,9 @@ public class Login extends Command implements Runnable {
 
     public Signal completed = new Signal();
 
-    public Login(BufferedReader socketListener, BufferedWriter socketWriter, String username, String password) {
+    public Login() {}
+
+    public void setData(BufferedReader socketListener, BufferedWriter socketWriter, String username, String password) {
         this.socketListener = socketListener;
         this.socketWriter = socketWriter;
         this.username = username;

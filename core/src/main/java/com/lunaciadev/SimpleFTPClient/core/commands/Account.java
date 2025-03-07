@@ -14,7 +14,9 @@ public class Account extends Command implements Runnable {
 
     public Signal completed = new Signal();
 
-    public Account(BufferedReader socketListener, BufferedWriter socketWriter, String account) {
+    public Account() {}
+
+    public void setData(BufferedReader socketListener, BufferedWriter socketWriter, String account) {
         this.socketListener = socketListener;
         this.socketWriter = socketWriter;
         this.account = account;

@@ -15,7 +15,9 @@ public class Quit extends Command implements Runnable {
      */
     public Signal completed = new Signal();
 
-    public Quit(BufferedReader socketListener, BufferedWriter socketWriter) {
+    public Quit() {}
+
+    public void setData(BufferedReader socketListener, BufferedWriter socketWriter) {
         this.socketListener = socketListener;
         this.socketWriter = socketWriter;
     }

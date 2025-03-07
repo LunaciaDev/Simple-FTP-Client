@@ -24,7 +24,9 @@ public class Connect extends Command implements Runnable {
      */
     public Signal completed = new Signal();
 
-    public Connect(String server, Integer port) {
+    public Connect() {}
+
+    public void setData(String server, Integer port) {
         this.server = server;
         this.port = port;
     }

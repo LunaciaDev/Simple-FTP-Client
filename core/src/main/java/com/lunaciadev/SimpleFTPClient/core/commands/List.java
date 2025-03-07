@@ -24,7 +24,9 @@ public class List extends Command implements Runnable {
 
     private Signal dataStruct = new Signal();
 
-    public List(BufferedReader socketListener, BufferedWriter socketWriter, ExecutorService dataService) {
+    public List() {}
+
+    public void setData(BufferedReader socketListener, BufferedWriter socketWriter, ExecutorService dataService) {
         this.socketListener = socketListener;
         this.socketWriter = socketWriter;
         this.dataService = dataService;

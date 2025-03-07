@@ -39,7 +39,7 @@ public class FTPClient {
      * @param result {@link Boolean} {@code True} if the connection is successful, {@code False} otherwise
      * @param message {@link String} The error message, if any.
      */
-    public Signal connectCompleted = new Signal();
+    public Signal connectCompleted;
 
     /**
      * Signal sent when {@link FTPClient#login(String, String)} finished.
@@ -47,21 +47,21 @@ public class FTPClient {
      * @param result {@link Boolean} {@code True} if the authentication is successful. If {@code False}, check the next field.
      * @param accountNeeded {@link Boolean} if {@code True}, need account to finish authentication. Otherwise, the username/password was rejected.
      */
-    public Signal loginCompleted = new Signal();
+    public Signal loginCompleted;
 
     /**
      * Signal sent when {@link FTPClient#sendAccount(String)} finished.
      * 
      * @param result {@link Boolean} {@code True} if the authentication is successful, {@code False} otherwise.
      */
-    public Signal sendAccountCompleted = new Signal();
+    public Signal accountCompleted;
 
     /**
      * Signal sent when {@link FTPClient#quit()} finished.
      * 
      * @param result {@link Boolean} {@code True} if the command is successful, {@code False} otherwise.
      */
-    public Signal quitCompleted = new Signal();
+    public Signal quitCompleted;
 
     /**
      * Signal sent when {@link FTPClient#list()} finished
@@ -69,21 +69,21 @@ public class FTPClient {
      * @param status {@link Boolean} {@code True} if the command is successful, {@code False} otherwise.
      * @param payload {@link String} the result.
      */
-    public Signal listCompleted = new Signal();
+    public Signal listCompleted;
 
     /**
      * Signal sent when {@link FTPClient#retrieve(String, String)} finished.
      * 
      * @param result {@link Boolean} {@code True} if the command is successful, {@code False} otherwise.
      */
-    public Signal retrieveCompleted = new Signal();
+    public Signal retrieveCompleted;
 
     /**
      * Signal sent when {@link FTPClient#store(String, String)} finished.
      * 
      * @param result {@link Boolean} {@code True} if the command is successful, {@code False} otherwise.
      */
-    public Signal storeCompleted = new Signal();
+    public Signal storeCompleted;
 
     /**
      * Emitted when any command receive an FTP Control Response.
@@ -96,9 +96,52 @@ public class FTPClient {
 
     /****** END SIGNAL REGION ******/
 
+    /****** COMMANDS ******/
+
+    private Account accountCommand;
+    private Connect connectCommand;
+    private List listCommand;
+    private Login loginCommand;
+    private Quit quitCommand;
+    private Retrieve retrieveCommand;
+    private Store storeCommand;
+
     public FTPClient() {
         controlService = Executors.newSingleThreadExecutor();
         dataService = Executors.newSingleThreadExecutor();
+
+        // Initialize all commands
+        accountCommand = new Account();
+        connectCommand = new Connect();
+        listCommand = new List();
+        loginCommand = new Login();
+        quitCommand = new Quit();
+        retrieveCommand = new Retrieve();
+        storeCommand = new Store();
+
+        // Exposing completed signals
+        accountCompleted = accountCommand.completed;
+        connectCompleted = connectCommand.completed;
+        listCompleted = listCommand.completed;
+        loginCompleted = loginCommand.completed;
+        quitCompleted = quitCommand.completed;
+        retrieveCompleted = retrieveCommand.completed;
+        storeCompleted = storeCommand.completed;
+
+        // Connect aggregate signals
+        accountCommand.ftpControlReceived.connect(this::onFTPControlReceived);
+        connectCommand.ftpControlReceived.connect(this::onFTPControlReceived);
+        listCommand.ftpControlReceived.connect(this::onFTPControlReceived);
+        loginCommand.ftpControlReceived.connect(this::onFTPControlReceived);
+        quitCommand.ftpControlReceived.connect(this::onFTPControlReceived);
+        retrieveCommand.ftpControlReceived.connect(this::onFTPControlReceived);
+        storeCommand.ftpControlReceived.connect(this::onFTPControlReceived);
+
+        storeCommand.partialTransferred.connect(this::partialTransferred);
+
+        // Internal connections
+        connectCompleted.connect(this::onConnectCompleted);
+        quitCompleted.connect(this::onQuitCompleted);
     }
 
     /**
@@ -108,23 +151,16 @@ public class FTPClient {
         String ftpServer = (String) args[0];
         int port = (int) args[1];
 
-        Connect task = new Connect(ftpServer, port);
-        task.completed.connect(this::onConnectCompleted);
-        task.ftpControlReceived.connect(this::onFTPControlReceived);
-        controlService.submit(task);
+        connectCommand.setData(ftpServer, port);
+        controlService.submit(connectCommand);
     }
 
     private void onConnectCompleted(Object... args) {
-        if (!(boolean) args[0]) {
-            connectCompleted.emit(false, args[4]);
-            return;
-        }
+        if (!(boolean) args[0]) return;
 
         controlSocket = (Socket) args[1];
         socketListener = (BufferedReader) args[2];
         socketWriter = (BufferedWriter) args[3];
-
-        connectCompleted.emit(true, args[4]);
     }
 
     /**
@@ -137,14 +173,8 @@ public class FTPClient {
         String username = (String) args[0];
         String password = (String) args[1];
 
-        Login task = new Login(socketListener, socketWriter, username, password);
-        task.completed.connect(this::onLoginCompleted);
-        task.ftpControlReceived.connect(this::onFTPControlReceived);
-        controlService.submit(task);
-    }
-
-    private void onLoginCompleted(Object... args) {
-        loginCompleted.emit(args);
+        loginCommand.setData(socketListener, socketWriter, username, password);
+        controlService.submit(loginCommand);
     }
 
     /**
@@ -153,31 +183,20 @@ public class FTPClient {
      * @param account
      */
     public void sendAccount(String account) {
-        Account task = new Account(socketListener, socketWriter, account);
-        task.completed.connect(this::onSendAccountCompleted);
-        task.ftpControlReceived.connect(this::onFTPControlReceived);
-        controlService.submit(task);
-    }
-
-    private void onSendAccountCompleted(Object... args) {
-        sendAccountCompleted.emit(args);
+        accountCommand.setData(socketListener, socketWriter, account);
+        controlService.submit(accountCommand);
     }
 
     /**
      * Log out from the FTP Server.
      */
     public void quit(Object... args) {
-        Quit task = new Quit(socketListener, socketWriter);
-        task.completed.connect(this::onQuitCompleted);
-        task.ftpControlReceived.connect(this::onFTPControlReceived);
-        controlService.submit(task);
+        quitCommand.setData(socketListener, socketWriter);
+        controlService.submit(quitCommand);
     }
 
     private void onQuitCompleted(Object... args) {
-        if (!(boolean) args[0]) {
-            quitCompleted.emit(false);
-            return;
-        }
+        if (!(boolean) args[0]) return;
 
         try {
             controlSocket.close();
@@ -186,22 +205,14 @@ public class FTPClient {
             Gdx.app.error("Exception", e.getMessage());
             e.printStackTrace();
         }
-
-        quitCompleted.emit(true);
     }
 
     /**
      * Since this is baked list command for the ui, we can just simply call LIST without any argument as we only have to show the current directory.
      */
     public void list(Object... args) {
-        List task = new List(socketListener, socketWriter, dataService);
-        task.completed.connect(this::onListCompleted);
-        task.ftpControlReceived.connect(this::onFTPControlReceived);
-        controlService.submit(task);
-    }
-
-    private void onListCompleted(Object... args) {
-        listCompleted.emit(args);
+        listCommand.setData(socketListener, socketWriter, dataService);
+        controlService.submit(listCommand);
     }
     
     /**
@@ -211,14 +222,8 @@ public class FTPClient {
      * @param localCWD The current working directory of the client.
      */
     public void retrieve(String fileName, String localCWD) {
-        Retrieve task = new Retrieve(socketListener, socketWriter, fileName, localCWD, dataService);
-        task.completed.connect(this::onRetrieveCompleted);
-        task.ftpControlReceived.connect(this::onFTPControlReceived);
-        controlService.submit(task);
-    }
-
-    private void onRetrieveCompleted(Object... args) {
-        retrieveCompleted.emit(args);
+        retrieveCommand.setData(socketListener, socketWriter, fileName, localCWD, dataService);
+        controlService.submit(retrieveCommand);
     }
 
     /**
@@ -227,15 +232,8 @@ public class FTPClient {
      * One argument, a string representing the absolute path to the file.
      */
     public void store(Object... args) {
-        Store task = new Store(socketListener, socketWriter, (Path) args[0], dataService);
-        task.completed.connect(this::onStoreCompleted);
-        task.ftpControlReceived.connect(this::onFTPControlReceived);
-        task.partialTransferred.connect(this::partialTransferred);
-        controlService.submit(task);
-    }
-
-    private void onStoreCompleted(Object... args) {
-        storeCompleted.emit(args);
+        storeCommand.setData(socketListener, socketWriter, (Path) args[0], dataService);
+        controlService.submit(storeCommand);
     }
 
     private void onFTPControlReceived(Object... args) {

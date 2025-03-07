@@ -24,7 +24,9 @@ public class Store extends Command implements Runnable {
 
     public Signal partialTransferred = new Signal();
 
-    public Store(BufferedReader socketListener, BufferedWriter socketWriter, Path uploadTarget, ExecutorService service) {
+    public Store() {}
+
+    public void setData(BufferedReader socketListener, BufferedWriter socketWriter, Path uploadTarget, ExecutorService service) {
         this.socketListener = socketListener;
         this.socketWriter = socketWriter;
         this.uploadTarget = uploadTarget;
