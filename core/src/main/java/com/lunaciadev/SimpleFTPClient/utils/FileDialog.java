@@ -14,6 +14,8 @@ public class FileDialog {
     public Signal uploadFileSelected = new Signal();
     public Signal downloadFolderSelected = new Signal();
 
+    private String lastDownloadFolder = null;
+
     public FileDialog() {
         service = Executors.newSingleThreadExecutor();
     }
@@ -40,7 +42,9 @@ public class FileDialog {
         service.submit(new Runnable() {
             @Override
             public void run() {
-                String folderPath = TinyFileDialogs.tinyfd_selectFolderDialog("Select Download Folder", System.getProperty("user.home"));
+                String defaultPath = lastDownloadFolder == null ? System.getProperty("user.home") : lastDownloadFolder;
+                String folderPath = TinyFileDialogs.tinyfd_selectFolderDialog("Select Download Folder", defaultPath);
+                lastDownloadFolder = folderPath == null ? lastDownloadFolder : folderPath;
 
                 Gdx.app.postRunnable(new Runnable() {
                     @Override
