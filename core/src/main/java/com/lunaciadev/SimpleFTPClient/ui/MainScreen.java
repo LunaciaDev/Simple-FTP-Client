@@ -100,7 +100,6 @@ public class MainScreen implements Screen {
     }
 
     private void setLayout() {
-        stage.addActor(connectDialog.getDialog());
         connectDialog.setStage(stage);
         downloadDialog.setStage(stage);
 

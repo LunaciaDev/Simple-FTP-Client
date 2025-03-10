@@ -32,7 +32,6 @@ public class DownloadDialog {
         dialog = new Dialog("Select file to download", dataPackage.getSkin());
         filenameField = new TextField("", dataPackage.getSkin());
         errorLabel = new Label("", dataPackage.getSkin());
-        dialog.hide();
 
         setLayout(dataPackage);
     }

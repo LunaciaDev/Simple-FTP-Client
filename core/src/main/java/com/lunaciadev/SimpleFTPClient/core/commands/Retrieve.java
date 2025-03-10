@@ -26,7 +26,7 @@ public class Retrieve extends Command implements Runnable {
 
     private String fileName;
 
-    public Signal setProgressBar;
+    public Signal setProgressBar = new Signal();
     public Signal partialTransferred = new Signal();
 
     public Retrieve() {
