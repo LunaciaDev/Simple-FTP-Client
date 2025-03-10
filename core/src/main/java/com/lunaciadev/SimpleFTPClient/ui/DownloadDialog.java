@@ -40,7 +40,7 @@ public class DownloadDialog {
         dialog.getContentTable().add(new Label("File Name: ", dataPackage.getSkin()));
         dialog.getContentTable().add(filenameField);
         dialog.row();
-        dialog.getContentTable().add(errorLabel);
+        dialog.getContentTable().add(errorLabel).colspan(3);
 
         TextButton downloadButton = new TextButton("Select", dataPackage.getSkin());
         TextButton cancelButton = new TextButton("Cancel", dataPackage.getSkin());
@@ -48,6 +48,7 @@ public class DownloadDialog {
         downloadButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
+                super.clicked(event, x, y);
                 downloadButtonClicked.emit(filenameField.getText());
             }
         });
@@ -56,11 +57,13 @@ public class DownloadDialog {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 super.clicked(event, x, y);
+                dialog.hide();
             }
         });
 
         dialog.button(downloadButton);
         dialog.button(cancelButton);
+        dialog.getButtonTable().clearListeners();
     }
 
     /**

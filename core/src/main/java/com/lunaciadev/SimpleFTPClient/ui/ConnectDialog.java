@@ -40,6 +40,7 @@ public class ConnectDialog {
         usernameField = new TextField("", dataPackage.getSkin());
         passwordField = new TextField("", dataPackage.getSkin());
         portField = new TextField("", dataPackage.getSkin());
+        errorLabel = new Label("", dataPackage.getSkin());
 
         passwordField.setPasswordMode(true);
         portField.setTextFieldFilter(new TextField.TextFieldFilter.DigitsOnlyFilter());
@@ -70,7 +71,7 @@ public class ConnectDialog {
 
         dialog.getContentTable().add(showPassword);
         dialog.getContentTable().row();
-        dialog.getContentTable().add(errorLabel);
+        dialog.getContentTable().add(errorLabel).colspan(3);
 
         TextButton loginButton = new TextButton("Login", dataPackage.getSkin());
         TextButton cancelButton = new TextButton("Cancel", dataPackage.getSkin());
@@ -93,6 +94,7 @@ public class ConnectDialog {
 
         dialog.button(loginButton);
         dialog.button(cancelButton);
+        dialog.getButtonTable().clearListeners();
     }
 
     /**
