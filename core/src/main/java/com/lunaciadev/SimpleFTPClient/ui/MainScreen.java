@@ -81,7 +81,7 @@ public class MainScreen implements Screen {
         // Upload File
         controlPane.uploadButtonClicked.connect(fileDialog::uploadFileDialog);
         fileDialog.uploadFileSelected.connect(ftpClient::store);
-        fileDialog.uploadFileSelected.connect(progressInfo::taskStarted);
+        fileDialog.uploadFileSelected.connect(progressInfo::startBarWithPath);
         ftpClient.storeCompleted.connect(progressInfo::taskFinished);
 
         // Download File
@@ -91,9 +91,9 @@ public class MainScreen implements Screen {
         ftpClient.nameListCompleted.connect(downloadUtils::onHaveFileList);
         downloadUtils.selectDownloadFolder.connect(fileDialog::downloadFileDialog);
         fileDialog.downloadFolderSelected.connect(downloadUtils::folderSelected);
+        ftpClient.retrieveSetBarSize.connect(progressInfo::startBarWithSize);;
         downloadUtils.downloadFile.connect(ftpClient::retrieve);
         downloadUtils.downloadFile.connect(downloadDialog::downloadStarted);
-        // TODO add attempt to get download size
         ftpClient.retrieveCompleted.connect(progressInfo::taskFinished);
 
         setLayout();

@@ -1,6 +1,8 @@
 package com.lunaciadev.SimpleFTPClient.utils;
 
 import com.badlogic.gdx.utils.Queue;
+import com.lunaciadev.SimpleFTPClient.core.FTPClient;
+
 
 public class DownloadUtils {
     private String fileName;
@@ -17,12 +19,14 @@ public class DownloadUtils {
         checkFileExist.emit(fileName);
     }
 
+    /**
+     * This is connected to {@link FTPClient#nameList}, which guarantee that if the status is OK, there will be a Queue<String>.
+     */
     public void onHaveFileList(Object... args) {
         if (!(boolean) args[0]) {
             selectRejected.emit("Cannot get file listing. Check your internet connection?");
         }
 
-        // This is connected to FTPClient NameList, which guarantee that if the status is OK, there will be a Queue<String>.
         @SuppressWarnings("unchecked")
         Queue<String> nameList = (Queue<String>) args[1];
         

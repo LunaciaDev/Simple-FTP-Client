@@ -113,6 +113,8 @@ public class FTPClient {
 
     public Signal ftpPartialTransfer = new Signal();
 
+    public Signal retrieveSetBarSize;
+
     /****** END SIGNAL REGION ******/
 
     /****** COMMANDS ******/
@@ -161,6 +163,9 @@ public class FTPClient {
         nameListCommand.ftpControlReceived.connect(this::onFTPControlReceived);
 
         storeCommand.partialTransferred.connect(this::partialTransferred);
+        retrieveCommand.partialTransferred.connect(this::partialTransferred);
+
+        retrieveSetBarSize = retrieveCommand.setProgressBar;
 
         // Internal connections
         connectCompleted.connect(this::onConnectCompleted);

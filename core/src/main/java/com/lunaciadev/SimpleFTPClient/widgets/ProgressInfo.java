@@ -34,13 +34,17 @@ public class ProgressInfo {
         return group;
     }
 
-    public void taskStarted(Object... args) {
+    public void startBarWithPath(Object... args) {
         try {
             progressBar.setRange(0, Files.size((Path) args[0]));
         }
         catch (Exception e) {
             Gdx.app.error("Exception", e.getMessage());
         }
+    }
+
+    public void startBarWithSize(Object... args) {
+        progressBar.setRange(0, (Integer) args[0]);
     }
 
     public void updateBar(Object... args) {
