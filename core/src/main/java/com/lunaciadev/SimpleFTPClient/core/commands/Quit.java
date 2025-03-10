@@ -29,7 +29,7 @@ public class Quit extends Command implements Runnable {
             socketWriter.write("QUIT\r\n");
             socketWriter.flush();
 
-            forwardControlResponse("QUIT\r\n");
+            forwardControlResponse("QUIT");
 
             final String quitResponse = socketListener.readLine();
 

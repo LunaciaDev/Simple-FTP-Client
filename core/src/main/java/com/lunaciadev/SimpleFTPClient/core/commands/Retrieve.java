@@ -7,7 +7,6 @@ import java.io.BufferedWriter;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.concurrent.ExecutorService;
 
 import com.badlogic.gdx.Gdx;
@@ -21,18 +20,17 @@ public class Retrieve extends Command implements Runnable {
     private ExecutorService dataService;
     private volatile boolean allDataReceived = false;
     private boolean malformedData = false;
-    private Path downloadTarget;
+    private Path downloadFolder;
 
     private String fileName;
-    private String localCWD;
 
     public Retrieve() {}
 
-    public void setData(final BufferedReader socketListener, final BufferedWriter socketWriter, final String fileName, final String localCWD, final ExecutorService service) {
+    public void setData(final BufferedReader socketListener, final BufferedWriter socketWriter, final String fileName, final Path downloadFolder, final ExecutorService service) {
         this.socketListener = socketListener;
         this.socketWriter = socketWriter;
         this.fileName = fileName;
-        this.localCWD = localCWD;
+        this.downloadFolder = downloadFolder;
         this.dataService = service;
     }
 
@@ -47,15 +45,23 @@ public class Retrieve extends Command implements Runnable {
          * Current implementation download the file from scratch.
          */
 
-        downloadTarget = Path.of(localCWD + fileName + ".tmp");
-        String[] parsedResponse;
-        String[] addr;
+        try {
+            Files.createFile(downloadFolder.resolve(fileName));
+        }
+        catch (Exception e) {
 
-        try (BufferedOutputStream out = new BufferedOutputStream(Files.newOutputStream(downloadTarget));) {
+        }
+
+        try (BufferedOutputStream out = new BufferedOutputStream(Files.newOutputStream(downloadFolder.resolve(fileName)));) {
+            String[] parsedResponse;
+            String[] addr;
+            allDataReceived = false;
+            malformedData = false;
+
             socketWriter.write("PASV\r\n");
             socketWriter.flush();
 
-            forwardControlResponse("PASV\r\n");
+            forwardControlResponse("PASV");
 
             final String pasvResponse = socketListener.readLine();
 
@@ -77,7 +83,7 @@ public class Retrieve extends Command implements Runnable {
             socketWriter.write("TYPE I\r\n");
             socketWriter.flush();
 
-            forwardControlResponse("TYPE I\r\n");
+            forwardControlResponse("TYPE I");
 
             final String typeResponse = socketListener.readLine();
 
@@ -112,9 +118,6 @@ public class Retrieve extends Command implements Runnable {
                                 out.write(buffer);
                             }
                         }
-
-                        final Path finalFile = Path.of(localCWD, fileName);
-                        Files.move(downloadTarget, finalFile, StandardCopyOption.REPLACE_EXISTING);
 
                         Gdx.app.postRunnable(new Runnable() {
                             @Override
@@ -168,7 +171,7 @@ public class Retrieve extends Command implements Runnable {
     private void checkResult(final boolean status) {
         if (malformedData) {
             try {
-                Files.delete(downloadTarget);
+                Files.delete(downloadFolder);
             }
             catch (final Exception e) {
                 // TODO: handle exception

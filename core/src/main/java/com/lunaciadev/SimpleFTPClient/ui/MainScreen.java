@@ -10,6 +10,7 @@ import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.lunaciadev.SimpleFTPClient.core.FTPClient;
 import com.lunaciadev.SimpleFTPClient.data.DataPackage;
 import com.lunaciadev.SimpleFTPClient.utils.ConnectUtils;
+import com.lunaciadev.SimpleFTPClient.utils.DownloadUtils;
 import com.lunaciadev.SimpleFTPClient.utils.FileDialog;
 import com.lunaciadev.SimpleFTPClient.widgets.ControlPane;
 import com.lunaciadev.SimpleFTPClient.widgets.ControlSocketOutput;
@@ -26,6 +27,8 @@ public class MainScreen implements Screen {
     private ProgressInfo progressInfo;
     private ConnectDialog connectDialog;
     private ConnectUtils loginUtils;
+    private DownloadDialog downloadDialog;
+    private DownloadUtils downloadUtils;
 
     private FTPClient ftpClient;
     private FileDialog fileDialog;
@@ -39,6 +42,8 @@ public class MainScreen implements Screen {
         this.progressInfo = new ProgressInfo(dataPackage);
         this.connectDialog = new ConnectDialog(dataPackage);
         this.loginUtils = new ConnectUtils();
+        this.downloadDialog = new DownloadDialog(dataPackage);
+        this.downloadUtils = new DownloadUtils();
 
         this.ftpClient = new FTPClient();
         this.fileDialog = new FileDialog();
@@ -80,6 +85,15 @@ public class MainScreen implements Screen {
         ftpClient.storeCompleted.connect(progressInfo::taskFinished);
 
         // Download File
+        controlPane.downloadButtonClicked.connect(downloadDialog::onDownloadDialogRequested);
+        downloadDialog.downloadButtonClicked.connect(downloadUtils::getFileLists);
+        downloadUtils.checkFileExist.connect(ftpClient::nameList);
+        ftpClient.nameListCompleted.connect(downloadUtils::onHaveFileList);
+        downloadUtils.selectDownloadFolder.connect(fileDialog::downloadFileDialog);
+        fileDialog.downloadFolderSelected.connect(downloadUtils::folderSelected);
+        downloadUtils.downloadFile.connect(ftpClient::retrieve);
+        downloadUtils.downloadFile.connect(downloadDialog::downloadStarted);
+        // TODO add attempt to get download size
         ftpClient.retrieveCompleted.connect(progressInfo::taskFinished);
 
         setLayout();
@@ -88,7 +102,7 @@ public class MainScreen implements Screen {
     private void setLayout() {
         stage.addActor(connectDialog.getDialog());
         connectDialog.setStage(stage);
-        connectDialog.getDialog().hide();
+        downloadDialog.setStage(stage);
 
         rootTable = new Table();
         rootTable.setFillParent(true);

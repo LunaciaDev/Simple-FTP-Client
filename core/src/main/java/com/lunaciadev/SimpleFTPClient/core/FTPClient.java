@@ -10,6 +10,7 @@ import java.util.concurrent.Executors;
 import com.badlogic.gdx.Gdx;
 import com.lunaciadev.SimpleFTPClient.core.commands.Account;
 import com.lunaciadev.SimpleFTPClient.core.commands.Login;
+import com.lunaciadev.SimpleFTPClient.core.commands.NameList;
 import com.lunaciadev.SimpleFTPClient.core.commands.Connect;
 import com.lunaciadev.SimpleFTPClient.core.commands.List;
 import com.lunaciadev.SimpleFTPClient.core.commands.Quit;
@@ -37,16 +38,16 @@ public class FTPClient {
     /**
      * Signal sent when {@link FTPClient#connect(String, Integer)} finished.
      * 
-     * @param result  {@link Boolean} {@code True} if the connection is successful,
+     * @param status  {@link Boolean} {@code True} if the connection is successful,
      *                {@code False} otherwise
      * @param message {@link String} The error message, if any.
      */
     public Signal connectCompleted;
 
     /**
-     * Signal sent when {@link FTPClient#login(String, String)} finished.
+     * Signal sent when {@link FTPClient#login} finished.
      * 
-     * @param result        {@link Boolean} {@code True} if the authentication is
+     * @param status        {@link Boolean} {@code True} if the authentication is
      *                      successful. If {@code False}, check the next field.
      * @param accountNeeded {@link Boolean} if {@code True}, need account to finish
      *                      authentication. Otherwise, the username/password was
@@ -55,23 +56,23 @@ public class FTPClient {
     public Signal loginCompleted;
 
     /**
-     * Signal sent when {@link FTPClient#sendAccount(String)} finished.
+     * Signal sent when {@link FTPClient#sendAccount} finished.
      * 
-     * @param result {@link Boolean} {@code True} if the authentication is
+     * @param status {@link Boolean} {@code True} if the authentication is
      *               successful, {@code False} otherwise.
      */
     public Signal accountCompleted;
 
     /**
-     * Signal sent when {@link FTPClient#quit()} finished.
+     * Signal sent when {@link FTPClient#quit} finished.
      * 
-     * @param result {@link Boolean} {@code True} if the command is successful,
+     * @param status {@link Boolean} {@code True} if the command is successful,
      *               {@code False} otherwise.
      */
     public Signal quitCompleted;
 
     /**
-     * Signal sent when {@link FTPClient#list()} finished
+     * Signal sent when {@link FTPClient#list} finished
      * 
      * @param status  {@link Boolean} {@code True} if the command is successful,
      *                {@code False} otherwise.
@@ -80,20 +81,28 @@ public class FTPClient {
     public Signal listCompleted;
 
     /**
-     * Signal sent when {@link FTPClient#retrieve(String, String)} finished.
+     * Signal sent when {@link FTPClient#retrieve} finished.
      * 
-     * @param result {@link Boolean} {@code True} if the command is successful,
+     * @param status {@link Boolean} {@code True} if the command is successful,
      *               {@code False} otherwise.
      */
     public Signal retrieveCompleted;
 
     /**
-     * Signal sent when {@link FTPClient#store(String, String)} finished.
+     * Signal sent when {@link FTPClient#store} finished.
      * 
-     * @param result {@link Boolean} {@code True} if the command is successful,
+     * @param status {@link Boolean} {@code True} if the command is successful,
      *               {@code False} otherwise.
      */
     public Signal storeCompleted;
+
+    /**
+     * Signal sent when {@link FTPClient#nameList} finished.
+     * 
+     * @param status {@link Boolean} {@code True} if the command is successful,
+     *               {@code False} otherwise.
+     */
+    public Signal nameListCompleted;
 
     /**
      * Emitted when any command receive an FTP Control Response.
@@ -115,6 +124,7 @@ public class FTPClient {
     private final Quit quitCommand;
     private final Retrieve retrieveCommand;
     private final Store storeCommand;
+    private final NameList nameListCommand;
 
     public FTPClient() {
         controlService = Executors.newSingleThreadExecutor();
@@ -128,6 +138,7 @@ public class FTPClient {
         quitCommand = new Quit();
         retrieveCommand = new Retrieve();
         storeCommand = new Store();
+        nameListCommand = new NameList();
 
         // Exposing completed signals
         accountCompleted = accountCommand.completed;
@@ -137,6 +148,7 @@ public class FTPClient {
         quitCompleted = quitCommand.completed;
         retrieveCompleted = retrieveCommand.completed;
         storeCompleted = storeCommand.completed;
+        nameListCompleted = nameListCommand.completed;
 
         // Connect aggregate signals
         accountCommand.ftpControlReceived.connect(this::onFTPControlReceived);
@@ -146,6 +158,7 @@ public class FTPClient {
         quitCommand.ftpControlReceived.connect(this::onFTPControlReceived);
         retrieveCommand.ftpControlReceived.connect(this::onFTPControlReceived);
         storeCommand.ftpControlReceived.connect(this::onFTPControlReceived);
+        nameListCommand.ftpControlReceived.connect(this::onFTPControlReceived);
 
         storeCommand.partialTransferred.connect(this::partialTransferred);
 
@@ -210,11 +223,12 @@ public class FTPClient {
     /**
      * Download a file from the FTP Server
      * 
-     * @param fileName The name of the file.
-     * @param localCWD The current working directory of the client.
      */
-    public void retrieve(final String fileName, final String localCWD) {
-        retrieveCommand.setData(socketListener, socketWriter, fileName, localCWD, dataService);
+    public void retrieve(final Object... args) {
+        String fileName = (String) args[0];
+        Path downloadFolderPath = (Path) args[1];
+
+        retrieveCommand.setData(socketListener, socketWriter, fileName, downloadFolderPath, dataService);
         controlService.submit(retrieveCommand);
     }
 
@@ -227,10 +241,24 @@ public class FTPClient {
         storeCommand.setData(socketListener, socketWriter, (Path) args[0], dataService);
         controlService.submit(storeCommand);
     }
+    
+    public void nameList(final Object... args) {
+        nameListCommand.setData(socketListener, socketWriter, dataService);
+        controlService.submit(nameListCommand);
+    }
 
     public void dispose() {
         controlService.shutdown();
         dataService.shutdown();
+        
+        if (!controlSocket.isClosed()) {
+            try {
+                controlSocket.close();
+            } catch (Exception e) {
+                Gdx.app.error("Exception", e.getMessage());
+                e.printStackTrace();
+            }
+        }
     }
 
     private void onConnectCompleted(final Object... args) {

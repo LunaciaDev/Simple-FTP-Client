@@ -43,7 +43,7 @@ public class Command {
         Gdx.app.postRunnable(new Runnable() {
             @Override
             public void run() {
-                ftpControlReceived.emit(response);
+                ftpControlReceived.emit(response.strip());
             }
         });
     }

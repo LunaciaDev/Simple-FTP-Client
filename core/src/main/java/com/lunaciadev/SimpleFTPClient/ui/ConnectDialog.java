@@ -40,6 +40,7 @@ public class ConnectDialog {
         usernameField = new TextField("", dataPackage.getSkin());
         passwordField = new TextField("", dataPackage.getSkin());
         portField = new TextField("", dataPackage.getSkin());
+        dialog.hide();
 
         passwordField.setPasswordMode(true);
         portField.setTextFieldFilter(new TextField.TextFieldFilter.DigitsOnlyFilter());

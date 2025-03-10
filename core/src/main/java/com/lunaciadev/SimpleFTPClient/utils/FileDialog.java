@@ -12,6 +12,7 @@ public class FileDialog {
     private ExecutorService service;
 
     public Signal uploadFileSelected = new Signal();
+    public Signal downloadFolderSelected = new Signal();
 
     public FileDialog() {
         service = Executors.newSingleThreadExecutor();
@@ -28,6 +29,24 @@ public class FileDialog {
                     public void run() {
                         if (selectedFilePath != null) {
                             uploadFileSelected.emit(Path.of(selectedFilePath));
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    public void downloadFileDialog(Object... args) {
+        service.submit(new Runnable() {
+            @Override
+            public void run() {
+                String folderPath = TinyFileDialogs.tinyfd_selectFolderDialog("Select Download Folder", System.getProperty("user.home"));
+
+                Gdx.app.postRunnable(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (folderPath != null) {
+                            downloadFolderSelected.emit(Path.of(folderPath));
                         }
                     }
                 });

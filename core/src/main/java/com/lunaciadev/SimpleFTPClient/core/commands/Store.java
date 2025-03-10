@@ -45,11 +45,13 @@ public class Store extends Command implements Runnable {
         String[] parsedResponse;
         String[] addr;
 
+        malformedData = false;
+
         try (BufferedInputStream in = new BufferedInputStream(Files.newInputStream(uploadTarget));) {
             socketWriter.write("PASV\r\n");
             socketWriter.flush();
 
-            forwardControlResponse("PASV\r\n");
+            forwardControlResponse("PASV");
 
             final String pasvResponse = socketListener.readLine();
 
@@ -71,7 +73,7 @@ public class Store extends Command implements Runnable {
             socketWriter.write("TYPE I\r\n");
             socketWriter.flush();
 
-            forwardControlResponse("TYPE I\r\n");
+            forwardControlResponse("TYPE I");
 
             final String typeResponse = socketListener.readLine();
 

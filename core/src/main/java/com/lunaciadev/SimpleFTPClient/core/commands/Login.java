@@ -70,7 +70,7 @@ public class Login extends Command implements Runnable {
             socketWriter.write(String.format("PASS %s\r\n", password));
             socketWriter.flush();
 
-            forwardControlResponse("PASS ██████\r\n");
+            forwardControlResponse("PASS ██████");
 
             final String passResponse = socketListener.readLine();
 

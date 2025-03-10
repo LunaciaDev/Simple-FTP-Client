@@ -7,21 +7,10 @@ import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.utils.Queue;
 import com.lunaciadev.SimpleFTPClient.utils.Signal;
 
-/**
- * <p>
- * Abstraction of FTP's {@code LIST} command.
- * </p>
- * 
- * <p>
- * This command return format is not restricted. FileZilla implemented a parsing
- * method to have a nice file display based on this command, and it is a giant
- * block of code and regex. I guess I'll take the easy way out and just display
- * raw return data.
- * </p>
- */
-public class List extends Command implements Runnable {
+public class NameList extends Command implements Runnable {
     private BufferedReader socketListener;
     private BufferedWriter socketWriter;
     private ExecutorService dataService;
@@ -30,12 +19,12 @@ public class List extends Command implements Runnable {
 
     private final Signal dataStruct = new Signal();
 
-    public List() {
+    public NameList() {
         dataStruct.connect(this::checkResult);
     }
 
     public void setData(final BufferedReader socketListener, final BufferedWriter socketWriter,
-            final ExecutorService dataService) {
+        final ExecutorService dataService) {
         this.socketListener = socketListener;
         this.socketWriter = socketWriter;
         this.dataService = dataService;
@@ -50,7 +39,7 @@ public class List extends Command implements Runnable {
 
             socketWriter.write("PASV\r\n");
             socketWriter.flush();
-            forwardControlResponse("PASV");
+            forwardControlResponse("PASV\n");
 
             final String pasvResponse = socketListener.readLine();
 
@@ -78,21 +67,19 @@ public class List extends Command implements Runnable {
                                 Integer.parseInt(addr[4]) * 256 + Integer.parseInt(addr[5]));
                         final BufferedReader dataReader = new BufferedReader(
                                 new InputStreamReader(dataSocket.getInputStream()));
-                        final StringBuilder response = new StringBuilder();
+                        final Queue<String> response = new Queue<>();
                         String temp;
 
                         while (!allDataReceived) {
                             while ((temp = dataReader.readLine()) != null) {
-                                response.append(temp).append("\n");
+                                response.addLast(temp);
                             }
                         }
-
-                        final String result = response.toString().trim();
 
                         Gdx.app.postRunnable(new Runnable() {
                             @Override
                             public void run() {
-                                dataStruct.emit(result);
+                                dataStruct.emit(response);
                             }
                         });
 
@@ -105,9 +92,10 @@ public class List extends Command implements Runnable {
                 }
             });
 
-            socketWriter.write("LIST\r\n");
+            socketWriter.write("NLST\r\n");
             socketWriter.flush();
-            forwardControlResponse("LIST");
+            forwardControlResponse("NLST");
+
             while (true) {
                 final String listResponse = socketListener.readLine();
                 forwardControlResponse(listResponse);
@@ -136,14 +124,15 @@ public class List extends Command implements Runnable {
         }
     }
 
+    @SuppressWarnings("unchecked")
     private void checkResult(final Object... args) {
         if (malformedData)
             finish(false, null);
         else
-            finish(true, (String) args[0]);
+            finish(true, (Queue<String>) args[0]);
     }
 
-    private void finish(final boolean status, final String result) {
+    private void finish(final boolean status, final Queue<String> result) {
         Gdx.app.postRunnable(new Runnable() {
 
             @Override
@@ -153,4 +142,5 @@ public class List extends Command implements Runnable {
 
         });
     }
+
 }
