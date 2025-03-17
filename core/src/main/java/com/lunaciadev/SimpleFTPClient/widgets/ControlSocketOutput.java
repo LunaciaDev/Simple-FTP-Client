@@ -1,7 +1,9 @@
 package com.lunaciadev.SimpleFTPClient.widgets;
 
+import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
+import com.badlogic.gdx.utils.Align;
 import com.badlogic.gdx.utils.Queue;
 import com.lunaciadev.SimpleFTPClient.core.FTPClient;
 import com.lunaciadev.SimpleFTPClient.data.DataPackage;
@@ -15,9 +17,14 @@ public class ControlSocketOutput {
     private final int MAX_HIST_SIZE = 100;
 
     public ControlSocketOutput(DataPackage dataPackage) {
-        output = new Label("", dataPackage.getSkin());
+        output = new Label("", dataPackage.getSkin(), "mono");
         output.setWrap(true);
-        scrollPane = new ScrollPane(output);
+        output.setAlignment(Align.topLeft);
+
+        Container<Label> container = new Container<>(output);
+        container.pad(5).fill();
+
+        scrollPane = new ScrollPane(container);
 
         dataHistory = new Queue<>(MAX_HIST_SIZE);
         historySize = 0;

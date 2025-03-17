@@ -3,19 +3,20 @@ package com.lunaciadev.SimpleFTPClient.widgets;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.badlogic.gdx.scenes.scene2d.InputEvent;
-import com.badlogic.gdx.scenes.scene2d.ui.HorizontalGroup;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.lunaciadev.SimpleFTPClient.core.FTPClient;
 import com.lunaciadev.SimpleFTPClient.data.DataPackage;
 import com.lunaciadev.SimpleFTPClient.utils.Signal;
 
 public class ControlPane {
-    private HorizontalGroup group;
+    private Table group;
     private TextButton connectButton;
     private TextButton refreshButton;
     private TextButton downloadButton;
     private TextButton uploadButton;
 
     private boolean isConnected;
+    private float stringHeight;
 
     /****** SIGNALS ******/
 
@@ -53,6 +54,8 @@ public class ControlPane {
         refreshButton = new TextButton("Refresh", dataPackage.getSkin());
         downloadButton = new TextButton("Download", dataPackage.getSkin());
         uploadButton = new TextButton("Upload", dataPackage.getSkin());
+
+        stringHeight = connectButton.getStyle().font.getLineHeight() + 4f;
 
         refreshButton.setDisabled(true);
         downloadButton.setDisabled(true);
@@ -96,7 +99,7 @@ public class ControlPane {
             }
         });
 
-        group = new HorizontalGroup();
+        group = new Table();
         setLayout();
     }
 
@@ -124,18 +127,16 @@ public class ControlPane {
     }
 
     private void setLayout() {
-        group.pad(10).space(5).left().fill();
-        connectButton.pad(5, 10, 5, 10);
-        refreshButton.pad(5, 10, 5, 10);
-        downloadButton.pad(5, 10, 5, 10);
-        uploadButton.pad(5, 10, 5, 10);
-        group.addActor(connectButton);
-        group.addActor(refreshButton);
-        group.addActor(downloadButton);
-        group.addActor(uploadButton);
+        group.defaults().space(0, 10, 0, 10).height(stringHeight);
+
+        group.add(connectButton);
+        group.add(refreshButton);
+        group.add(downloadButton);
+        group.add(uploadButton);
+        group.add().expandX();
     }
 
-    public HorizontalGroup getLayout() {
+    public Table getLayout() {
         return group;
     }
 }

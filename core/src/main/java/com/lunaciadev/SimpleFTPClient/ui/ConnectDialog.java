@@ -18,6 +18,8 @@ public class ConnectDialog {
     private TextField portField;
     private Label errorLabel;
 
+    private float stringHeight;
+
     private Stage stage;
 
     /****** SIGNALS ******/
@@ -35,12 +37,14 @@ public class ConnectDialog {
     /****** END SIGNALS ******/
 
     public ConnectDialog(DataPackage dataPackage) {
-        dialog = new Dialog("Connect to a FTP Server", dataPackage.getSkin());
+        dialog = new Dialog("", dataPackage.getSkin());
         serverAddress = new TextField("", dataPackage.getSkin());
         usernameField = new TextField("", dataPackage.getSkin());
         passwordField = new TextField("", dataPackage.getSkin());
         portField = new TextField("21", dataPackage.getSkin());
         errorLabel = new Label("", dataPackage.getSkin());
+
+        stringHeight = errorLabel.getStyle().font.getLineHeight() + 4f;
 
         passwordField.setPasswordMode(true);
         portField.setTextFieldFilter(new TextField.TextFieldFilter.DigitsOnlyFilter());
@@ -49,7 +53,11 @@ public class ConnectDialog {
     }
 
     private void setLayout(DataPackage dataPackage) {
-        dialog.getContentTable().add(new Label("FTP Server Address: ", dataPackage.getSkin()));
+        dialog.pad(20);
+
+        dialog.getContentTable().defaults().height(stringHeight);
+
+        dialog.getContentTable().add(new Label("Address: ", dataPackage.getSkin()));
         dialog.getContentTable().add(serverAddress);
         dialog.getContentTable().add(new Label("Port: ", dataPackage.getSkin()));
         dialog.getContentTable().add(portField);
@@ -92,6 +100,7 @@ public class ConnectDialog {
             }
         });
 
+        dialog.getButtonTable().defaults().height(stringHeight);
         dialog.button(loginButton);
         dialog.button(cancelButton);
         dialog.getButtonTable().clearListeners();

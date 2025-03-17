@@ -108,11 +108,13 @@ public class MainScreen implements Screen {
 
         rootTable.add(controlPane.getLayout());
         rootTable.row();
-        rootTable.add(listOutput.getLayout()).minHeight(Value.percentHeight(0.6f, rootTable)).expandY();
+        rootTable.add(listOutput.getLayout()).pad(10, 0, 10, 0).minHeight(Value.percentHeight(0.5f, rootTable)).expandY();
         rootTable.row();
-        rootTable.add(socketOutput.getLayout()).minHeight(Value.percentHeight(0.3f, rootTable)).expandY();
+        rootTable.add(socketOutput.getLayout()).pad(10, 0, 10, 0).minHeight(Value.percentHeight(0.2f, rootTable)).expandY();
         rootTable.row();
-        rootTable.add(progressInfo.getLayout());
+        rootTable.add(progressInfo.getLayout()).pad(10, 0, 10, 0);
+
+        rootTable.pad(10);
     }
 
     @Override
@@ -123,7 +125,7 @@ public class MainScreen implements Screen {
 
     @Override
     public void render(float delta) {
-        ScreenUtils.clear(Color.LIGHT_GRAY);
+        ScreenUtils.clear(new Color(0x212529ff));
         stage.act();
         stage.draw();
     }

@@ -14,6 +14,7 @@ public class DownloadDialog {
     private Dialog dialog;
     private TextField filenameField;
     private Label errorLabel;
+    private float stringHeight;
 
     private Stage stage;
 
@@ -29,14 +30,18 @@ public class DownloadDialog {
     /****** END SIGNALS ******/
 
     public DownloadDialog(DataPackage dataPackage) {
-        dialog = new Dialog("Select file to download", dataPackage.getSkin());
+        dialog = new Dialog("", dataPackage.getSkin());
         filenameField = new TextField("", dataPackage.getSkin());
         errorLabel = new Label("", dataPackage.getSkin());
+
+        stringHeight = filenameField.getStyle().font.getLineHeight() + 4f;
 
         setLayout(dataPackage);
     }
 
     private void setLayout(DataPackage dataPackage) {
+        dialog.getContentTable().defaults().height(stringHeight);
+
         dialog.getContentTable().add(new Label("File Name: ", dataPackage.getSkin()));
         dialog.getContentTable().add(filenameField);
         dialog.row();
@@ -61,6 +66,7 @@ public class DownloadDialog {
             }
         });
 
+        dialog.getButtonTable().defaults().height(stringHeight);
         dialog.button(downloadButton);
         dialog.button(cancelButton);
         dialog.getButtonTable().clearListeners();
