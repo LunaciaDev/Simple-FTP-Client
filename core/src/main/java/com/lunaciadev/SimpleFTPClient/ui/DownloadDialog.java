@@ -50,7 +50,7 @@ public class DownloadDialog {
         dialog.getContentTable().add(errorLabel).colspan(3);
 
         TextButton downloadButton = new TextButton("Select", dataPackage.getSkin());
-        TextButton cancelButton = new TextButton("Cancel", dataPackage.getSkin());
+        TextButton cancelButton = new TextButton("Cancel", dataPackage.getSkin(), "no-highlight");
 
         downloadButton.addListener(new ClickListener() {
             @Override

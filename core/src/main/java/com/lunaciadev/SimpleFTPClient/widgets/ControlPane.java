@@ -1,8 +1,8 @@
 package com.lunaciadev.SimpleFTPClient.widgets;
 
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
-import com.badlogic.gdx.scenes.scene2d.InputEvent;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
+import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.lunaciadev.SimpleFTPClient.core.FTPClient;
 import com.lunaciadev.SimpleFTPClient.data.DataPackage;
@@ -50,10 +50,10 @@ public class ControlPane {
     public ControlPane(DataPackage dataPackage) {
         isConnected = false;
 
-        connectButton = new TextButton("Connect", dataPackage.getSkin());
-        refreshButton = new TextButton("Refresh", dataPackage.getSkin());
-        downloadButton = new TextButton("Download", dataPackage.getSkin());
-        uploadButton = new TextButton("Upload", dataPackage.getSkin());
+        connectButton = new TextButton("Connect", dataPackage.getSkin(), "no-highlight");
+        refreshButton = new TextButton("Refresh", dataPackage.getSkin(), "no-highlight");
+        downloadButton = new TextButton("Download", dataPackage.getSkin(), "no-highlight");
+        uploadButton = new TextButton("Upload", dataPackage.getSkin(), "no-highlight");
 
         stringHeight = connectButton.getStyle().font.getLineHeight() + 4f;
 
@@ -61,11 +61,10 @@ public class ControlPane {
         downloadButton.setDisabled(true);
         uploadButton.setDisabled(true);
 
-        connectButton.addListener(new ClickListener() {
+        connectButton.addListener(new ChangeListener() {
             @Override
-            public void clicked(InputEvent event, float x, float y) {
-                super.clicked(event, x, y);
-
+            public void changed(ChangeEvent event, Actor actor) {
+                // TODO Auto-generated method stub
                 if (!isConnected) {
                     connectButtonClicked.emit();
                 }
@@ -75,26 +74,23 @@ public class ControlPane {
             }
         });
 
-        refreshButton.addListener(new ClickListener() {
+        refreshButton.addListener(new ChangeListener() {
             @Override
-            public void clicked(InputEvent event, float x, float y) {
-                super.clicked(event, x, y);
+            public void changed(ChangeEvent event, Actor actor) {
                 refreshButtonClicked.emit();
             }
         });
 
-        downloadButton.addListener(new ClickListener() {
+        downloadButton.addListener(new ChangeListener() {
             @Override
-            public void clicked(InputEvent event, float x, float y) {
-                super.clicked(event, x, y);
+            public void changed(ChangeEvent event, Actor actor) {
                 downloadButtonClicked.emit();
             }
         });
 
-        uploadButton.addListener(new ClickListener() {
+        uploadButton.addListener(new ChangeListener() {
             @Override
-            public void clicked(InputEvent event, float x, float y) {
-                super.clicked(event, x, y);
+            public void changed(ChangeEvent event, Actor actor) {
                 uploadButtonClicked.emit();
             }
         });
