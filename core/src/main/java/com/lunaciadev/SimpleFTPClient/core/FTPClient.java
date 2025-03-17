@@ -111,10 +111,6 @@ public class FTPClient {
      */
     public Signal ftpControlResponse = new Signal();
 
-    public Signal ftpPartialTransfer = new Signal();
-
-    public Signal retrieveSetBarSize;
-
     /****** END SIGNAL REGION ******/
 
     /****** COMMANDS ******/
@@ -161,11 +157,6 @@ public class FTPClient {
         retrieveCommand.ftpControlReceived.connect(this::onFTPControlReceived);
         storeCommand.ftpControlReceived.connect(this::onFTPControlReceived);
         nameListCommand.ftpControlReceived.connect(this::onFTPControlReceived);
-
-        storeCommand.partialTransferred.connect(this::partialTransferred);
-        retrieveCommand.partialTransferred.connect(this::partialTransferred);
-
-        retrieveSetBarSize = retrieveCommand.setProgressBar;
 
         // Internal connections
         connectCompleted.connect(this::onConnectCompleted);
@@ -227,7 +218,6 @@ public class FTPClient {
 
     /**
      * Download a file from the FTP Server
-     * 
      */
     public void retrieve(final Object... args) {
         String fileName = (String) args[0];
@@ -238,8 +228,6 @@ public class FTPClient {
     }
 
     /**
-     * Slot, connected to ...
-     * 
      * One argument, a string representing the absolute path to the file.
      */
     public void store(final Object... args) {
@@ -290,9 +278,5 @@ public class FTPClient {
 
     private void onFTPControlReceived(final Object... args) {
         ftpControlResponse.emit(args);
-    }
-
-    private void partialTransferred(final Object... args) {
-        ftpPartialTransfer.emit(args);
     }
 }

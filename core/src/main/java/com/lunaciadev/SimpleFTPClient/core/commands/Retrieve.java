@@ -10,7 +10,6 @@ import java.nio.file.Path;
 import java.util.concurrent.ExecutorService;
 
 import com.badlogic.gdx.Gdx;
-import com.lunaciadev.SimpleFTPClient.utils.Signal;
 
 /**
  * TODO fix this thing
@@ -21,13 +20,9 @@ public class Retrieve extends Command implements Runnable {
     private ExecutorService dataService;
     private volatile boolean allDataReceived = false;
     private boolean malformedData = false;
-    private boolean hasSize = false;
     private Path downloadFolder;
 
     private String fileName;
-
-    public Signal setProgressBar = new Signal();
-    public Signal partialTransferred = new Signal();
 
     public Retrieve() {
     }
@@ -64,7 +59,6 @@ public class Retrieve extends Command implements Runnable {
             String[] addr;
             allDataReceived = false;
             malformedData = false;
-            hasSize = false;
 
             socketWriter.write("PASV\r\n");
             socketWriter.flush();
@@ -108,30 +102,6 @@ public class Retrieve extends Command implements Runnable {
                     return;
             }
 
-            // Check if we can get the fileSize.
-            String sizeCommand = String.format("SIZE %s\r\n", fileName);
-
-            socketWriter.write(sizeCommand);
-            socketWriter.flush();
-
-            forwardControlResponse(sizeCommand);
-
-            final String sizeResponse = socketListener.readLine();
-
-            forwardControlResponse(typeResponse);
-
-            parsedResponse = parseResponse(typeResponse);
-
-            switch (parsedResponse[0].charAt(0)) {
-                case '2':
-                    setProgressBar.emit(Integer.parseInt(sizeResponse));
-                    hasSize = true;
-                    break;
-
-                default:
-                    break;
-            }
-
             // prepare the listener before sending the command.
             dataService.submit(new Runnable() {
                 @Override
@@ -144,23 +114,10 @@ public class Retrieve extends Command implements Runnable {
                         // 8kB buffer. Has to do this to keep track of read bytes, transferTo would just
                         // block indefinitely?
                         final byte[] buffer = new byte[8192];
-                        int temp;
 
                         while (!allDataReceived) {
-                            while ((temp = in.read(buffer)) != -1) {
-                                // a bit of roundabout since cross thread communication must be finals to be
-                                // thread-safe in a loop.
-                                final int bytesReceived = temp;
+                            while (in.read(buffer) != -1) {
                                 out.write(buffer);
-
-                                if (hasSize) {
-                                    Gdx.app.postRunnable(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            partialTransferred.emit(bytesReceived);
-                                        }
-                                    });
-                                }
                             }
                         }
 

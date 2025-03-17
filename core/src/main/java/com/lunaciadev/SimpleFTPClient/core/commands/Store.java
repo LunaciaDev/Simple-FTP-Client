@@ -10,7 +10,6 @@ import java.nio.file.Path;
 import java.util.concurrent.ExecutorService;
 
 import com.badlogic.gdx.Gdx;
-import com.lunaciadev.SimpleFTPClient.utils.Signal;
 
 /**
  * <p>
@@ -28,8 +27,6 @@ public class Store extends Command implements Runnable {
     private boolean malformedData = false;
 
     private Path uploadTarget;
-
-    public Signal partialTransferred = new Signal();
 
     public Store() {}
 
@@ -104,17 +101,9 @@ public class Store extends Command implements Runnable {
                         final byte[] buffer = new byte[8192];
 
                         while (true)  {
-                            final int temp = in.read(buffer);
-                            if (temp == -1) break;
+                            if (in.read(buffer) == -1) break;
 
                             out.write(buffer);
-
-                            Gdx.app.postRunnable(new Runnable() {
-                                @Override
-                                public void run() {
-                                    partialTransferred.emit(temp);
-                                }
-                            });
                         }
 
                         dataSocket.close();

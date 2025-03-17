@@ -5,6 +5,7 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.scenes.scene2d.Stage;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.Value;
 import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.lunaciadev.SimpleFTPClient.core.FTPClient;
@@ -55,9 +56,6 @@ public class MainScreen implements Screen {
         // Returning FTP Control Responses
         ftpClient.ftpControlResponse.connect(socketOutput::addOutput);
 
-        // Upload/Download Progress Reporting
-        ftpClient.ftpPartialTransfer.connect(progressInfo::updateBar);
-
         // Connect to FTP Server
         controlPane.connectButtonClicked.connect(connectDialog::onConnectDialogRequested);
         connectDialog.loginButtonClicked.connect(loginUtils::startConnectProcess);
@@ -81,7 +79,6 @@ public class MainScreen implements Screen {
         // Upload File
         controlPane.uploadButtonClicked.connect(fileDialog::uploadFileDialog);
         fileDialog.uploadFileSelected.connect(ftpClient::store);
-        fileDialog.uploadFileSelected.connect(progressInfo::startBarWithPath);
         ftpClient.storeCompleted.connect(progressInfo::taskFinished);
 
         // Download File
@@ -91,7 +88,6 @@ public class MainScreen implements Screen {
         ftpClient.nameListCompleted.connect(downloadUtils::onHaveFileList);
         downloadUtils.selectDownloadFolder.connect(fileDialog::downloadFileDialog);
         fileDialog.downloadFolderSelected.connect(downloadUtils::folderSelected);
-        ftpClient.retrieveSetBarSize.connect(progressInfo::startBarWithSize);;
         downloadUtils.downloadFile.connect(ftpClient::retrieve);
         downloadUtils.downloadFile.connect(downloadDialog::downloadStarted);
         ftpClient.retrieveCompleted.connect(progressInfo::taskFinished);
@@ -112,9 +108,9 @@ public class MainScreen implements Screen {
 
         rootTable.add(controlPane.getLayout());
         rootTable.row();
-        rootTable.add(listOutput.getLayout());
+        rootTable.add(listOutput.getLayout()).minHeight(Value.percentHeight(0.6f, rootTable)).expandY();
         rootTable.row();
-        rootTable.add(socketOutput.getLayout());
+        rootTable.add(socketOutput.getLayout()).minHeight(Value.percentHeight(0.3f, rootTable)).expandY();
         rootTable.row();
         rootTable.add(progressInfo.getLayout());
     }

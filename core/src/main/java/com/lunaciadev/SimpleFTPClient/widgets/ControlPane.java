@@ -124,7 +124,11 @@ public class ControlPane {
     }
 
     private void setLayout() {
-        group.pad(5);
+        group.pad(10).space(5).left().fill();
+        connectButton.pad(5, 10, 5, 10);
+        refreshButton.pad(5, 10, 5, 10);
+        downloadButton.pad(5, 10, 5, 10);
+        uploadButton.pad(5, 10, 5, 10);
         group.addActor(connectButton);
         group.addActor(refreshButton);
         group.addActor(downloadButton);
