@@ -6,6 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.lunaciadev.SimpleFTPClient.core.FTPClient;
 import com.lunaciadev.SimpleFTPClient.data.DataPackage;
+import com.lunaciadev.SimpleFTPClient.data.RequestType;
 import com.lunaciadev.SimpleFTPClient.utils.Signal;
 
 public class ControlPane {
@@ -84,7 +85,7 @@ public class ControlPane {
         downloadButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                downloadButtonClicked.emit();
+                downloadButtonClicked.emit(RequestType.DOWNLOAD);
             }
         });
 

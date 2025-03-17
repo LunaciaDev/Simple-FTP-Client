@@ -26,7 +26,7 @@ public class MainScreen implements Screen {
     private ListOutput listOutput;
     private ConnectDialog connectDialog;
     private ConnectUtils loginUtils;
-    private DownloadDialog downloadDialog;
+    private GeneralDialog downloadDialog;
     private DownloadUtils downloadUtils;
 
     private FTPClient ftpClient;
@@ -40,7 +40,7 @@ public class MainScreen implements Screen {
         this.listOutput = new ListOutput(dataPackage);
         this.connectDialog = new ConnectDialog(dataPackage);
         this.loginUtils = new ConnectUtils();
-        this.downloadDialog = new DownloadDialog(dataPackage);
+        this.downloadDialog = new GeneralDialog(dataPackage);
         this.downloadUtils = new DownloadUtils();
 
         this.ftpClient = new FTPClient();
@@ -78,8 +78,8 @@ public class MainScreen implements Screen {
         fileDialog.uploadFileSelected.connect(ftpClient::store);
 
         // Download File
-        controlPane.downloadButtonClicked.connect(downloadDialog::onDownloadDialogRequested);
-        downloadDialog.downloadButtonClicked.connect(downloadUtils::getFileLists);
+        controlPane.downloadButtonClicked.connect(downloadDialog::onDialogRequest);
+        downloadDialog.submitButtonClicked.connect(downloadUtils::getFileLists);
         downloadUtils.checkFileExist.connect(ftpClient::nameList);
         ftpClient.nameListCompleted.connect(downloadUtils::onHaveFileList);
         downloadUtils.selectDownloadFolder.connect(fileDialog::downloadFileDialog);
