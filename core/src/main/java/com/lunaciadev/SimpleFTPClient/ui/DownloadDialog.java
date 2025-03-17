@@ -40,6 +40,8 @@ public class DownloadDialog {
     }
 
     private void setLayout(DataPackage dataPackage) {
+        dialog.pad(20);
+
         dialog.getContentTable().defaults().height(stringHeight);
 
         dialog.getContentTable().add(new Label("File Name: ", dataPackage.getSkin()));
