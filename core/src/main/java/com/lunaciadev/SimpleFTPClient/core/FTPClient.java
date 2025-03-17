@@ -10,6 +10,7 @@ import java.util.concurrent.Executors;
 import com.badlogic.gdx.Gdx;
 import com.lunaciadev.SimpleFTPClient.core.commands.Account;
 import com.lunaciadev.SimpleFTPClient.core.commands.ChangeDirectory;
+import com.lunaciadev.SimpleFTPClient.core.commands.ChangeParentDir;
 import com.lunaciadev.SimpleFTPClient.core.commands.Login;
 import com.lunaciadev.SimpleFTPClient.core.commands.NameList;
 import com.lunaciadev.SimpleFTPClient.core.commands.Connect;
@@ -131,6 +132,7 @@ public class FTPClient {
     private final NameList nameListCommand;
     private CurrentDirectory currentDirectoryCommand;
     private ChangeDirectory changeDirectoryCommand;
+    private ChangeParentDir changeParentDirCommand;
 
     public FTPClient() {
         controlService = Executors.newSingleThreadExecutor();
@@ -147,6 +149,7 @@ public class FTPClient {
         nameListCommand = new NameList();
         currentDirectoryCommand = new CurrentDirectory();
         changeDirectoryCommand = new ChangeDirectory();
+        changeParentDirCommand = new ChangeParentDir();
 
         // Exposing completed signals
         accountCompleted = accountCommand.completed;
@@ -159,6 +162,8 @@ public class FTPClient {
         nameListCompleted = nameListCommand.completed;
         currentDirectoryCompleted = currentDirectoryCommand.completed;
         changeDirectoryCompleted = changeDirectoryCommand.completed;
+        // these 2 are similar, so they should share the same signal. Less wiring!
+        changeParentDirCommand.completed = changeDirectoryCompleted;
 
         // Connect aggregate signals
         accountCommand.ftpControlReceived.connect(this::onFTPControlReceived);
@@ -171,6 +176,7 @@ public class FTPClient {
         nameListCommand.ftpControlReceived.connect(this::onFTPControlReceived);
         currentDirectoryCommand.ftpControlReceived.connect(this::onFTPControlReceived);
         changeDirectoryCommand.ftpControlReceived.connect(this::onFTPControlReceived);
+        changeParentDirCommand.ftpControlReceived.connect(this::onFTPControlReceived);
 
         // Internal connections
         connectCompleted.connect(this::onConnectCompleted);
@@ -263,6 +269,11 @@ public class FTPClient {
         String dirName = (String) args[0];
         changeDirectoryCommand.setData(socketListener, socketWriter, dirName);
         controlService.submit(changeDirectoryCommand);
+    }
+
+    public void changeToParentDirectory(Object... args) {
+        changeParentDirCommand.setData(socketListener, socketWriter);
+        controlService.submit(changeParentDirCommand);
     }
 
     public void dispose() {
