@@ -40,6 +40,8 @@ public class DownloadDialog {
     }
 
     private void setLayout(DataPackage dataPackage) {
+        dialog.pad(20);
+
         dialog.getContentTable().defaults().height(stringHeight);
 
         dialog.getContentTable().add(new Label("File Name: ", dataPackage.getSkin()));
@@ -48,7 +50,7 @@ public class DownloadDialog {
         dialog.getContentTable().add(errorLabel).colspan(3);
 
         TextButton downloadButton = new TextButton("Select", dataPackage.getSkin());
-        TextButton cancelButton = new TextButton("Cancel", dataPackage.getSkin());
+        TextButton cancelButton = new TextButton("Cancel", dataPackage.getSkin(), "no-highlight");
 
         downloadButton.addListener(new ClickListener() {
             @Override

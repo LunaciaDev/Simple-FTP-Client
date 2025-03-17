@@ -41,8 +41,8 @@ public class ConnectUtils {
     }
 
     public void onLoginFinished(Object... args) {
-        // TODO: check for status
-        
+        if (!(boolean) args[0]) return;
+
         requestRefresh.emit();
     }
 }

@@ -68,7 +68,7 @@ public class ConnectDialog {
         dialog.getContentTable().add(new Label("Password: ", dataPackage.getSkin()));
         dialog.getContentTable().add(passwordField);
 
-        TextButton showPassword = new TextButton("Show", dataPackage.getSkin());
+        TextButton showPassword = new TextButton("Show", dataPackage.getSkin(), "no-highlight");
         showPassword.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
@@ -82,7 +82,7 @@ public class ConnectDialog {
         dialog.getContentTable().add(errorLabel).colspan(4);
 
         TextButton loginButton = new TextButton("Login", dataPackage.getSkin());
-        TextButton cancelButton = new TextButton("Cancel", dataPackage.getSkin());
+        TextButton cancelButton = new TextButton("Cancel", dataPackage.getSkin(), "no-highlight");
 
         loginButton.addListener(new ClickListener() {
             @Override
