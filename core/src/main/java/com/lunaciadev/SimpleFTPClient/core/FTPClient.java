@@ -12,6 +12,7 @@ import com.lunaciadev.SimpleFTPClient.core.commands.Account;
 import com.lunaciadev.SimpleFTPClient.core.commands.Login;
 import com.lunaciadev.SimpleFTPClient.core.commands.NameList;
 import com.lunaciadev.SimpleFTPClient.core.commands.Connect;
+import com.lunaciadev.SimpleFTPClient.core.commands.CurrentDirectory;
 import com.lunaciadev.SimpleFTPClient.core.commands.List;
 import com.lunaciadev.SimpleFTPClient.core.commands.Quit;
 import com.lunaciadev.SimpleFTPClient.core.commands.Retrieve;
@@ -104,6 +105,8 @@ public class FTPClient {
      */
     public Signal nameListCompleted;
 
+    public Signal currentDirectoryCompleted;
+
     /**
      * Emitted when any command receive an FTP Control Response.
      * 
@@ -123,6 +126,7 @@ public class FTPClient {
     private final Retrieve retrieveCommand;
     private final Store storeCommand;
     private final NameList nameListCommand;
+    private CurrentDirectory currentDirectoryCommand;
 
     public FTPClient() {
         controlService = Executors.newSingleThreadExecutor();
@@ -137,6 +141,7 @@ public class FTPClient {
         retrieveCommand = new Retrieve();
         storeCommand = new Store();
         nameListCommand = new NameList();
+        currentDirectoryCommand = new CurrentDirectory();
 
         // Exposing completed signals
         accountCompleted = accountCommand.completed;
@@ -147,6 +152,7 @@ public class FTPClient {
         retrieveCompleted = retrieveCommand.completed;
         storeCompleted = storeCommand.completed;
         nameListCompleted = nameListCommand.completed;
+        currentDirectoryCompleted = currentDirectoryCommand.completed;
 
         // Connect aggregate signals
         accountCommand.ftpControlReceived.connect(this::onFTPControlReceived);
@@ -157,6 +163,7 @@ public class FTPClient {
         retrieveCommand.ftpControlReceived.connect(this::onFTPControlReceived);
         storeCommand.ftpControlReceived.connect(this::onFTPControlReceived);
         nameListCommand.ftpControlReceived.connect(this::onFTPControlReceived);
+        currentDirectoryCommand.ftpControlReceived.connect(this::onFTPControlReceived);
 
         // Internal connections
         connectCompleted.connect(this::onConnectCompleted);
@@ -238,6 +245,11 @@ public class FTPClient {
     public void nameList(final Object... args) {
         nameListCommand.setData(socketListener, socketWriter, dataService);
         controlService.submit(nameListCommand);
+    }
+
+    public void currentDirectory(Object... args) {
+        currentDirectoryCommand.setData(socketListener, socketWriter);
+        controlService.submit(currentDirectoryCommand);
     }
 
     public void dispose() {
