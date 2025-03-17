@@ -4,6 +4,11 @@ eclipse.project.name = appName + '-core'
 dependencies {
   api "com.badlogicgames.gdx:gdx:$gdxVersion"
 
+  implementation "org.lwjgl:lwjgl-tinyfd:3.3.3"
+  implementation "org.lwjgl:lwjgl-tinyfd:3.3.3:natives-windows"
+  implementation "org.lwjgl:lwjgl-tinyfd:3.3.3:natives-linux"
+  implementation "org.lwjgl:lwjgl-tinyfd:3.3.3:natives-macos"
+
   if(enableGraalNative == 'true') {
     implementation "io.github.berstanio:gdx-svmhelper-annotations:$graalHelperVersion"
   }

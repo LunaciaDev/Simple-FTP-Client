@@ -1,0 +1,156 @@
+{
+com.badlogic.gdx.graphics.g2d.BitmapFont: {
+	FantasqueSans: {
+		file: FantasqueSans.fnt
+		scaledSize: -1
+		markupEnabled: false
+		flip: false
+	}
+	OpenSans: {
+		file: OpenSans.fnt
+		scaledSize: -1
+		markupEnabled: false
+		flip: false
+	}
+}
+com.badlogic.gdx.graphics.Color: {
+	blank: {
+		r: 0
+		g: 0
+		b: 0
+		a: 0
+	}
+	grey: {
+		r: 0.8352941
+		g: 0.8352941
+		b: 0.8352941
+		a: 1
+	}
+	title: {
+		r: 0.078431375
+		g: 0.08627451
+		b: 0.09803922
+		a: 1
+	}
+	white: {
+		r: 1
+		g: 1
+		b: 1
+		a: 1
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.Skin$TintedDrawable: {
+	blank: {
+		name: white-pixel
+		color: blank
+	}
+	titleBar: {
+		name: white-pixel
+		color: title
+	}
+}
+
+com.badlogic.gdx.scenes.scene2d.ui.Button$ButtonStyle: {
+	default: {
+		up: button
+		down: button-clicked
+		over: button-hover
+	}
+	no-background: {
+		up: blank
+	}
+	no-highlight: {
+		up: button-nobg
+		down: button-nobg-clicked
+		over: button-nobg-hover
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.ImageButton$ImageButtonStyle: {
+	default: {
+		parent: default
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.ImageTextButton$ImageTextButtonStyle: {
+	default: {
+		parent: default
+		font: OpenSans
+		fontColor: white
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.Label$LabelStyle: {
+	default: {
+		font: OpenSans
+		fontColor: white
+	}
+	mono: {
+		font: FantasqueSans
+		fontColor: white
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.List$ListStyle: {
+	default: {
+		font: OpenSans
+		fontColorSelected: white
+		fontColorUnselected: white
+		selection: button
+		down: button-clicked
+		over: button-hover
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.ScrollPane$ScrollPaneStyle: {
+	default: {
+		background: textbox
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.SelectBox$SelectBoxStyle: {
+	default: {
+		font: OpenSans
+		fontColor: white
+		background: textbox
+		scrollStyle: default
+		listStyle: default
+		backgroundDisabled: disabled
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.TextButton$TextButtonStyle: {
+	default: {
+		parent: default
+		font: OpenSans
+		fontColor: white
+	}
+	no-background: {
+		parent: no-background
+		font: OpenSans
+		fontColor: grey
+		downFontColor: white
+		overFontColor: white
+	}
+	no-highlight: {
+		parent: no-highlight
+		font: OpenSans
+		fontColor: white
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.TextField$TextFieldStyle: {
+	default: {
+		font: OpenSans
+		fontColor: white
+		background: textbox
+		focusedBackground: select-textbox
+		disabledBackground: disabled
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.TextTooltip$TextTooltipStyle: {
+	default: {
+		label: default
+	}
+}
+com.badlogic.gdx.scenes.scene2d.ui.Window$WindowStyle: {
+	default: {
+		background: textbox
+		titleFont: OpenSans
+		titleFontColor: white
+		stageBackground: bgUnder
+	}
+}
+}

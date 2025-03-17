@@ -7,30 +7,32 @@ import java.io.BufferedWriter;
 import java.net.Socket;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
 import java.util.concurrent.ExecutorService;
 
 import com.badlogic.gdx.Gdx;
-import com.lunaciadev.SimpleFTPClient.utils.Signal;
 
+/**
+ * TODO fix this thing
+ */
 public class Retrieve extends Command implements Runnable {
     private BufferedReader socketListener;
     private BufferedWriter socketWriter;
     private ExecutorService dataService;
     private volatile boolean allDataReceived = false;
     private boolean malformedData = false;
-    private Path downloadTarget;
+    private Path downloadFolder;
 
     private String fileName;
-    private String localCWD;
 
-    public Signal completed = new Signal();
+    public Retrieve() {
+    }
 
-    public Retrieve(BufferedReader socketListener, BufferedWriter socketWriter, String fileName, String localCWD, ExecutorService service) {
+    public void setData(final BufferedReader socketListener, final BufferedWriter socketWriter, final String fileName,
+            final Path downloadFolder, final ExecutorService service) {
         this.socketListener = socketListener;
         this.socketWriter = socketWriter;
         this.fileName = fileName;
-        this.localCWD = localCWD;
+        this.downloadFolder = downloadFolder;
         this.dataService = service;
     }
 
@@ -45,19 +47,33 @@ public class Retrieve extends Command implements Runnable {
          * Current implementation download the file from scratch.
          */
 
-        downloadTarget = Path.of(localCWD + fileName + ".tmp");
-        String[] response;
-        String[] addr;
+        try {
+            Files.createFile(downloadFolder.resolve(fileName));
+        } catch (Exception e) {
 
-        try (BufferedOutputStream out = new BufferedOutputStream(Files.newOutputStream(downloadTarget));) {
+        }
+
+        try (BufferedOutputStream out = new BufferedOutputStream(
+                Files.newOutputStream(downloadFolder.resolve(fileName)));) {
+            String[] parsedResponse;
+            String[] addr;
+            allDataReceived = false;
+            malformedData = false;
 
             socketWriter.write("PASV\r\n");
             socketWriter.flush();
-            response = parseResponse(socketListener.readLine());
 
-            switch (response[0].charAt(0)) {
+            forwardControlResponse("PASV");
+
+            final String pasvResponse = socketListener.readLine();
+
+            forwardControlResponse(pasvResponse);
+
+            parsedResponse = parseResponse(pasvResponse);
+
+            switch (parsedResponse[0].charAt(0)) {
                 case '2':
-                    addr = parsePasvResponse(response[1]);
+                    addr = parsePasvResponse(parsedResponse[1]);
                     break;
 
                 default:
@@ -68,9 +84,16 @@ public class Retrieve extends Command implements Runnable {
             // set transfer mode to IMAGE (keep the file as-is during transfer)
             socketWriter.write("TYPE I\r\n");
             socketWriter.flush();
-            response = parseResponse(socketListener.readLine());
 
-            switch (response[0].charAt(0)) {
+            forwardControlResponse("TYPE I");
+
+            final String typeResponse = socketListener.readLine();
+
+            forwardControlResponse(typeResponse);
+
+            parsedResponse = parseResponse(typeResponse);
+
+            switch (parsedResponse[0].charAt(0)) {
                 case '2':
                     break;
 
@@ -86,20 +109,17 @@ public class Retrieve extends Command implements Runnable {
                     try (Socket dataSocket = new Socket(String.join(".", addr[0], addr[1], addr[2], addr[3]),
                             Integer.parseInt(addr[4]) * 256 + Integer.parseInt(addr[5]));) {
 
-                        BufferedInputStream in = new BufferedInputStream(dataSocket.getInputStream());
+                        final BufferedInputStream in = new BufferedInputStream(dataSocket.getInputStream());
 
                         // 8kB buffer. Has to do this to keep track of read bytes, transferTo would just
                         // block indefinitely?
-                        byte[] buffer = new byte[8192];
+                        final byte[] buffer = new byte[8192];
 
                         while (!allDataReceived) {
-                            while ((in.read(buffer)) != -1) {
+                            while (in.read(buffer) != -1) {
                                 out.write(buffer);
                             }
                         }
-
-                        Path finalFile = Path.of(localCWD, fileName);
-                        Files.move(downloadTarget, finalFile, StandardCopyOption.REPLACE_EXISTING);
 
                         Gdx.app.postRunnable(new Runnable() {
                             @Override
@@ -109,7 +129,7 @@ public class Retrieve extends Command implements Runnable {
                         });
 
                         dataSocket.close();
-                    } catch (Exception e) {
+                    } catch (final Exception e) {
                         // TODO: handle exception
                         Gdx.app.error("Exception", e.getMessage());
                         e.printStackTrace();
@@ -117,12 +137,19 @@ public class Retrieve extends Command implements Runnable {
                 }
             });
 
-            socketWriter.write(String.format("RETR %s\r\n", fileName));
+            final String retrieveCmd = String.format("RETR %s\r\n", fileName);
+            socketWriter.write(retrieveCmd);
             socketWriter.flush();
-            while (true) {
-                response = parseResponse(socketListener.readLine());
 
-                switch (response[0].charAt(0)) {
+            forwardControlResponse(retrieveCmd);
+
+            while (true) {
+                final String retrResponse = socketListener.readLine();
+                forwardControlResponse(retrResponse);
+
+                parsedResponse = parseResponse(retrResponse);
+
+                switch (parsedResponse[0].charAt(0)) {
                     case '2':
                         allDataReceived = true;
                         return;
@@ -136,32 +163,30 @@ public class Retrieve extends Command implements Runnable {
                         return;
                 }
             }
-        } catch (Exception e) {
+        } catch (final Exception e) {
             // TODO: handle exception
             Gdx.app.error("Exception", e.getMessage());
             e.printStackTrace();
         }
     }
 
-    private void checkResult(boolean status) {
+    private void checkResult(final boolean status) {
         if (malformedData) {
             try {
-                Files.delete(downloadTarget);
-            }
-            catch (Exception e) {
+                Files.delete(downloadFolder);
+            } catch (final Exception e) {
                 // TODO: handle exception
                 Gdx.app.error("Exception", e.getMessage());
                 e.printStackTrace();
             }
 
             finish(false);
-        }
-        else {
+        } else {
             finish(status);
         }
     }
 
-    private void finish(boolean status) {
+    private void finish(final boolean status) {
         Gdx.app.postRunnable(new Runnable() {
 
             @Override

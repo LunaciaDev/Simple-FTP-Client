@@ -7,24 +7,20 @@ import java.io.OutputStreamWriter;
 import java.net.Socket;
 
 import com.badlogic.gdx.Gdx;
-import com.lunaciadev.SimpleFTPClient.utils.Signal;
 
-public class Connect implements Runnable {
+/**
+ * Connect to the FTP Server by attempting to open a TCP Connection to the
+ * specified server at the specified port. Return the socket and both
+ * reader/writer.
+ */
+public class Connect extends Command implements Runnable {
     private String server;
     private Integer port;
 
-    /**
-     * Signal emitted after completion.
-     * 
-     * @param status {@link Boolean} {@code True} if the connection succeeded, {@code False} otherwise, and all field except message will be null if {@code False} is given.
-     * @param socket {@link Socket} the control socket.
-     * @param socketReader {@link BufferedReader} the reader for the socket.
-     * @param socketWriter {@link BufferedWriter} the writer for the socket.
-     * @param message {@link String} the error message.
-     */
-    public Signal completed = new Signal();
+    public Connect() {
+    }
 
-    public Connect(String server, Integer port) {
+    public void setData(final String server, final Integer port) {
         this.server = server;
         this.port = port;
     }
@@ -33,11 +29,15 @@ public class Connect implements Runnable {
     public void run() {
         try {
             final Socket controlSocket = new Socket(server, port);
-            final BufferedReader socketReader = new BufferedReader(new InputStreamReader(controlSocket.getInputStream()));
-            final BufferedWriter socketWriter = new BufferedWriter(new OutputStreamWriter(controlSocket.getOutputStream()));
+            final BufferedReader socketReader = new BufferedReader(
+                    new InputStreamReader(controlSocket.getInputStream()));
+            final BufferedWriter socketWriter = new BufferedWriter(
+                    new OutputStreamWriter(controlSocket.getOutputStream()));
 
             // remove the welcome message.
-            socketReader.readLine();
+            final String response = socketReader.readLine();
+
+            forwardControlResponse(response);
 
             Gdx.app.postRunnable(new Runnable() {
                 @Override
@@ -45,10 +45,8 @@ public class Connect implements Runnable {
                     completed.emit(true, controlSocket, socketReader, socketWriter, "");
                 }
             });
-        }
-        catch (Exception e) {
+        } catch (final Exception e) {
             // TODO handle exception
-            // Feel free to refactor code to handle each one properly, right now we are assuming best case scenario where nothing go wrong
 
             Gdx.app.postRunnable(new Runnable() {
                 @Override
@@ -59,5 +57,3 @@ public class Connect implements Runnable {
         }
     }
 }
-
-
