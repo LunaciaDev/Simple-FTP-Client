@@ -2,14 +2,18 @@ package com.lunaciadev.SimpleFTPClient.core.commands;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.badlogic.gdx.Gdx;
 
 public class CurrentDirectory extends Command implements Runnable {
     private BufferedReader socketListener;
     private BufferedWriter socketWriter;
+    private Pattern directoryPattern;
 
     public CurrentDirectory() {
+        directoryPattern = Pattern.compile("([\"'])(.*)\\1");
     }
 
     public void setData(final BufferedReader socketListener, final BufferedWriter socketWriter) {
@@ -27,14 +31,16 @@ public class CurrentDirectory extends Command implements Runnable {
             forwardControlResponse(command);
 
             final String response = socketListener.readLine();
-
-            parsedResponse = parseResponse(socketListener.readLine());
-
+            parsedResponse = parseResponse(response);
             forwardControlResponse(response);
 
             switch (parsedResponse[0].charAt(0)) {
                 case '2':
-                    finish(true, parsedResponse[1]);
+                    Matcher m = directoryPattern.matcher(parsedResponse[1]);
+                    m.find();
+                    String result = m.toMatchResult().group(0).replace("\"\"", "\"").replace("''", "'");
+
+                    finish(true, result);
                     return;
 
                 case '1':

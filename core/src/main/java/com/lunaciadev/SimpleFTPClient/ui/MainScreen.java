@@ -64,6 +64,8 @@ public class MainScreen implements Screen {
         ftpClient.loginCompleted.connect(controlPane::onConnectStatusUpdate);
         ftpClient.loginCompleted.connect(loginUtils::onLoginFinished);
         loginUtils.requestRefresh.connect(ftpClient::list);
+        loginUtils.requestRefresh.connect(ftpClient::currentDirectory);
+        ftpClient.currentDirectoryCompleted.connect(listOutput::workingDirectoryChanged);
 
         // Disconnect from FTP Server
         controlPane.disconnectButtonClicked.connect(ftpClient::quit);

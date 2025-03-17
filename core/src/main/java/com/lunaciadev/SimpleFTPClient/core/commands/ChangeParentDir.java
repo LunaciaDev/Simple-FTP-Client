@@ -27,9 +27,7 @@ public class ChangeParentDir extends Command implements Runnable {
             forwardControlResponse(command);
 
             final String response = socketListener.readLine();
-
-            parsedResponse = parseResponse(socketListener.readLine());
-
+            parsedResponse = parseResponse(response);
             forwardControlResponse(response);
 
             switch (parsedResponse[0].charAt(0)) {
