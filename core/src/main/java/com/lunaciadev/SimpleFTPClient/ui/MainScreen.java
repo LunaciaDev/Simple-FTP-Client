@@ -16,7 +16,6 @@ import com.lunaciadev.SimpleFTPClient.utils.FileDialog;
 import com.lunaciadev.SimpleFTPClient.widgets.ControlPane;
 import com.lunaciadev.SimpleFTPClient.widgets.ControlSocketOutput;
 import com.lunaciadev.SimpleFTPClient.widgets.ListOutput;
-import com.lunaciadev.SimpleFTPClient.widgets.ProgressInfo;
 
 public class MainScreen implements Screen {
     private Table rootTable;
@@ -25,7 +24,6 @@ public class MainScreen implements Screen {
     private ControlPane controlPane;
     private ControlSocketOutput socketOutput;
     private ListOutput listOutput;
-    private ProgressInfo progressInfo;
     private ConnectDialog connectDialog;
     private ConnectUtils loginUtils;
     private DownloadDialog downloadDialog;
@@ -40,7 +38,6 @@ public class MainScreen implements Screen {
         this.controlPane = new ControlPane(dataPackage);
         this.socketOutput = new ControlSocketOutput(dataPackage);
         this.listOutput = new ListOutput(dataPackage);
-        this.progressInfo = new ProgressInfo(dataPackage);
         this.connectDialog = new ConnectDialog(dataPackage);
         this.loginUtils = new ConnectUtils();
         this.downloadDialog = new DownloadDialog(dataPackage);
@@ -79,7 +76,6 @@ public class MainScreen implements Screen {
         // Upload File
         controlPane.uploadButtonClicked.connect(fileDialog::uploadFileDialog);
         fileDialog.uploadFileSelected.connect(ftpClient::store);
-        ftpClient.storeCompleted.connect(progressInfo::taskFinished);
 
         // Download File
         controlPane.downloadButtonClicked.connect(downloadDialog::onDownloadDialogRequested);
@@ -90,7 +86,6 @@ public class MainScreen implements Screen {
         fileDialog.downloadFolderSelected.connect(downloadUtils::folderSelected);
         downloadUtils.downloadFile.connect(ftpClient::retrieve);
         downloadUtils.downloadFile.connect(downloadDialog::downloadStarted);
-        ftpClient.retrieveCompleted.connect(progressInfo::taskFinished);
 
         setLayout();
     }
@@ -111,8 +106,6 @@ public class MainScreen implements Screen {
         rootTable.add(listOutput.getLayout()).pad(10, 0, 10, 0).minHeight(Value.percentHeight(0.5f, rootTable)).expandY();
         rootTable.row();
         rootTable.add(socketOutput.getLayout()).pad(10, 0, 10, 0).minHeight(Value.percentHeight(0.2f, rootTable)).expandY();
-        rootTable.row();
-        rootTable.add(progressInfo.getLayout()).pad(10, 0, 10, 0);
 
         rootTable.pad(10);
     }
