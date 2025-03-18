@@ -68,6 +68,8 @@ public class ConnectDialog {
         dialog.getContentTable().add(new Label("Password: ", dataPackage.getSkin()));
         dialog.getContentTable().add(passwordField);
 
+        passwordField.setPasswordCharacter('*');
+
         TextButton showPassword = new TextButton("Show", dataPackage.getSkin(), "no-highlight");
         showPassword.addListener(new ClickListener() {
             @Override
