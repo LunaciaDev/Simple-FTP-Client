@@ -1,3 +1,7 @@
+## Custom:
+/Main.java
+/screenshot.png
+
 ## Gradle:
 .gradle/
 gradle-app.setting
@@ -21,7 +25,6 @@ gradle-app.setting
 *.ear
 hs_err_pid*
 .attach_pid*
-/Main.java
 
 ## Android:
 /android/libs/armeabi-v7a/

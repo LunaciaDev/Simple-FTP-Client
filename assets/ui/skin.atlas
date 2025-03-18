@@ -1,0 +1,154 @@
+
+skin.png
+size: 512, 512
+format: RGBA8888
+filter: Linear, Linear
+repeat: none
+white-pixel
+  rotate: false
+  xy: 509, 509
+  size: 1, 1
+  orig: 1, 1
+  offset: 0, 0
+  index: -1
+FantasqueSans
+  rotate: false
+  xy: 1, 397
+  size: 506, 52
+  orig: 506, 52
+  offset: 0, 0
+  index: -1
+OpenSans
+  rotate: false
+  xy: 1, 451
+  size: 506, 59
+  orig: 506, 59
+  offset: 0, 0
+  index: -1
+bg
+  rotate: false
+  xy: 133, 265
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+bgUnder
+  rotate: false
+  xy: 67, 199
+  size: 64, 64
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+button
+  rotate: false
+  xy: 1, 133
+  size: 64, 64
+  split: 4, 4, 4, 4
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+button-clicked
+  rotate: false
+  xy: 133, 331
+  size: 64, 64
+  split: 4, 4, 4, 4
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+button-hover
+  rotate: false
+  xy: 67, 265
+  size: 64, 64
+  split: 4, 4, 4, 4
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+button-nobg
+  rotate: false
+  xy: 1, 67
+  size: 64, 64
+  split: 6, 6, 6, 6
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+button-nobg-clicked
+  rotate: false
+  xy: 67, 133
+  size: 64, 64
+  split: 6, 6, 6, 6
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+button-nobg-hover
+  rotate: false
+  xy: 133, 199
+  size: 64, 64
+  split: 6, 6, 6, 6
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+col
+  rotate: false
+  xy: 1, 1
+  size: 64, 64
+  split: 1, 1, 0, 0
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+disabled
+  rotate: false
+  xy: 1, 199
+  size: 64, 64
+  split: 5, 5, 5, 5
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+dropdown
+  rotate: false
+  xy: 67, 331
+  size: 64, 64
+  split: 5, 5, 2, 5
+  pad: 5, 5, 6, 5
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+firstCol
+  rotate: false
+  xy: 199, 265
+  size: 64, 64
+  split: 0, 1, 0, 0
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+lastCol
+  rotate: false
+  xy: 265, 331
+  size: 64, 64
+  split: 1, 0, 0, 0
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+manu-item-bg
+  rotate: false
+  xy: 199, 331
+  size: 64, 64
+  split: 6, 6, 6, 6
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+select-textbox
+  rotate: false
+  xy: 1, 265
+  size: 64, 64
+  split: 5, 5, 5, 5
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
+textbox
+  rotate: false
+  xy: 1, 331
+  size: 64, 64
+  split: 5, 5, 5, 5
+  orig: 64, 64
+  offset: 0, 0
+  index: -1
