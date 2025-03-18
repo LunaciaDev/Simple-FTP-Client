@@ -86,7 +86,7 @@ public class GeneralDialog {
         errorLabel.setText((String) args[0]);
     }
 
-    public void downloadStarted(Object... args) {
+    public void hideDialog(Object... args) {
         dialog.hide();
     }
 

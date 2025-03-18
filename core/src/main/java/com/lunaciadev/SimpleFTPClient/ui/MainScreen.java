@@ -95,11 +95,14 @@ public class MainScreen implements Screen {
         downloadUtils.selectDownloadFolder.connect(fileDialog::downloadFileDialog);
         fileDialog.downloadFolderSelected.connect(downloadUtils::folderSelected);
         downloadUtils.downloadFile.connect(ftpClient::retrieve);
-        downloadUtils.downloadFile.connect(textDialog::downloadStarted);
+        downloadUtils.downloadFile.connect(textDialog::hideDialog);
 
         // Change Directory
         controlPane.changeDirButtonClicked.connect(textDialog::onDialogRequest);
         this.changeDir.connect(ftpClient::changeDirectory);
+        ftpClient.changeDirectoryCompleted.connect(textDialog::hideDialog);
+        ftpClient.changeDirectoryCompleted.connect(ftpClient::currentDirectory);
+        ftpClient.changeDirectoryCompleted.connect(ftpClient::list);
 
         // CDUP
         controlPane.cdupButtonClicked.connect(ftpClient::changeToParentDirectory);
