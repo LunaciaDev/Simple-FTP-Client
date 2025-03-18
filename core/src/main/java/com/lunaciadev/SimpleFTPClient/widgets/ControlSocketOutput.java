@@ -40,6 +40,8 @@ public class ControlSocketOutput {
      */
     public void addOutput(Object... args) {
         String data = ((String) args[0]);
+        float prevScrollPos = scrollPane.getScrollY();
+        boolean isBottom = scrollPane.getMaxY() - scrollPane.getScrollY() <= 5;
 
         if (historySize < MAX_HIST_SIZE) {
             dataHistory.addLast(data);
@@ -50,5 +52,14 @@ public class ControlSocketOutput {
         }
 
         output.setText(dataHistory.toString("\n"));
+
+        if (isBottom) {
+            scrollPane.setSmoothScrolling(false);
+            scrollPane.setScrollY(scrollPane.getMaxY());
+            scrollPane.setSmoothScrolling(true);
+        }
+        else {
+            scrollPane.setScrollY(prevScrollPos);
+        }
     }
 }

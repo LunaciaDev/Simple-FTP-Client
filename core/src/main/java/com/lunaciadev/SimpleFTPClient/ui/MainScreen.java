@@ -137,8 +137,6 @@ public class MainScreen implements Screen {
         rootTable.add(socketOutput.getLayout()).space(10, 0, 10, 0).minHeight(Value.percentHeight(0.2f, rootTable)).expandY();
 
         rootTable.pad(10);
-
-        stage.setDebugAll(true);
     }
 
     @Override
