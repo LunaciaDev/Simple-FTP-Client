@@ -279,6 +279,8 @@ public class FTPClient {
     public void dispose() {
         controlService.shutdown();
         dataService.shutdown();
+
+        if (controlSocket == null) return;
         
         if (!controlSocket.isClosed()) {
             try {
