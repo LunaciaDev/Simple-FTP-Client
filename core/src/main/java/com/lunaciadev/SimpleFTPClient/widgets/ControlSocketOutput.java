@@ -25,6 +25,7 @@ public class ControlSocketOutput {
         container.pad(5).fill();
 
         scrollPane = new ScrollPane(container);
+        scrollPane.setOverscroll(false, false);
 
         dataHistory = new Queue<>(MAX_HIST_SIZE);
         historySize = 0;
