@@ -10,9 +10,11 @@ import com.badlogic.gdx.utils.ScreenUtils;
 import com.badlogic.gdx.utils.viewport.ScreenViewport;
 import com.lunaciadev.SimpleFTPClient.core.FTPClient;
 import com.lunaciadev.SimpleFTPClient.data.DataPackage;
+import com.lunaciadev.SimpleFTPClient.data.RequestType;
 import com.lunaciadev.SimpleFTPClient.utils.ConnectUtils;
 import com.lunaciadev.SimpleFTPClient.utils.DownloadUtils;
 import com.lunaciadev.SimpleFTPClient.utils.FileDialog;
+import com.lunaciadev.SimpleFTPClient.utils.Signal;
 import com.lunaciadev.SimpleFTPClient.widgets.ControlPane;
 import com.lunaciadev.SimpleFTPClient.widgets.ControlSocketOutput;
 import com.lunaciadev.SimpleFTPClient.widgets.ListOutput;
@@ -26,11 +28,14 @@ public class MainScreen implements Screen {
     private ListOutput listOutput;
     private ConnectDialog connectDialog;
     private ConnectUtils loginUtils;
-    private GeneralDialog downloadDialog;
+    private GeneralDialog textDialog;
     private DownloadUtils downloadUtils;
 
     private FTPClient ftpClient;
     private FileDialog fileDialog;
+
+    private Signal downloadFile = new Signal();
+    private Signal changeDir = new Signal();
 
     public MainScreen(DataPackage dataPackage) {
         this.stage = new Stage(new ScreenViewport());
@@ -40,7 +45,7 @@ public class MainScreen implements Screen {
         this.listOutput = new ListOutput(dataPackage);
         this.connectDialog = new ConnectDialog(dataPackage);
         this.loginUtils = new ConnectUtils();
-        this.downloadDialog = new GeneralDialog(dataPackage);
+        this.textDialog = new GeneralDialog(dataPackage);
         this.downloadUtils = new DownloadUtils();
 
         this.ftpClient = new FTPClient();
@@ -52,6 +57,9 @@ public class MainScreen implements Screen {
         
         // Returning FTP Control Responses
         ftpClient.ftpControlResponse.connect(socketOutput::addOutput);
+
+        // Text Dialog Handler
+        textDialog.submitButtonClicked.connect(this::dialogHandler);
 
         // Connect to FTP Server
         controlPane.connectButtonClicked.connect(connectDialog::onConnectDialogRequested);
@@ -80,21 +88,40 @@ public class MainScreen implements Screen {
         fileDialog.uploadFileSelected.connect(ftpClient::store);
 
         // Download File
-        controlPane.downloadButtonClicked.connect(downloadDialog::onDialogRequest);
-        downloadDialog.submitButtonClicked.connect(downloadUtils::getFileLists);
+        controlPane.downloadButtonClicked.connect(textDialog::onDialogRequest);
+        this.downloadFile.connect(downloadUtils::getFileLists);
         downloadUtils.checkFileExist.connect(ftpClient::nameList);
         ftpClient.nameListCompleted.connect(downloadUtils::onHaveFileList);
         downloadUtils.selectDownloadFolder.connect(fileDialog::downloadFileDialog);
         fileDialog.downloadFolderSelected.connect(downloadUtils::folderSelected);
         downloadUtils.downloadFile.connect(ftpClient::retrieve);
-        downloadUtils.downloadFile.connect(downloadDialog::downloadStarted);
+        downloadUtils.downloadFile.connect(textDialog::downloadStarted);
+
+        // Change Directory
+        controlPane.changeDirButtonClicked.connect(textDialog::onDialogRequest);
+        this.changeDir.connect(ftpClient::changeDirectory);
+
+        // CDUP
+        controlPane.cdupButtonClicked.connect(ftpClient::changeToParentDirectory);
 
         setLayout();
     }
 
+    private void dialogHandler(Object... args) {
+        switch ((RequestType) args[0]) {
+            case DOWNLOAD:
+                downloadFile.emit(args[1]);
+                break;
+
+            case CD:
+                changeDir.emit(args[1]);
+                break;
+        }
+    }
+
     private void setLayout() {
         connectDialog.setStage(stage);
-        downloadDialog.setStage(stage);
+        textDialog.setStage(stage);
 
         rootTable = new Table();
         rootTable.setFillParent(true);
@@ -105,11 +132,13 @@ public class MainScreen implements Screen {
 
         rootTable.add(controlPane.getLayout());
         rootTable.row();
-        rootTable.add(listOutput.getLayout()).pad(10, 0, 10, 0).minHeight(Value.percentHeight(0.5f, rootTable)).expandY();
+        rootTable.add(listOutput.getLayout()).space(10, 0, 10, 0).minHeight(Value.percentHeight(0.5f, rootTable)).expandY();
         rootTable.row();
-        rootTable.add(socketOutput.getLayout()).pad(10, 0, 10, 0).minHeight(Value.percentHeight(0.2f, rootTable)).expandY();
+        rootTable.add(socketOutput.getLayout()).space(10, 0, 10, 0).minHeight(Value.percentHeight(0.2f, rootTable)).expandY();
 
         rootTable.pad(10);
+
+        stage.setDebugAll(true);
     }
 
     @Override

@@ -4,7 +4,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.HorizontalGroup;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
-import com.badlogic.gdx.scenes.scene2d.ui.VerticalGroup;
+import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Align;
 import com.lunaciadev.SimpleFTPClient.data.DataPackage;
 import com.lunaciadev.SimpleFTPClient.core.FTPClient;
@@ -12,7 +12,7 @@ import com.lunaciadev.SimpleFTPClient.core.FTPClient;
 public class ListOutput {
     private Label output;
     private ScrollPane scrollPane;
-    private VerticalGroup group;
+    private Table group;
     private Label currentDirectory;
 
     public ListOutput(DataPackage dataPackage) {
@@ -20,8 +20,9 @@ public class ListOutput {
         output.setWrap(true);
         output.setAlignment(Align.topLeft);
 
-        group = new VerticalGroup();
+        group = new Table();
         currentDirectory = new Label("", dataPackage.getSkin(), "mono");
+        currentDirectory.setAlignment(Align.left);
 
         HorizontalGroup temp = new HorizontalGroup();
         temp.grow();
@@ -34,13 +35,12 @@ public class ListOutput {
 
         scrollPane = new ScrollPane(container);
 
-        group.grow();
-
-        group.addActor(temp);
-        group.addActor(scrollPane);
+        group.add(temp).left();
+        group.row();
+        group.add(scrollPane).grow();
     }
 
-    public VerticalGroup getLayout() {
+    public Table getLayout() {
         return group;
     }
 

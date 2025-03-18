@@ -18,6 +18,8 @@ public class GeneralDialog {
     private Label requestLabel;
     private float stringHeight;
 
+    private RequestType currentRequestType;
+
     private Stage stage;
 
     /****** SIGNALS ******/
@@ -52,14 +54,14 @@ public class GeneralDialog {
         dialog.row();
         dialog.getContentTable().add(errorLabel).colspan(3);
 
-        TextButton downloadButton = new TextButton("OK", dataPackage.getSkin());
+        TextButton submitButton = new TextButton("OK", dataPackage.getSkin());
         TextButton cancelButton = new TextButton("Cancel", dataPackage.getSkin(), "no-highlight");
 
-        downloadButton.addListener(new ClickListener() {
+        submitButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 super.clicked(event, x, y);
-                submitButtonClicked.emit(filenameField.getText());
+                submitButtonClicked.emit(currentRequestType, filenameField.getText());
             }
         });
 
@@ -72,7 +74,7 @@ public class GeneralDialog {
         });
 
         dialog.getButtonTable().defaults().height(stringHeight);
-        dialog.button(downloadButton);
+        dialog.button(submitButton);
         dialog.button(cancelButton);
         dialog.getButtonTable().clearListeners();
     }
@@ -92,7 +94,8 @@ public class GeneralDialog {
      * Slot, triggerd by TBA
      */
     public void onDialogRequest(Object... args) {
-        requestLabel.setText(((RequestType) args[0]).getLabelString());
+        currentRequestType = (RequestType) args[0];
+        requestLabel.setText(currentRequestType.getLabelString());
         dialog.show(stage);
     }
 
