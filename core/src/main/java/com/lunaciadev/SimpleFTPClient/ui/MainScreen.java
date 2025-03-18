@@ -135,9 +135,9 @@ public class MainScreen implements Screen {
 
         rootTable.add(controlPane.getLayout());
         rootTable.row();
-        rootTable.add(listOutput.getLayout()).space(10, 0, 10, 0).minHeight(Value.percentHeight(0.5f, rootTable)).expandY();
+        rootTable.add(listOutput.getLayout()).space(10, 0, 10, 0).minHeight(Value.percentHeight(0.55f, rootTable)).expandY();
         rootTable.row();
-        rootTable.add(socketOutput.getLayout()).space(10, 0, 10, 0).minHeight(Value.percentHeight(0.2f, rootTable)).expandY();
+        rootTable.add(socketOutput.getLayout()).space(10, 0, 10, 0).minHeight(Value.percentHeight(0.25f, rootTable)).expandY();
 
         rootTable.pad(10);
     }

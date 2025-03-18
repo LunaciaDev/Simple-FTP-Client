@@ -25,7 +25,6 @@ public class ControlSocketOutput {
         container.pad(5).fill();
 
         scrollPane = new ScrollPane(container);
-        scrollPane.setOverscroll(false, false);
 
         dataHistory = new Queue<>(MAX_HIST_SIZE);
         historySize = 0;
@@ -40,8 +39,6 @@ public class ControlSocketOutput {
      */
     public void addOutput(Object... args) {
         String data = ((String) args[0]);
-        float prevScrollPos = scrollPane.getScrollY();
-        boolean isBottom = scrollPane.getMaxY() - scrollPane.getScrollY() <= 5;
 
         if (historySize < MAX_HIST_SIZE) {
             dataHistory.addLast(data);
@@ -52,14 +49,6 @@ public class ControlSocketOutput {
         }
 
         output.setText(dataHistory.toString("\n"));
-
-        if (isBottom) {
-            scrollPane.setSmoothScrolling(false);
-            scrollPane.setScrollY(scrollPane.getMaxY());
-            scrollPane.setSmoothScrolling(true);
-        }
-        else {
-            scrollPane.setScrollY(prevScrollPos);
-        }
+        scrollPane.setScrollY(scrollPane.getMaxY());
     }
 }

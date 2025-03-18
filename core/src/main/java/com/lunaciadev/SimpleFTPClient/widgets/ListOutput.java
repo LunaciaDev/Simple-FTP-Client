@@ -34,7 +34,6 @@ public class ListOutput {
         container.pad(5).fill();
 
         scrollPane = new ScrollPane(container);
-        scrollPane.setOverscroll(false, false);
 
         group.add(temp).left();
         group.row();
