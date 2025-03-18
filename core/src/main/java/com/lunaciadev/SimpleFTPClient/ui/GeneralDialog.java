@@ -8,31 +8,36 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.lunaciadev.SimpleFTPClient.data.DataPackage;
+import com.lunaciadev.SimpleFTPClient.data.RequestType;
 import com.lunaciadev.SimpleFTPClient.utils.Signal;
 
-public class DownloadDialog {
+public class GeneralDialog {
     private Dialog dialog;
     private TextField filenameField;
     private Label errorLabel;
+    private Label requestLabel;
     private float stringHeight;
+
+    private RequestType currentRequestType;
 
     private Stage stage;
 
     /****** SIGNALS ******/
 
     /**
-     * Emitted when the login button is clicked.
+     * Emitted when the OK button is clicked.
      * 
      * @param fileName {@link String} the submitted filename
      */
-    public Signal downloadButtonClicked = new Signal();
+    public Signal submitButtonClicked = new Signal();
 
     /****** END SIGNALS ******/
 
-    public DownloadDialog(DataPackage dataPackage) {
+    public GeneralDialog(DataPackage dataPackage) {
         dialog = new Dialog("", dataPackage.getSkin());
         filenameField = new TextField("", dataPackage.getSkin());
         errorLabel = new Label("", dataPackage.getSkin());
+        requestLabel = new Label("", dataPackage.getSkin());
 
         stringHeight = filenameField.getStyle().font.getLineHeight() + 4f;
 
@@ -44,19 +49,19 @@ public class DownloadDialog {
 
         dialog.getContentTable().defaults().height(stringHeight);
 
-        dialog.getContentTable().add(new Label("File Name: ", dataPackage.getSkin()));
+        dialog.getContentTable().add(requestLabel);
         dialog.getContentTable().add(filenameField);
         dialog.row();
         dialog.getContentTable().add(errorLabel).colspan(3);
 
-        TextButton downloadButton = new TextButton("Select", dataPackage.getSkin());
+        TextButton submitButton = new TextButton("OK", dataPackage.getSkin());
         TextButton cancelButton = new TextButton("Cancel", dataPackage.getSkin(), "no-highlight");
 
-        downloadButton.addListener(new ClickListener() {
+        submitButton.addListener(new ClickListener() {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 super.clicked(event, x, y);
-                downloadButtonClicked.emit(filenameField.getText());
+                submitButtonClicked.emit(currentRequestType, filenameField.getText());
             }
         });
 
@@ -69,7 +74,7 @@ public class DownloadDialog {
         });
 
         dialog.getButtonTable().defaults().height(stringHeight);
-        dialog.button(downloadButton);
+        dialog.button(submitButton);
         dialog.button(cancelButton);
         dialog.getButtonTable().clearListeners();
     }
@@ -81,14 +86,16 @@ public class DownloadDialog {
         errorLabel.setText((String) args[0]);
     }
 
-    public void downloadStarted(Object... args) {
+    public void hideDialog(Object... args) {
         dialog.hide();
     }
 
     /**
      * Slot, triggerd by TBA
      */
-    public void onDownloadDialogRequested(Object... args) {
+    public void onDialogRequest(Object... args) {
+        currentRequestType = (RequestType) args[0];
+        requestLabel.setText(currentRequestType.getLabelString());
         dialog.show(stage);
     }
 

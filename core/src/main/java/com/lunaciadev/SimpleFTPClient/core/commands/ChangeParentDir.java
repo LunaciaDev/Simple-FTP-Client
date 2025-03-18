@@ -5,34 +5,23 @@ import java.io.BufferedWriter;
 
 import com.badlogic.gdx.Gdx;
 
-/**
- * <p>
- * Abstraction of FTP's {@code ACCT} command.
- * </p>
- * 
- * Require a {@link String} being the user's Account Name. I have no idea what
- * that mean, but RFC 959 allow server to request this during login.
- */
-public class Account extends Command implements Runnable {
+public class ChangeParentDir extends Command implements Runnable {
     private BufferedReader socketListener;
     private BufferedWriter socketWriter;
 
-    private String account;
-
-    public Account() {
+    public ChangeParentDir() {
     }
 
-    public void setData(final BufferedReader socketListener, final BufferedWriter socketWriter, final String account) {
+    public void setData(final BufferedReader socketListener, final BufferedWriter socketWriter) {
         this.socketListener = socketListener;
         this.socketWriter = socketWriter;
-        this.account = account;
     }
 
     @Override
     public void run() {
         try {
             String[] parsedResponse;
-            final String command = String.format("ACCT %s\r\n", account);
+            final String command = String.format("CDUP\r\n");
             socketWriter.write(command);
             socketWriter.flush();
             forwardControlResponse(command);
@@ -43,14 +32,14 @@ public class Account extends Command implements Runnable {
 
             switch (parsedResponse[0].charAt(0)) {
                 case '2':
-                    finish(true);
+                    finish(true, parsedResponse[1]);
                     return;
 
                 case '1':
                 case '5':
                 case '4':
                 case '3':
-                    finish(false);
+                    finish(false, parsedResponse[1]);
                     return;
             }
         } catch (final Exception e) {
@@ -60,12 +49,12 @@ public class Account extends Command implements Runnable {
         }
     }
 
-    private void finish(final boolean status) {
+    private void finish(final boolean status, String result) {
         Gdx.app.postRunnable(new Runnable() {
 
             @Override
             public void run() {
-                completed.emit(status);
+                completed.emit(status, result);
             }
 
         });

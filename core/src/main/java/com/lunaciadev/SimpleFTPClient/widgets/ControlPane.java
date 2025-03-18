@@ -6,6 +6,7 @@ import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.lunaciadev.SimpleFTPClient.core.FTPClient;
 import com.lunaciadev.SimpleFTPClient.data.DataPackage;
+import com.lunaciadev.SimpleFTPClient.data.RequestType;
 import com.lunaciadev.SimpleFTPClient.utils.Signal;
 
 public class ControlPane {
@@ -14,6 +15,8 @@ public class ControlPane {
     private TextButton refreshButton;
     private TextButton downloadButton;
     private TextButton uploadButton;
+    private TextButton changeDirButton;
+    private TextButton cdupButton;
 
     private boolean isConnected;
     private float stringHeight;
@@ -45,6 +48,10 @@ public class ControlPane {
      */
     public Signal uploadButtonClicked = new Signal();
 
+    public Signal changeDirButtonClicked = new Signal();
+
+    public Signal cdupButtonClicked = new Signal();
+
     /****** END SIGNALS SEGMENT ******/
 
     public ControlPane(DataPackage dataPackage) {
@@ -54,17 +61,20 @@ public class ControlPane {
         refreshButton = new TextButton("Refresh", dataPackage.getSkin(), "no-highlight");
         downloadButton = new TextButton("Download", dataPackage.getSkin(), "no-highlight");
         uploadButton = new TextButton("Upload", dataPackage.getSkin(), "no-highlight");
+        changeDirButton = new TextButton("Change Directory", dataPackage.getSkin(), "no-highlight");
+        cdupButton = new TextButton("Move to Parent Directory", dataPackage.getSkin(), "no-highlight");
 
         stringHeight = connectButton.getStyle().font.getLineHeight() + 4f;
 
         refreshButton.setDisabled(true);
         downloadButton.setDisabled(true);
         uploadButton.setDisabled(true);
+        changeDirButton.setDisabled(true);
+        cdupButton.setDisabled(true);
 
         connectButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                // TODO Auto-generated method stub
                 if (!isConnected) {
                     connectButtonClicked.emit();
                 }
@@ -84,7 +94,7 @@ public class ControlPane {
         downloadButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                downloadButtonClicked.emit();
+                downloadButtonClicked.emit(RequestType.DOWNLOAD);
             }
         });
 
@@ -92,6 +102,20 @@ public class ControlPane {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
                 uploadButtonClicked.emit();
+            }
+        });
+
+        changeDirButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                changeDirButtonClicked.emit(RequestType.CD);
+            }
+        });
+
+        cdupButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                cdupButtonClicked.emit();
             }
         });
 
@@ -109,6 +133,8 @@ public class ControlPane {
             refreshButton.setDisabled(false);
             downloadButton.setDisabled(false);
             uploadButton.setDisabled(false);
+            changeDirButton.setDisabled(false);
+            cdupButton.setDisabled(false);
         }
     }
 
@@ -119,6 +145,8 @@ public class ControlPane {
             refreshButton.setDisabled(true);
             downloadButton.setDisabled(true);
             uploadButton.setDisabled(true);
+            changeDirButton.setDisabled(true);
+            cdupButton.setDisabled(true);
         }
     }
 
@@ -129,6 +157,8 @@ public class ControlPane {
         group.add(refreshButton);
         group.add(downloadButton);
         group.add(uploadButton);
+        group.add(changeDirButton);
+        group.add(cdupButton);
         group.add().expandX();
     }
 

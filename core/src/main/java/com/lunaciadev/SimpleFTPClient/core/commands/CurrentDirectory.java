@@ -2,49 +2,52 @@ package com.lunaciadev.SimpleFTPClient.core.commands;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import com.badlogic.gdx.Gdx;
 
-public class Size extends Command implements Runnable {
+public class CurrentDirectory extends Command implements Runnable {
     private BufferedReader socketListener;
     private BufferedWriter socketWriter;
+    private Pattern directoryPattern;
 
-    private String fileName;
-
-    public Size() {
+    public CurrentDirectory() {
+        directoryPattern = Pattern.compile("([\"'])(.*)\\1");
     }
 
-    public void setData(final BufferedReader socketListener, final BufferedWriter socketWriter, final String fileName) {
+    public void setData(final BufferedReader socketListener, final BufferedWriter socketWriter) {
         this.socketListener = socketListener;
         this.socketWriter = socketWriter;
-        this.fileName = fileName;
     }
 
     @Override
     public void run() {
         try {
             String[] parsedResponse;
-            final String command = String.format("SIZE %s\r\n", fileName);
+            final String command = String.format("PWD\r\n");
             socketWriter.write(command);
             socketWriter.flush();
             forwardControlResponse(command);
 
             final String response = socketListener.readLine();
-
-            parsedResponse = parseResponse(socketListener.readLine());
-
+            parsedResponse = parseResponse(response);
             forwardControlResponse(response);
 
             switch (parsedResponse[0].charAt(0)) {
                 case '2':
-                    finish(true, Long.parseLong(parsedResponse[1]));
+                    Matcher m = directoryPattern.matcher(parsedResponse[1]);
+                    m.find();
+                    String result = m.toMatchResult().group(0).replace("\"\"", "\"").replace("''", "'");
+
+                    finish(true, result);
                     return;
 
                 case '1':
                 case '5':
                 case '4':
                 case '3':
-                    finish(false, null);
+                    finish(false, parsedResponse[1]);
                     return;
             }
         } catch (final Exception e) {
@@ -54,12 +57,12 @@ public class Size extends Command implements Runnable {
         }
     }
 
-    private void finish(final boolean status, final Long size) {
+    private void finish(final boolean status, String result) {
         Gdx.app.postRunnable(new Runnable() {
 
             @Override
             public void run() {
-                completed.emit(status, size);
+                completed.emit(status, result);
             }
 
         });

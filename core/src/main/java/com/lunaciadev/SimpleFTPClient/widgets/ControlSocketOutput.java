@@ -1,5 +1,6 @@
 package com.lunaciadev.SimpleFTPClient.widgets;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.scenes.scene2d.ui.Container;
 import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
@@ -49,5 +50,12 @@ public class ControlSocketOutput {
         }
 
         output.setText(dataHistory.toString("\n"));
+        Gdx.app.postRunnable(new Runnable() {
+            @Override
+            public void run() {
+                scrollPane.setScrollY(scrollPane.getMaxY());
+                scrollPane.updateVisualScroll();
+            }
+        });
     }
 }
