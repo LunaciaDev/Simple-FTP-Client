@@ -75,7 +75,6 @@ public class ControlPane {
         connectButton.addListener(new ChangeListener() {
             @Override
             public void changed(ChangeEvent event, Actor actor) {
-                // TODO Auto-generated method stub
                 if (!isConnected) {
                     connectButtonClicked.emit();
                 }
@@ -134,6 +133,8 @@ public class ControlPane {
             refreshButton.setDisabled(false);
             downloadButton.setDisabled(false);
             uploadButton.setDisabled(false);
+            changeDirButton.setDisabled(false);
+            cdupButton.setDisabled(false);
         }
     }
 
@@ -144,6 +145,8 @@ public class ControlPane {
             refreshButton.setDisabled(true);
             downloadButton.setDisabled(true);
             uploadButton.setDisabled(true);
+            changeDirButton.setDisabled(true);
+            cdupButton.setDisabled(true);
         }
     }
 
