@@ -1,6 +1,7 @@
 ## Custom:
 /Main.java
 /screenshot.png
+/oldImpl/
 
 ## Gradle:
 .gradle/
