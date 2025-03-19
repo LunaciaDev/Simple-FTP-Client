@@ -26,6 +26,12 @@ com.badlogic.gdx.graphics.Color: {
 		b: 0.8352941
 		a: 1
 	}
+	RGBA_38_158_229_255: {
+		r: 0.14901961
+		g: 0.61960787
+		b: 0.8980392
+		a: 1
+	}
 	title: {
 		r: 0.078431375
 		g: 0.08627451
@@ -47,6 +53,14 @@ com.badlogic.gdx.scenes.scene2d.ui.Skin$TintedDrawable: {
 	titleBar: {
 		name: white-pixel
 		color: title
+	}
+	Highlight: {
+		name: white-pixel
+		color: RGBA_38_158_229_255
+	}
+	Cursor: {
+		name: white-pixel
+		color: white
 	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.Button$ButtonStyle: {
@@ -140,10 +154,14 @@ com.badlogic.gdx.scenes.scene2d.ui.TextField$TextFieldStyle: {
 		background: textbox
 		focusedBackground: select-textbox
 		disabledBackground: disabled
+		cursor: Cursor
+		selection: Highlight
 	}
 	mono: {
 		font: FantasqueSans
 		fontColor: white
+		cursor: Cursor
+		selection: Highlight
 	}
 }
 com.badlogic.gdx.scenes.scene2d.ui.TextTooltip$TextTooltipStyle: {
