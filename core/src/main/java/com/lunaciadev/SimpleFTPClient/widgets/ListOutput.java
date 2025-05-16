@@ -9,11 +9,16 @@ import com.badlogic.gdx.utils.Align;
 import com.lunaciadev.SimpleFTPClient.data.DataPackage;
 import com.lunaciadev.SimpleFTPClient.core.FTPClient;
 
+/**
+ * This widget provide the textual view to the LIST command output.
+ * 
+ * @author LunaciaDev
+ */
 public class ListOutput {
-    private Label output;
-    private ScrollPane scrollPane;
     private Table group;
     private Label currentDirectory;
+    private ScrollPane scrollPane;
+    private Label output;
 
     public ListOutput(DataPackage dataPackage) {
         output = new Label("", dataPackage.getSkin(), "mono");
@@ -53,6 +58,9 @@ public class ListOutput {
         output.setText((String) args[1]);
     }
 
+    /**
+     * Slot, connected to {@link FTPClient#currentDirectoryCompleted}
+     */
     public void workingDirectoryChanged(Object... args) {
         if (!(boolean) args[0]) return;
 

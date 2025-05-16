@@ -8,18 +8,50 @@ import org.lwjgl.util.tinyfd.TinyFileDialogs;
 
 import com.badlogic.gdx.Gdx;
 
+import com.lunaciadev.SimpleFTPClient.widgets.ControlPane;
+
+/**
+ * Abstraction over TinyFileDialogs, providing access to native file picker
+ * across different host systems.
+ * 
+ * @author LunaciaDev
+ */
 public class FileDialog {
     private ExecutorService service;
 
+    /****** SIGNALS ******/
+
+    /**
+     * Emitted after the user has selected which file to upload from the file
+     * picker.
+     * 
+     * @param selectedFilePath {@link Path} The path to the file that is selected.
+     */
     public Signal uploadFileSelected = new Signal();
+
+    /**
+     * Emitted after the user has selected which folder to save the downloaded file
+     * from the server.
+     * 
+     * @param downloadFolderPath {@link Path} The path to the folder that is
+     *                           selected.
+     */
     public Signal downloadFolderSelected = new Signal();
 
+    /****** END SIGNALS ******/
+
+    // we remember the last selected folder to make the UX better for downloading
+    // multiple files.
     private String lastDownloadFolder = null;
 
     public FileDialog() {
+        // Opening a file dialog is a blocking call, so it will have its own thread.
         service = Executors.newSingleThreadExecutor();
     }
 
+    /**
+     * Slot, connected to {@link ControlPane#uploadButtonClicked}
+     */
     public void uploadFileDialog(Object... args) {
         service.submit(new Runnable() {
             @Override
@@ -38,6 +70,9 @@ public class FileDialog {
         });
     }
 
+    /**
+     * Slot, connected to {@link DownloadUtils#selectDownloadFolder}
+     */
     public void downloadFileDialog(Object... args) {
         service.submit(new Runnable() {
             @Override

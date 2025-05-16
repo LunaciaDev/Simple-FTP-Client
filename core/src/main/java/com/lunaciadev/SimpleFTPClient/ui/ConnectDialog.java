@@ -9,7 +9,15 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.lunaciadev.SimpleFTPClient.data.DataPackage;
 import com.lunaciadev.SimpleFTPClient.utils.Signal;
+import com.lunaciadev.SimpleFTPClient.core.FTPClient;
+import com.lunaciadev.SimpleFTPClient.widgets.ControlPane;
 
+/**
+ * A form for the user to fill in, to connect to a FTP server with
+ * authentications.
+ * 
+ * @author LunaciaDev
+ */
 public class ConnectDialog {
     private Dialog dialog;
     private TextField serverAddress;
@@ -27,8 +35,8 @@ public class ConnectDialog {
     /**
      * Emitted when the login button is clicked.
      * 
-     * @param address {@link String} The FTP server address
-     * @param port {@link String}
+     * @param address  {@link String} The FTP server's address
+     * @param port     {@link String}
      * @param username {@link String}
      * @param password {@link String}
      */
@@ -90,7 +98,8 @@ public class ConnectDialog {
             @Override
             public void clicked(InputEvent event, float x, float y) {
                 super.clicked(event, x, y);
-                loginButtonClicked.emit(serverAddress.getText(), portField.getText(), usernameField.getText(), passwordField.getText());
+                loginButtonClicked.emit(serverAddress.getText(), portField.getText(), usernameField.getText(),
+                        passwordField.getText());
             }
         });
 
@@ -105,11 +114,14 @@ public class ConnectDialog {
         dialog.getButtonTable().defaults().height(stringHeight);
         dialog.button(loginButton);
         dialog.button(cancelButton);
+
+        // remove default listener from the buttonTable, they detect click and
+        // immediately hide the dialog for some reason
         dialog.getButtonTable().clearListeners();
     }
 
     /**
-     * Slot, triggered by TBA
+     * Slot, triggered by {@link FTPClient#connectCompleted}
      */
     public void onConnectCommandFinished(Object... args) {
         if (!(boolean) args[0]) {
@@ -118,19 +130,20 @@ public class ConnectDialog {
     }
 
     /**
-     * Slot, triggered by TBA
+     * Slot, triggered by {@link FTPClient#loginCompleted}
      */
     public void onLoginCommandFinished(Object... args) {
         if (!(boolean) args[0]) {
             errorLabel.setText("Username or Password is incorrect.");
-        }
-        else {
+
+            // TODO: Add ACCT authentication
+        } else {
             dialog.hide();
         }
     }
 
     /**
-     * Slot, triggerd by TBA
+     * Slot, triggerd by {@link ControlPane#connectButtonClicked}
      */
     public void onConnectDialogRequested(Object... args) {
         dialog.show(stage);

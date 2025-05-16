@@ -9,6 +9,11 @@ import com.lunaciadev.SimpleFTPClient.data.DataPackage;
 import com.lunaciadev.SimpleFTPClient.data.RequestType;
 import com.lunaciadev.SimpleFTPClient.utils.Signal;
 
+/**
+ * This widget provide GUI access to FTP commands.
+ * 
+ * @author LunaciaDev
+ */
 public class ControlPane {
     private Table group;
     private TextButton connectButton;
@@ -40,6 +45,8 @@ public class ControlPane {
 
     /**
      * Emitted when the download button is clicked.
+     * 
+     * @param requestType {@link RequestType#DOWNLOAD}
      */
     public Signal downloadButtonClicked = new Signal();
 
@@ -48,8 +55,16 @@ public class ControlPane {
      */
     public Signal uploadButtonClicked = new Signal();
 
+    /**
+     * Emitted when the change directory button is clicked.
+     * 
+     * @param requestType {@link RequestType#CD}
+     */
     public Signal changeDirButtonClicked = new Signal();
 
+    /**
+     * Emitted when the move up directory button is clicked.
+     */
     public Signal cdupButtonClicked = new Signal();
 
     /****** END SIGNALS SEGMENT ******/
@@ -138,6 +153,9 @@ public class ControlPane {
         }
     }
 
+    /**
+     * Slot, connected to {@link FTPClient#quitCompleted}
+     */
     public void onDisconnect(Object... args) {
         if ((boolean) args[0]) {
             isConnected = false;

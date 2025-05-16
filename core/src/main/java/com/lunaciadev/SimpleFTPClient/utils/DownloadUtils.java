@@ -2,25 +2,61 @@ package com.lunaciadev.SimpleFTPClient.utils;
 
 import com.badlogic.gdx.utils.Queue;
 import com.lunaciadev.SimpleFTPClient.core.FTPClient;
+import java.nio.file.Path;
 
-
+/**
+ * This class provide a procedural approach for downloading file from the FTP
+ * Server.
+ * 
+ * @author LunaciaDev
+ */
 public class DownloadUtils {
     private String fileName;
 
+    /****** SIGNALS ******/
+
+    /**
+     * Emitted when a NLST command is needed to check if the requested file exists.
+     */
     public Signal checkFileExist = new Signal();
+
+    /**
+     * Emitted when the selected file is confirmed to exist on the Server, now
+     * requesting a dialog to choose where to save the file.
+     */
     public Signal selectDownloadFolder = new Signal();
+
+    /**
+     * Emitted when the selected file does not exist in the current directory on the
+     * Server.
+     * 
+     * @param errorMessage {@link String}
+     */
     public Signal selectRejected = new Signal();
+
+    /**
+     * Emitted when the user has selected the location to save the downloaded file
+     * to, initiating a download.
+     * 
+     * @param fileName         {@link String}
+     * @param downloadLocation {@link Path} The local path where the downloaded file
+     *                         will be saved to
+     */
     public Signal downloadFile = new Signal();
 
-    public DownloadUtils() {}
+    /****** END SIGNALS ******/
+
+    public DownloadUtils() {
+    }
 
     public void getFileLists(Object... args) {
         this.fileName = (String) args[0];
-        checkFileExist.emit(fileName);
+        checkFileExist.emit();
     }
 
     /**
-     * This is connected to {@link FTPClient#nameList}, which guarantee that if the status is OK, there will be a Queue<String>.
+     * This is connected to {@link FTPClient#nameList}, which guarantee that if the
+     * status is OK, there will be a Queue<String>.
      */
     public void onHaveFileList(Object... args) {
         if (!(boolean) args[0]) {
@@ -29,7 +65,7 @@ public class DownloadUtils {
 
         @SuppressWarnings("unchecked")
         Queue<String> nameList = (Queue<String>) args[1];
-        
+
         for (int i = 0; i < nameList.size; i++) {
             if (fileName.contentEquals(nameList.get(i))) {
                 selectDownloadFolder.emit();
@@ -40,6 +76,9 @@ public class DownloadUtils {
         selectRejected.emit("File does not exists in current directory.");
     }
 
+    /**
+     * Slot, connected to {@link FileDialog#downloadFolderSelected}
+     */
     public void folderSelected(Object... args) {
         downloadFile.emit(fileName, args[0]);
     }

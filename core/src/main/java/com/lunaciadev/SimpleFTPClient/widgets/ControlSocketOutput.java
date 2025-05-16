@@ -9,12 +9,19 @@ import com.badlogic.gdx.utils.Queue;
 import com.lunaciadev.SimpleFTPClient.core.FTPClient;
 import com.lunaciadev.SimpleFTPClient.data.DataPackage;
 
+/**
+ * This widget provide a console-like view to the FTP commands and response that
+ * is currently happening.
+ * 
+ * @author LunaciaDev
+ */
 public class ControlSocketOutput {
     private Label output;
     private ScrollPane scrollPane;
     private Queue<String> dataHistory;
     private int historySize;
 
+    // How many line the console will "remember" before discarding old lines.
     private final int MAX_HIST_SIZE = 100;
 
     public ControlSocketOutput(DataPackage dataPackage) {
@@ -43,13 +50,15 @@ public class ControlSocketOutput {
 
         if (historySize < MAX_HIST_SIZE) {
             dataHistory.addLast(data);
-        }
-        else {
+        } else {
             dataHistory.removeFirst();
             dataHistory.addLast(data);
         }
 
         output.setText(dataHistory.toString("\n"));
+
+        // Since this method is running on a different thread from GUI, we need to post
+        // the ui-modifying part to the GUI thread.
         Gdx.app.postRunnable(new Runnable() {
             @Override
             public void run() {

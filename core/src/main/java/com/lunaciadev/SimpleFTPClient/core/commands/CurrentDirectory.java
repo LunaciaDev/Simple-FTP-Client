@@ -13,6 +13,12 @@ public class CurrentDirectory extends Command implements Runnable {
     private Pattern directoryPattern;
 
     public CurrentDirectory() {
+        /*
+         * Pattern made of 3 match group:
+         * Group 1: [\"']  match either " or '
+         * Group 2: .*     match any
+         * Group 3: \1     match the character that group 1 matched.
+         */
         directoryPattern = Pattern.compile("([\"'])(.*)\\1");
     }
 
@@ -38,6 +44,9 @@ public class CurrentDirectory extends Command implements Runnable {
                 case '2':
                     Matcher m = directoryPattern.matcher(parsedResponse[1]);
                     m.find();
+
+                    // Since FTP require quote in path to be doubled, we are de-doubling them to get
+                    // original string.
                     String result = m.toMatchResult().group(0).replace("\"\"", "\"").replace("''", "'");
 
                     finish(true, result);

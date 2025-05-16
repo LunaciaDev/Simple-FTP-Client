@@ -5,7 +5,7 @@ import java.io.BufferedWriter;
 
 import com.badlogic.gdx.Gdx;
 
-public class ChangeDirectory extends Command implements Runnable{
+public class ChangeDirectory extends Command implements Runnable {
     private BufferedReader socketListener;
     private BufferedWriter socketWriter;
 

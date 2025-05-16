@@ -10,7 +10,15 @@ import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
 import com.lunaciadev.SimpleFTPClient.data.DataPackage;
 import com.lunaciadev.SimpleFTPClient.data.RequestType;
 import com.lunaciadev.SimpleFTPClient.utils.Signal;
+import com.lunaciadev.SimpleFTPClient.utils.DownloadUtils;
+import com.lunaciadev.SimpleFTPClient.core.FTPClient;
+import com.lunaciadev.SimpleFTPClient.widgets.ControlPane;
 
+/**
+ * A generic dialog, used for CD and Download commands.
+ * 
+ * @author LunaciaDev
+ */
 public class GeneralDialog {
     private Dialog dialog;
     private TextField filenameField;
@@ -76,22 +84,30 @@ public class GeneralDialog {
         dialog.getButtonTable().defaults().height(stringHeight);
         dialog.button(submitButton);
         dialog.button(cancelButton);
+
+        // remove default listener from the buttonTable, they detect click and
+        // immediately hide the dialog for some reason
         dialog.getButtonTable().clearListeners();
     }
 
     /**
-     * Slot, triggered by TBA
+     * Slot, currently unused
      */
     public void onDownloadIssues(Object... args) {
         errorLabel.setText((String) args[0]);
     }
 
+    /**
+     * Slot, triggered by {@link DownloadUtils#downloadFile} and
+     * {@link FTPClient#changeDirectoryCompleted}
+     */
     public void hideDialog(Object... args) {
         dialog.hide();
     }
 
     /**
-     * Slot, triggerd by TBA
+     * Slot, triggerd by {@link ControlPane#downloadButtonClicked} and
+     * {@link ControlPane#changeDirButtonClicked}
      */
     public void onDialogRequest(Object... args) {
         currentRequestType = (RequestType) args[0];

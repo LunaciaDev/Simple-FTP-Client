@@ -8,6 +8,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.utils.Queue;
+
 import com.lunaciadev.SimpleFTPClient.core.commands.Account;
 import com.lunaciadev.SimpleFTPClient.core.commands.ChangeDirectory;
 import com.lunaciadev.SimpleFTPClient.core.commands.ChangeParentDir;
@@ -26,8 +28,9 @@ import com.lunaciadev.SimpleFTPClient.utils.Signal;
  * composition.
  * 
  * Each command execution is pushed into a worker thread.
+ * 
+ * @author LunaciaDev
  */
-
 public class FTPClient {
     private final ExecutorService controlService;
     private final ExecutorService dataService;
@@ -41,9 +44,15 @@ public class FTPClient {
     /**
      * Signal sent when {@link FTPClient#connect(String, Integer)} finished.
      * 
-     * @param status  {@link Boolean} {@code True} if the connection is successful,
-     *                {@code False} otherwise
-     * @param message {@link String} The error message, if any.
+     * @param status        {@link Boolean} {@code True} if the connection is
+     *                      successful,
+     *                      {@code False} otherwise
+     * @param controlSocket {@link Socket} Will be NULL if status is {@code False}.
+     * @param socketReader  {@link BufferedReader} Will be NULL if status is
+     *                      {@code False}.
+     * @param socketWriter  {@link BufferedWriter} Will be NULL if status is
+     *                      {@code False}.
+     * @param message       {@link String} The error message, if any.
      */
     public Signal connectCompleted;
 
@@ -79,7 +88,8 @@ public class FTPClient {
      * 
      * @param status  {@link Boolean} {@code True} if the command is successful,
      *                {@code False} otherwise.
-     * @param payload {@link String} the result.
+     * @param payload {@link String} the result. Will be NULL if status is
+     *                {@code False}
      */
     public Signal listCompleted;
 
@@ -102,13 +112,30 @@ public class FTPClient {
     /**
      * Signal sent when {@link FTPClient#nameList} finished.
      * 
-     * @param status {@link Boolean} {@code True} if the command is successful,
-     *               {@code False} otherwise.
+     * @param status   {@link Boolean} {@code True} if the command is successful,
+     *                 {@code False} otherwise.
+     * @param nameList {@link Queue} A queue of all file/folder name in current
+     *                 directory, will be NULL if status is {@code False}
      */
     public Signal nameListCompleted;
 
+    /**
+     * Signal sent when {@link FTPClient#currentDirectory} finished.
+     * 
+     * @param status    {@link Boolean} {@code True} if the command is successful,
+     *                  {@code False} otherwise.
+     * @param dirString {@link String} The string representing the absolute path to
+     *                  the current directory.
+     */
     public Signal currentDirectoryCompleted;
 
+    /**
+     * Signal sent when {@link FTPClient#changeDirectory} finished.
+     * 
+     * @param status   {@link Boolean} {@code True} if the command is successful,
+     *                 {@code False} otherwise.
+     * @param response {@link String} The response from the server.
+     */
     public Signal changeDirectoryCompleted;
 
     /**
@@ -133,6 +160,8 @@ public class FTPClient {
     private CurrentDirectory currentDirectoryCommand;
     private ChangeDirectory changeDirectoryCommand;
     private ChangeParentDir changeParentDirCommand;
+
+    /****** END COMMANDS REGION ******/
 
     public FTPClient() {
         controlService = Executors.newSingleThreadExecutor();
@@ -254,7 +283,7 @@ public class FTPClient {
         storeCommand.setData(socketListener, socketWriter, (Path) args[0], dataService);
         controlService.submit(storeCommand);
     }
-    
+
     public void nameList(final Object... args) {
         nameListCommand.setData(socketListener, socketWriter, dataService);
         controlService.submit(nameListCommand);
@@ -280,8 +309,9 @@ public class FTPClient {
         controlService.shutdown();
         dataService.shutdown();
 
-        if (controlSocket == null) return;
-        
+        if (controlSocket == null)
+            return;
+
         if (!controlSocket.isClosed()) {
             try {
                 controlSocket.close();

@@ -7,6 +7,11 @@ import com.badlogic.gdx.scenes.scene2d.ui.Skin;
 import com.lunaciadev.SimpleFTPClient.data.DataPackage;
 import com.lunaciadev.SimpleFTPClient.ui.MainScreen;
 
+/**
+ * Application entry point.
+ * 
+ * @author LunaciaDev
+ */
 public class Main extends Game {
     private Screen currentScreen;
     private DataPackage dataPackage;

@@ -19,6 +19,11 @@ import com.lunaciadev.SimpleFTPClient.widgets.ControlPane;
 import com.lunaciadev.SimpleFTPClient.widgets.ControlSocketOutput;
 import com.lunaciadev.SimpleFTPClient.widgets.ListOutput;
 
+/**
+ * The main screen of the application. Also initialize relevant components.
+ * 
+ * @author LunaciaDev
+ */
 public class MainScreen implements Screen {
     private Table rootTable;
     private Stage stage;
@@ -54,7 +59,7 @@ public class MainScreen implements Screen {
         Gdx.input.setInputProcessor(stage);
 
         /****** CONNECTING SIGNALS ******/
-        
+
         // Returning FTP Control Responses
         ftpClient.ftpControlResponse.connect(socketOutput::addOutput);
 
@@ -62,12 +67,17 @@ public class MainScreen implements Screen {
         textDialog.submitButtonClicked.connect(this::dialogHandler);
 
         // Connect to FTP Server
+        // Show connection dialog
         controlPane.connectButtonClicked.connect(connectDialog::onConnectDialogRequested);
+        // Start connect process
         connectDialog.loginButtonClicked.connect(loginUtils::startConnectProcess);
+        // Open a TCP connection to the Server
         loginUtils.requestConnection.connect(ftpClient::connect);
         ftpClient.connectCompleted.connect(connectDialog::onConnectCommandFinished);
+        // Start FTP login process
         ftpClient.connectCompleted.connect(loginUtils::startLoginProcess);
         loginUtils.requestLogin.connect(ftpClient::login);
+        // Post-login tasks
         ftpClient.loginCompleted.connect(connectDialog::onLoginCommandFinished);
         ftpClient.loginCompleted.connect(controlPane::onConnectStatusUpdate);
         ftpClient.loginCompleted.connect(loginUtils::onLoginFinished);
@@ -88,12 +98,16 @@ public class MainScreen implements Screen {
         fileDialog.uploadFileSelected.connect(ftpClient::store);
 
         // Download File
+        // Show download dialog
         controlPane.downloadButtonClicked.connect(textDialog::onDialogRequest);
+        // Check if selected file exists
         this.downloadFile.connect(downloadUtils::getFileLists);
         downloadUtils.checkFileExist.connect(ftpClient::nameList);
         ftpClient.nameListCompleted.connect(downloadUtils::onHaveFileList);
+        // Show native folder picker
         downloadUtils.selectDownloadFolder.connect(fileDialog::downloadFileDialog);
         fileDialog.downloadFolderSelected.connect(downloadUtils::folderSelected);
+        // Start downloading
         downloadUtils.downloadFile.connect(ftpClient::retrieve);
         downloadUtils.downloadFile.connect(textDialog::hideDialog);
 
@@ -135,9 +149,11 @@ public class MainScreen implements Screen {
 
         rootTable.add(controlPane.getLayout());
         rootTable.row();
-        rootTable.add(listOutput.getLayout()).space(10, 0, 10, 0).minHeight(Value.percentHeight(0.55f, rootTable)).expandY();
+        rootTable.add(listOutput.getLayout()).space(10, 0, 10, 0).minHeight(Value.percentHeight(0.55f, rootTable))
+                .expandY();
         rootTable.row();
-        rootTable.add(socketOutput.getLayout()).space(10, 0, 10, 0).minHeight(Value.percentHeight(0.25f, rootTable)).expandY();
+        rootTable.add(socketOutput.getLayout()).space(10, 0, 10, 0).minHeight(Value.percentHeight(0.25f, rootTable))
+                .expandY();
 
         rootTable.pad(10);
     }
@@ -182,5 +198,5 @@ public class MainScreen implements Screen {
         ftpClient.dispose();
         fileDialog.dispose();
     }
-    
+
 }
