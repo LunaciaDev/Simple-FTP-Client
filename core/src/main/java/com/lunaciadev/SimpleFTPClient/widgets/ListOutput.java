@@ -6,8 +6,8 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.ScrollPane;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
 import com.badlogic.gdx.utils.Align;
-import com.lunaciadev.SimpleFTPClient.data.DataPackage;
 import com.lunaciadev.SimpleFTPClient.core.FTPClient;
+import com.lunaciadev.SimpleFTPClient.data.DataPackage;
 
 /**
  * This widget provide the textual view to the LIST command output.
@@ -15,12 +15,12 @@ import com.lunaciadev.SimpleFTPClient.core.FTPClient;
  * @author LunaciaDev
  */
 public class ListOutput {
-    private Table group;
-    private Label currentDirectory;
-    private ScrollPane scrollPane;
-    private Label output;
+    private final Table group;
+    private final Label currentDirectory;
+    private final ScrollPane scrollPane;
+    private final Label output;
 
-    public ListOutput(DataPackage dataPackage) {
+    public ListOutput(final DataPackage dataPackage) {
         output = new Label("", dataPackage.getSkin(), "mono");
         output.setWrap(true);
         output.setAlignment(Align.topLeft);
@@ -29,13 +29,13 @@ public class ListOutput {
         currentDirectory = new Label("", dataPackage.getSkin(), "mono");
         currentDirectory.setAlignment(Align.left);
 
-        HorizontalGroup temp = new HorizontalGroup();
+        final HorizontalGroup temp = new HorizontalGroup();
         temp.grow();
 
         temp.addActor(new Label("Current Directory: ", dataPackage.getSkin()));
         temp.addActor(currentDirectory);
 
-        Container<Label> container = new Container<>(output);
+        final Container<Label> container = new Container<>(output);
         container.pad(5).fill();
 
         scrollPane = new ScrollPane(container);
@@ -52,7 +52,7 @@ public class ListOutput {
     /**
      * Slot, connected to {@link FTPClient#listCompleted}
      */
-    public void addOutput(Object... args) {
+    public void addOutput(final Object... args) {
         if (!(boolean) args[0]) return;
 
         output.setText((String) args[1]);
@@ -61,10 +61,10 @@ public class ListOutput {
     /**
      * Slot, connected to {@link FTPClient#currentDirectoryCompleted}
      */
-    public void workingDirectoryChanged(Object... args) {
+    public void workingDirectoryChanged(final Object... args) {
         if (!(boolean) args[0]) return;
 
-        String currentDir = ((String) args[1]).substring(1, ((String) args[1]).length() - 1);
+        final String currentDir = ((String) args[1]).substring(1, ((String) args[1]).length() - 1);
         currentDirectory.setText(currentDir);
     }
 }

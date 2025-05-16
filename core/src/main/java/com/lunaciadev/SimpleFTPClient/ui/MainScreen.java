@@ -26,23 +26,23 @@ import com.lunaciadev.SimpleFTPClient.widgets.ListOutput;
  */
 public class MainScreen implements Screen {
     private Table rootTable;
-    private Stage stage;
+    private final Stage stage;
 
-    private ControlPane controlPane;
-    private ControlSocketOutput socketOutput;
-    private ListOutput listOutput;
-    private ConnectDialog connectDialog;
-    private ConnectUtils loginUtils;
-    private GeneralDialog textDialog;
-    private DownloadUtils downloadUtils;
+    private final ControlPane controlPane;
+    private final ControlSocketOutput socketOutput;
+    private final ListOutput listOutput;
+    private final ConnectDialog connectDialog;
+    private final ConnectUtils loginUtils;
+    private final GeneralDialog textDialog;
+    private final DownloadUtils downloadUtils;
 
-    private FTPClient ftpClient;
-    private FileDialog fileDialog;
+    private final FTPClient ftpClient;
+    private final FileDialog fileDialog;
 
-    private Signal downloadFile = new Signal();
-    private Signal changeDir = new Signal();
+    private final Signal downloadFile = new Signal();
+    private final Signal changeDir = new Signal();
 
-    public MainScreen(DataPackage dataPackage) {
+    public MainScreen(final DataPackage dataPackage) {
         this.stage = new Stage(new ScreenViewport());
 
         this.controlPane = new ControlPane(dataPackage);
@@ -124,7 +124,7 @@ public class MainScreen implements Screen {
         setLayout();
     }
 
-    private void dialogHandler(Object... args) {
+    private void dialogHandler(final Object... args) {
         switch ((RequestType) args[0]) {
             case DOWNLOAD:
                 downloadFile.emit(args[1]);
@@ -165,14 +165,14 @@ public class MainScreen implements Screen {
     }
 
     @Override
-    public void render(float delta) {
+    public void render(final float delta) {
         ScreenUtils.clear(new Color(0x212529ff));
         stage.act();
         stage.draw();
     }
 
     @Override
-    public void resize(int width, int height) {
+    public void resize(final int width, final int height) {
         stage.getViewport().update(width, height, true);
     }
 

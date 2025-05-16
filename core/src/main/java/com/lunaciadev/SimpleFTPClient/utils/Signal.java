@@ -25,14 +25,14 @@ import java.util.List;
  * @author LunaciaDev
  */
 public class Signal {
-    private List<Slot> slots = new ArrayList<Slot>();
+    private final List<Slot> slots = new ArrayList<Slot>();
 
-    public void connect(Slot slot) {
+    public void connect(final Slot slot) {
         slots.add(slot);
     }
 
-    public void emit(Object... args) {
-        for (Slot slot : slots) {
+    public void emit(final Object... args) {
+        for (final Slot slot : slots) {
             slot.onSignal(args);
         }
     }

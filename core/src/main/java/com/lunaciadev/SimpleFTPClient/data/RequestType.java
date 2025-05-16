@@ -4,9 +4,9 @@ public enum RequestType {
     CD("Directory to change to:"),
     DOWNLOAD("File to Download:");
 
-    private String data;
+    private final String data;
 
-    private RequestType(String data) {
+    private RequestType(final String data) {
         this.data = data;
     }
 

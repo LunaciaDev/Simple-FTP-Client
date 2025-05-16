@@ -1,7 +1,7 @@
 package com.lunaciadev.SimpleFTPClient.utils;
 
-import com.lunaciadev.SimpleFTPClient.ui.ConnectDialog;
 import com.lunaciadev.SimpleFTPClient.core.FTPClient;
+import com.lunaciadev.SimpleFTPClient.ui.ConnectDialog;
 
 /**
  * This utils class provide a procedural approach for connecting to a FTP
@@ -47,7 +47,7 @@ public class ConnectUtils {
     /**
      * Slot, connected to {@link ConnectDialog#loginButtonClicked}
      */
-    public void startConnectProcess(Object... args) {
+    public void startConnectProcess(final Object... args) {
         username = (String) args[2];
         password = (String) args[3];
 
@@ -57,7 +57,7 @@ public class ConnectUtils {
     /**
      * Slot, connected to {@link FTPClient#connectCompleted}
      */
-    public void startLoginProcess(Object... args) {
+    public void startLoginProcess(final Object... args) {
         if (!(boolean) args[0])
             return;
 
@@ -67,7 +67,7 @@ public class ConnectUtils {
     /**
      * Slot, connnected to {@link FTPClient#loginCompleted}
      */
-    public void onLoginFinished(Object... args) {
+    public void onLoginFinished(final Object... args) {
         if (!(boolean) args[0])
             return;
 

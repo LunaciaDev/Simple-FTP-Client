@@ -51,7 +51,7 @@ public class Retrieve extends Command implements Runnable {
 
         try {
             Files.createFile(downloadFolder.resolve(fileName));
-        } catch (Exception e) {
+        } catch (final Exception e) {
 
         }
 

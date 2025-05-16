@@ -16,20 +16,20 @@ import com.lunaciadev.SimpleFTPClient.data.DataPackage;
  * @author LunaciaDev
  */
 public class ControlSocketOutput {
-    private Label output;
-    private ScrollPane scrollPane;
-    private Queue<String> dataHistory;
-    private int historySize;
+    private final Label output;
+    private final ScrollPane scrollPane;
+    private final Queue<String> dataHistory;
+    private final int historySize;
 
     // How many line the console will "remember" before discarding old lines.
     private final int MAX_HIST_SIZE = 100;
 
-    public ControlSocketOutput(DataPackage dataPackage) {
+    public ControlSocketOutput(final DataPackage dataPackage) {
         output = new Label("", dataPackage.getSkin(), "mono");
         output.setWrap(true);
         output.setAlignment(Align.topLeft);
 
-        Container<Label> container = new Container<>(output);
+        final Container<Label> container = new Container<>(output);
         container.pad(5).fill();
 
         scrollPane = new ScrollPane(container);
@@ -45,8 +45,8 @@ public class ControlSocketOutput {
     /**
      * Slot, connected to {@link FTPClient#ftpControlResponse}
      */
-    public void addOutput(Object... args) {
-        String data = ((String) args[0]);
+    public void addOutput(final Object... args) {
+        final String data = ((String) args[0]);
 
         if (historySize < MAX_HIST_SIZE) {
             dataHistory.addLast(data);

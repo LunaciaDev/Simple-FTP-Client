@@ -52,7 +52,7 @@ public class ChangeDirectory extends Command implements Runnable {
         }
     }
 
-    private void finish(final boolean status, String result) {
+    private void finish(final boolean status, final String result) {
         Gdx.app.postRunnable(new Runnable() {
 
             @Override

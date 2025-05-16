@@ -7,9 +7,9 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.lunaciadev.SimpleFTPClient.core.FTPClient;
 import com.lunaciadev.SimpleFTPClient.data.DataPackage;
 import com.lunaciadev.SimpleFTPClient.utils.Signal;
-import com.lunaciadev.SimpleFTPClient.core.FTPClient;
 import com.lunaciadev.SimpleFTPClient.widgets.ControlPane;
 
 /**
@@ -19,14 +19,14 @@ import com.lunaciadev.SimpleFTPClient.widgets.ControlPane;
  * @author LunaciaDev
  */
 public class ConnectDialog {
-    private Dialog dialog;
-    private TextField serverAddress;
-    private TextField usernameField;
-    private TextField passwordField;
-    private TextField portField;
-    private Label errorLabel;
+    private final Dialog dialog;
+    private final TextField serverAddress;
+    private final TextField usernameField;
+    private final TextField passwordField;
+    private final TextField portField;
+    private final Label errorLabel;
 
-    private float stringHeight;
+    private final float stringHeight;
 
     private Stage stage;
 
@@ -44,7 +44,7 @@ public class ConnectDialog {
 
     /****** END SIGNALS ******/
 
-    public ConnectDialog(DataPackage dataPackage) {
+    public ConnectDialog(final DataPackage dataPackage) {
         dialog = new Dialog("", dataPackage.getSkin());
         serverAddress = new TextField("", dataPackage.getSkin());
         usernameField = new TextField("", dataPackage.getSkin());
@@ -60,7 +60,7 @@ public class ConnectDialog {
         setLayout(dataPackage);
     }
 
-    private void setLayout(DataPackage dataPackage) {
+    private void setLayout(final DataPackage dataPackage) {
         dialog.pad(20);
 
         dialog.getContentTable().defaults().height(stringHeight);
@@ -78,10 +78,10 @@ public class ConnectDialog {
 
         passwordField.setPasswordCharacter('*');
 
-        TextButton showPassword = new TextButton("Show", dataPackage.getSkin(), "no-highlight");
+        final TextButton showPassword = new TextButton("Show", dataPackage.getSkin(), "no-highlight");
         showPassword.addListener(new ClickListener() {
             @Override
-            public void clicked(InputEvent event, float x, float y) {
+            public void clicked(final InputEvent event, final float x, final float y) {
                 super.clicked(event, x, y);
                 passwordField.setPasswordMode(!passwordField.isPasswordMode());
             }
@@ -91,12 +91,12 @@ public class ConnectDialog {
         dialog.getContentTable().row();
         dialog.getContentTable().add(errorLabel).colspan(4);
 
-        TextButton loginButton = new TextButton("Login", dataPackage.getSkin());
-        TextButton cancelButton = new TextButton("Cancel", dataPackage.getSkin(), "no-highlight");
+        final TextButton loginButton = new TextButton("Login", dataPackage.getSkin());
+        final TextButton cancelButton = new TextButton("Cancel", dataPackage.getSkin(), "no-highlight");
 
         loginButton.addListener(new ClickListener() {
             @Override
-            public void clicked(InputEvent event, float x, float y) {
+            public void clicked(final InputEvent event, final float x, final float y) {
                 super.clicked(event, x, y);
                 loginButtonClicked.emit(serverAddress.getText(), portField.getText(), usernameField.getText(),
                         passwordField.getText());
@@ -105,7 +105,7 @@ public class ConnectDialog {
 
         cancelButton.addListener(new ClickListener() {
             @Override
-            public void clicked(InputEvent event, float x, float y) {
+            public void clicked(final InputEvent event, final float x, final float y) {
                 super.clicked(event, x, y);
                 dialog.hide();
             }
@@ -123,7 +123,7 @@ public class ConnectDialog {
     /**
      * Slot, triggered by {@link FTPClient#connectCompleted}
      */
-    public void onConnectCommandFinished(Object... args) {
+    public void onConnectCommandFinished(final Object... args) {
         if (!(boolean) args[0]) {
             errorLabel.setText("Cannot connect to the server. Please check the address and your Internet connection.");
         }
@@ -132,7 +132,7 @@ public class ConnectDialog {
     /**
      * Slot, triggered by {@link FTPClient#loginCompleted}
      */
-    public void onLoginCommandFinished(Object... args) {
+    public void onLoginCommandFinished(final Object... args) {
         if (!(boolean) args[0]) {
             errorLabel.setText("Username or Password is incorrect.");
 
@@ -145,7 +145,7 @@ public class ConnectDialog {
     /**
      * Slot, triggerd by {@link ControlPane#connectButtonClicked}
      */
-    public void onConnectDialogRequested(Object... args) {
+    public void onConnectDialogRequested(final Object... args) {
         dialog.show(stage);
     }
 
@@ -153,7 +153,7 @@ public class ConnectDialog {
         return dialog;
     }
 
-    public void setStage(Stage stage) {
+    public void setStage(final Stage stage) {
         this.stage = stage;
     }
 }

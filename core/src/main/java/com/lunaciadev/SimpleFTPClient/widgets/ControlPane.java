@@ -1,9 +1,9 @@
 package com.lunaciadev.SimpleFTPClient.widgets;
 
-import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
-import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.Actor;
 import com.badlogic.gdx.scenes.scene2d.ui.Table;
+import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
+import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.lunaciadev.SimpleFTPClient.core.FTPClient;
 import com.lunaciadev.SimpleFTPClient.data.DataPackage;
 import com.lunaciadev.SimpleFTPClient.data.RequestType;
@@ -15,16 +15,16 @@ import com.lunaciadev.SimpleFTPClient.utils.Signal;
  * @author LunaciaDev
  */
 public class ControlPane {
-    private Table group;
-    private TextButton connectButton;
-    private TextButton refreshButton;
-    private TextButton downloadButton;
-    private TextButton uploadButton;
-    private TextButton changeDirButton;
-    private TextButton cdupButton;
+    private final Table group;
+    private final TextButton connectButton;
+    private final TextButton refreshButton;
+    private final TextButton downloadButton;
+    private final TextButton uploadButton;
+    private final TextButton changeDirButton;
+    private final TextButton cdupButton;
 
     private boolean isConnected;
-    private float stringHeight;
+    private final float stringHeight;
 
     /****** SIGNALS ******/
 
@@ -69,7 +69,7 @@ public class ControlPane {
 
     /****** END SIGNALS SEGMENT ******/
 
-    public ControlPane(DataPackage dataPackage) {
+    public ControlPane(final DataPackage dataPackage) {
         isConnected = false;
 
         connectButton = new TextButton("Connect", dataPackage.getSkin(), "no-highlight");
@@ -89,7 +89,7 @@ public class ControlPane {
 
         connectButton.addListener(new ChangeListener() {
             @Override
-            public void changed(ChangeEvent event, Actor actor) {
+            public void changed(final ChangeEvent event, final Actor actor) {
                 if (!isConnected) {
                     connectButtonClicked.emit();
                 }
@@ -101,35 +101,35 @@ public class ControlPane {
 
         refreshButton.addListener(new ChangeListener() {
             @Override
-            public void changed(ChangeEvent event, Actor actor) {
+            public void changed(final ChangeEvent event, final Actor actor) {
                 refreshButtonClicked.emit();
             }
         });
 
         downloadButton.addListener(new ChangeListener() {
             @Override
-            public void changed(ChangeEvent event, Actor actor) {
+            public void changed(final ChangeEvent event, final Actor actor) {
                 downloadButtonClicked.emit(RequestType.DOWNLOAD);
             }
         });
 
         uploadButton.addListener(new ChangeListener() {
             @Override
-            public void changed(ChangeEvent event, Actor actor) {
+            public void changed(final ChangeEvent event, final Actor actor) {
                 uploadButtonClicked.emit();
             }
         });
 
         changeDirButton.addListener(new ChangeListener() {
             @Override
-            public void changed(ChangeEvent event, Actor actor) {
+            public void changed(final ChangeEvent event, final Actor actor) {
                 changeDirButtonClicked.emit(RequestType.CD);
             }
         });
 
         cdupButton.addListener(new ChangeListener() {
             @Override
-            public void changed(ChangeEvent event, Actor actor) {
+            public void changed(final ChangeEvent event, final Actor actor) {
                 cdupButtonClicked.emit();
             }
         });
@@ -141,7 +141,7 @@ public class ControlPane {
     /**
      * Slot, connected to {@link FTPClient#loginCompleted}
      */
-    public void onConnectStatusUpdate(Object... args) {
+    public void onConnectStatusUpdate(final Object... args) {
         if ((boolean) args[0]) {
             isConnected = true;
             connectButton.setText("Disconnect");
@@ -156,7 +156,7 @@ public class ControlPane {
     /**
      * Slot, connected to {@link FTPClient#quitCompleted}
      */
-    public void onDisconnect(Object... args) {
+    public void onDisconnect(final Object... args) {
         if ((boolean) args[0]) {
             isConnected = false;
             connectButton.setText("Connect");

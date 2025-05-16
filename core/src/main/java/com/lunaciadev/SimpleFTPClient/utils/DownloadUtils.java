@@ -1,8 +1,9 @@
 package com.lunaciadev.SimpleFTPClient.utils;
 
+import java.nio.file.Path;
+
 import com.badlogic.gdx.utils.Queue;
 import com.lunaciadev.SimpleFTPClient.core.FTPClient;
-import java.nio.file.Path;
 
 /**
  * This class provide a procedural approach for downloading file from the FTP
@@ -49,7 +50,7 @@ public class DownloadUtils {
     public DownloadUtils() {
     }
 
-    public void getFileLists(Object... args) {
+    public void getFileLists(final Object... args) {
         this.fileName = (String) args[0];
         checkFileExist.emit();
     }
@@ -58,12 +59,13 @@ public class DownloadUtils {
      * This is connected to {@link FTPClient#nameList}, which guarantee that if the
      * status is OK, there will be a Queue<String>.
      */
-    public void onHaveFileList(Object... args) {
+    public void onHaveFileList(final Object... args) {
         if (!(boolean) args[0]) {
             selectRejected.emit("Cannot get file listing. Check your internet connection?");
         }
 
         @SuppressWarnings("unchecked")
+        final
         Queue<String> nameList = (Queue<String>) args[1];
 
         for (int i = 0; i < nameList.size; i++) {
@@ -79,7 +81,7 @@ public class DownloadUtils {
     /**
      * Slot, connected to {@link FileDialog#downloadFolderSelected}
      */
-    public void folderSelected(Object... args) {
+    public void folderSelected(final Object... args) {
         downloadFile.emit(fileName, args[0]);
     }
 }

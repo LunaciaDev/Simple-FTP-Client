@@ -7,11 +7,11 @@ import com.badlogic.gdx.scenes.scene2d.ui.Label;
 import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.ui.TextField;
 import com.badlogic.gdx.scenes.scene2d.utils.ClickListener;
+import com.lunaciadev.SimpleFTPClient.core.FTPClient;
 import com.lunaciadev.SimpleFTPClient.data.DataPackage;
 import com.lunaciadev.SimpleFTPClient.data.RequestType;
-import com.lunaciadev.SimpleFTPClient.utils.Signal;
 import com.lunaciadev.SimpleFTPClient.utils.DownloadUtils;
-import com.lunaciadev.SimpleFTPClient.core.FTPClient;
+import com.lunaciadev.SimpleFTPClient.utils.Signal;
 import com.lunaciadev.SimpleFTPClient.widgets.ControlPane;
 
 /**
@@ -20,11 +20,11 @@ import com.lunaciadev.SimpleFTPClient.widgets.ControlPane;
  * @author LunaciaDev
  */
 public class GeneralDialog {
-    private Dialog dialog;
-    private TextField filenameField;
-    private Label errorLabel;
-    private Label requestLabel;
-    private float stringHeight;
+    private final Dialog dialog;
+    private final TextField filenameField;
+    private final Label errorLabel;
+    private final Label requestLabel;
+    private final float stringHeight;
 
     private RequestType currentRequestType;
 
@@ -41,7 +41,7 @@ public class GeneralDialog {
 
     /****** END SIGNALS ******/
 
-    public GeneralDialog(DataPackage dataPackage) {
+    public GeneralDialog(final DataPackage dataPackage) {
         dialog = new Dialog("", dataPackage.getSkin());
         filenameField = new TextField("", dataPackage.getSkin());
         errorLabel = new Label("", dataPackage.getSkin());
@@ -52,7 +52,7 @@ public class GeneralDialog {
         setLayout(dataPackage);
     }
 
-    private void setLayout(DataPackage dataPackage) {
+    private void setLayout(final DataPackage dataPackage) {
         dialog.pad(20);
 
         dialog.getContentTable().defaults().height(stringHeight);
@@ -62,12 +62,12 @@ public class GeneralDialog {
         dialog.row();
         dialog.getContentTable().add(errorLabel).colspan(3);
 
-        TextButton submitButton = new TextButton("OK", dataPackage.getSkin());
-        TextButton cancelButton = new TextButton("Cancel", dataPackage.getSkin(), "no-highlight");
+        final TextButton submitButton = new TextButton("OK", dataPackage.getSkin());
+        final TextButton cancelButton = new TextButton("Cancel", dataPackage.getSkin(), "no-highlight");
 
         submitButton.addListener(new ClickListener() {
             @Override
-            public void clicked(InputEvent event, float x, float y) {
+            public void clicked(final InputEvent event, final float x, final float y) {
                 super.clicked(event, x, y);
                 submitButtonClicked.emit(currentRequestType, filenameField.getText());
             }
@@ -75,7 +75,7 @@ public class GeneralDialog {
 
         cancelButton.addListener(new ClickListener() {
             @Override
-            public void clicked(InputEvent event, float x, float y) {
+            public void clicked(final InputEvent event, final float x, final float y) {
                 super.clicked(event, x, y);
                 dialog.hide();
             }
@@ -93,7 +93,7 @@ public class GeneralDialog {
     /**
      * Slot, currently unused
      */
-    public void onDownloadIssues(Object... args) {
+    public void onDownloadIssues(final Object... args) {
         errorLabel.setText((String) args[0]);
     }
 
@@ -101,7 +101,7 @@ public class GeneralDialog {
      * Slot, triggered by {@link DownloadUtils#downloadFile} and
      * {@link FTPClient#changeDirectoryCompleted}
      */
-    public void hideDialog(Object... args) {
+    public void hideDialog(final Object... args) {
         dialog.hide();
     }
 
@@ -109,7 +109,7 @@ public class GeneralDialog {
      * Slot, triggerd by {@link ControlPane#downloadButtonClicked} and
      * {@link ControlPane#changeDirButtonClicked}
      */
-    public void onDialogRequest(Object... args) {
+    public void onDialogRequest(final Object... args) {
         currentRequestType = (RequestType) args[0];
         requestLabel.setText(currentRequestType.getLabelString());
         dialog.show(stage);
@@ -119,7 +119,7 @@ public class GeneralDialog {
         return dialog;
     }
 
-    public void setStage(Stage stage) {
+    public void setStage(final Stage stage) {
         this.stage = stage;
     }
 }

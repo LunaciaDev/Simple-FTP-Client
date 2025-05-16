@@ -10,7 +10,7 @@ import com.badlogic.gdx.Gdx;
 public class CurrentDirectory extends Command implements Runnable {
     private BufferedReader socketListener;
     private BufferedWriter socketWriter;
-    private Pattern directoryPattern;
+    private final Pattern directoryPattern;
 
     public CurrentDirectory() {
         /*
@@ -42,12 +42,12 @@ public class CurrentDirectory extends Command implements Runnable {
 
             switch (parsedResponse[0].charAt(0)) {
                 case '2':
-                    Matcher m = directoryPattern.matcher(parsedResponse[1]);
+                    final Matcher m = directoryPattern.matcher(parsedResponse[1]);
                     m.find();
 
                     // Since FTP require quote in path to be doubled, we are de-doubling them to get
                     // original string.
-                    String result = m.toMatchResult().group(0).replace("\"\"", "\"").replace("''", "'");
+                    final String result = m.toMatchResult().group(0).replace("\"\"", "\"").replace("''", "'");
 
                     finish(true, result);
                     return;
@@ -66,7 +66,7 @@ public class CurrentDirectory extends Command implements Runnable {
         }
     }
 
-    private void finish(final boolean status, String result) {
+    private void finish(final boolean status, final String result) {
         Gdx.app.postRunnable(new Runnable() {
 
             @Override

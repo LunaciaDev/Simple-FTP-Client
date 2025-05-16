@@ -16,7 +16,7 @@ public class Quit extends Command implements Runnable {
     public Quit() {
     }
 
-    public void setData(BufferedReader socketListener, BufferedWriter socketWriter) {
+    public void setData(final BufferedReader socketListener, final BufferedWriter socketWriter) {
         this.socketListener = socketListener;
         this.socketWriter = socketWriter;
     }
@@ -47,14 +47,14 @@ public class Quit extends Command implements Runnable {
                     break;
             }
 
-        } catch (Exception e) {
+        } catch (final Exception e) {
             // TODO: handle exception
             Gdx.app.error("Exception", e.getMessage());
             e.printStackTrace();
         }
     }
 
-    private void finish(boolean status) {
+    private void finish(final boolean status) {
         Gdx.app.postRunnable(new Runnable() {
 
             @Override

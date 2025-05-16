@@ -18,7 +18,7 @@ public class Main extends Game {
 
     @Override
     public void create() {
-        Skin skin = new Skin(Gdx.files.internal("ui/skin.json"));
+        final Skin skin = new Skin(Gdx.files.internal("ui/skin.json"));
 
         this.dataPackage = new DataPackage(skin);
         this.currentScreen = new MainScreen(dataPackage);

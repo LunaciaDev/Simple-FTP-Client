@@ -7,7 +7,6 @@ import java.util.concurrent.Executors;
 import org.lwjgl.util.tinyfd.TinyFileDialogs;
 
 import com.badlogic.gdx.Gdx;
-
 import com.lunaciadev.SimpleFTPClient.widgets.ControlPane;
 
 /**
@@ -17,7 +16,7 @@ import com.lunaciadev.SimpleFTPClient.widgets.ControlPane;
  * @author LunaciaDev
  */
 public class FileDialog {
-    private ExecutorService service;
+    private final ExecutorService service;
 
     /****** SIGNALS ******/
 
@@ -52,11 +51,11 @@ public class FileDialog {
     /**
      * Slot, connected to {@link ControlPane#uploadButtonClicked}
      */
-    public void uploadFileDialog(Object... args) {
+    public void uploadFileDialog(final Object... args) {
         service.submit(new Runnable() {
             @Override
             public void run() {
-                String selectedFilePath = TinyFileDialogs.tinyfd_openFileDialog("Upload File", null, null, null, false);
+                final String selectedFilePath = TinyFileDialogs.tinyfd_openFileDialog("Upload File", null, null, null, false);
 
                 Gdx.app.postRunnable(new Runnable() {
                     @Override
@@ -73,12 +72,12 @@ public class FileDialog {
     /**
      * Slot, connected to {@link DownloadUtils#selectDownloadFolder}
      */
-    public void downloadFileDialog(Object... args) {
+    public void downloadFileDialog(final Object... args) {
         service.submit(new Runnable() {
             @Override
             public void run() {
-                String defaultPath = lastDownloadFolder == null ? System.getProperty("user.home") : lastDownloadFolder;
-                String folderPath = TinyFileDialogs.tinyfd_selectFolderDialog("Select Download Folder", defaultPath);
+                final String defaultPath = lastDownloadFolder == null ? System.getProperty("user.home") : lastDownloadFolder;
+                final String folderPath = TinyFileDialogs.tinyfd_selectFolderDialog("Select Download Folder", defaultPath);
                 lastDownloadFolder = folderPath == null ? lastDownloadFolder : folderPath;
 
                 Gdx.app.postRunnable(new Runnable() {

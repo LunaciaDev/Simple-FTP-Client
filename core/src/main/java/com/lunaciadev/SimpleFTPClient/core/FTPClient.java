@@ -9,15 +9,14 @@ import java.util.concurrent.Executors;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Queue;
-
 import com.lunaciadev.SimpleFTPClient.core.commands.Account;
 import com.lunaciadev.SimpleFTPClient.core.commands.ChangeDirectory;
 import com.lunaciadev.SimpleFTPClient.core.commands.ChangeParentDir;
-import com.lunaciadev.SimpleFTPClient.core.commands.Login;
-import com.lunaciadev.SimpleFTPClient.core.commands.NameList;
 import com.lunaciadev.SimpleFTPClient.core.commands.Connect;
 import com.lunaciadev.SimpleFTPClient.core.commands.CurrentDirectory;
 import com.lunaciadev.SimpleFTPClient.core.commands.List;
+import com.lunaciadev.SimpleFTPClient.core.commands.Login;
+import com.lunaciadev.SimpleFTPClient.core.commands.NameList;
 import com.lunaciadev.SimpleFTPClient.core.commands.Quit;
 import com.lunaciadev.SimpleFTPClient.core.commands.Retrieve;
 import com.lunaciadev.SimpleFTPClient.core.commands.Store;
@@ -158,9 +157,9 @@ public class FTPClient {
     private final Retrieve retrieveCommand;
     private final Store storeCommand;
     private final NameList nameListCommand;
-    private CurrentDirectory currentDirectoryCommand;
-    private ChangeDirectory changeDirectoryCommand;
-    private ChangeParentDir changeParentDirCommand;
+    private final CurrentDirectory currentDirectoryCommand;
+    private final ChangeDirectory changeDirectoryCommand;
+    private final ChangeParentDir changeParentDirCommand;
 
     /****** END COMMANDS REGION ******/
 
@@ -271,8 +270,8 @@ public class FTPClient {
      * Download a file from the FTP Server
      */
     public void retrieve(final Object... args) {
-        String fileName = (String) args[0];
-        Path downloadFolderPath = (Path) args[1];
+        final String fileName = (String) args[0];
+        final Path downloadFolderPath = (Path) args[1];
 
         retrieveCommand.setData(socketListener, socketWriter, fileName, downloadFolderPath, dataService, serverAddr);
         controlService.submit(retrieveCommand);
@@ -291,18 +290,18 @@ public class FTPClient {
         controlService.submit(nameListCommand);
     }
 
-    public void currentDirectory(Object... args) {
+    public void currentDirectory(final Object... args) {
         currentDirectoryCommand.setData(socketListener, socketWriter);
         controlService.submit(currentDirectoryCommand);
     }
 
-    public void changeDirectory(Object... args) {
-        String dirName = (String) args[0];
+    public void changeDirectory(final Object... args) {
+        final String dirName = (String) args[0];
         changeDirectoryCommand.setData(socketListener, socketWriter, dirName);
         controlService.submit(changeDirectoryCommand);
     }
 
-    public void changeToParentDirectory(Object... args) {
+    public void changeToParentDirectory(final Object... args) {
         changeParentDirCommand.setData(socketListener, socketWriter);
         controlService.submit(changeParentDirCommand);
     }
@@ -317,7 +316,7 @@ public class FTPClient {
         if (!controlSocket.isClosed()) {
             try {
                 controlSocket.close();
-            } catch (Exception e) {
+            } catch (final Exception e) {
                 Gdx.app.error("Exception", e.getMessage());
                 e.printStackTrace();
             }
