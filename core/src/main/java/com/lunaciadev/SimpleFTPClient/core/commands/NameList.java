@@ -14,6 +14,7 @@ public class NameList extends Command implements Runnable {
     private BufferedReader socketListener;
     private BufferedWriter socketWriter;
     private ExecutorService dataService;
+    private String serverAddr;
     private volatile boolean allDataReceived = false;
     private boolean malformedData = false;
 
@@ -24,10 +25,11 @@ public class NameList extends Command implements Runnable {
     }
 
     public void setData(final BufferedReader socketListener, final BufferedWriter socketWriter,
-        final ExecutorService dataService) {
+        final ExecutorService dataService, final String serverAddr) {
         this.socketListener = socketListener;
         this.socketWriter = socketWriter;
         this.dataService = dataService;
+        this.serverAddr = serverAddr;
     }
 
     @Override
@@ -63,7 +65,7 @@ public class NameList extends Command implements Runnable {
                 @Override
                 public void run() {
                     try {
-                        final Socket dataSocket = new Socket(String.join(".", addr[0], addr[1], addr[2], addr[3]),
+                        final Socket dataSocket = new Socket(serverAddr,
                                 Integer.parseInt(addr[4]) * 256 + Integer.parseInt(addr[5]));
                         final BufferedReader dataReader = new BufferedReader(
                                 new InputStreamReader(dataSocket.getInputStream()));
