@@ -6,6 +6,9 @@ import java.net.Socket;
 import java.nio.file.Path;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.SynchronousQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Queue;
@@ -173,7 +176,9 @@ public class FTPClient {
     /****** END COMMANDS REGION ******/
 
     public FTPClient() {
-        controlService = Executors.newSingleThreadExecutor();
+        // this executor drop any input while it is executing something, a bandaid to block UI input while it is doing something.
+        controlService = new ThreadPoolExecutor(1, 1, 0L, TimeUnit.MILLISECONDS, new SynchronousQueue<>(),
+                Executors.defaultThreadFactory(), new ThreadPoolExecutor.DiscardPolicy());
         dataService = Executors.newSingleThreadExecutor();
 
         // Initialize all commands
