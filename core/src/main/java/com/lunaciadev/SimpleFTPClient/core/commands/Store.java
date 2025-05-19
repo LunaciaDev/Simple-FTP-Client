@@ -24,19 +24,17 @@ public class Store extends Command implements Runnable {
     private BufferedReader socketListener;
     private BufferedWriter socketWriter;
     private ExecutorService dataService;
-    private String serverAddr;
     private boolean malformedData = false;
 
     private Path uploadTarget;
 
     public Store() {}
 
-    public void setData(final BufferedReader socketListener, final BufferedWriter socketWriter, final Path uploadTarget, final ExecutorService service, final String serverAddr) {
+    public void setData(final BufferedReader socketListener, final BufferedWriter socketWriter, final Path uploadTarget, final ExecutorService service) {
         this.socketListener = socketListener;
         this.socketWriter = socketWriter;
         this.uploadTarget = uploadTarget;
         this.dataService = service;
-        this.serverAddr = serverAddr;
     }
 
     @Override
@@ -93,11 +91,11 @@ public class Store extends Command implements Runnable {
             dataService.submit(new Runnable() {
                 @Override
                 public void run() {
-                    try (Socket dataSocket = new Socket(serverAddr,
+                    try (Socket dataSocket = new Socket(String.join(".", addr[0], addr[1], addr[2], addr[3]),
                             Integer.parseInt(addr[4]) * 256 + Integer.parseInt(addr[5]));) {
 
                         final BufferedOutputStream out = new BufferedOutputStream(dataSocket.getOutputStream());
-
+                        
                         // 8kB buffer. Has to do this to keep track of read bytes, transferTo would just
                         // block indefinitely?
                         final byte[] buffer = new byte[8192];

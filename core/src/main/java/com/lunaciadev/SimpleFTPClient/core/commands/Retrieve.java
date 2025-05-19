@@ -18,7 +18,6 @@ public class Retrieve extends Command implements Runnable {
     private BufferedReader socketListener;
     private BufferedWriter socketWriter;
     private ExecutorService dataService;
-    private String serverAddr;
     private volatile boolean allDataReceived = false;
     private boolean malformedData = false;
     private Path downloadFolder;
@@ -29,13 +28,12 @@ public class Retrieve extends Command implements Runnable {
     }
 
     public void setData(final BufferedReader socketListener, final BufferedWriter socketWriter, final String fileName,
-            final Path downloadFolder, final ExecutorService service, final String serverAddr) {
+            final Path downloadFolder, final ExecutorService service) {
         this.socketListener = socketListener;
         this.socketWriter = socketWriter;
         this.fileName = fileName;
         this.downloadFolder = downloadFolder;
         this.dataService = service;
-        this.serverAddr = serverAddr;
     }
 
     @Override
@@ -108,7 +106,7 @@ public class Retrieve extends Command implements Runnable {
             dataService.submit(new Runnable() {
                 @Override
                 public void run() {
-                    try (Socket dataSocket = new Socket(serverAddr,
+                    try (Socket dataSocket = new Socket(String.join(".", addr[0], addr[1], addr[2], addr[3]),
                             Integer.parseInt(addr[4]) * 256 + Integer.parseInt(addr[5]));) {
 
                         final BufferedInputStream in = new BufferedInputStream(dataSocket.getInputStream());

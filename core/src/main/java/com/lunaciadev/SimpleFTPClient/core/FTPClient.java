@@ -37,7 +37,6 @@ public class FTPClient {
     private Socket controlSocket;
     private BufferedReader socketListener;
     private BufferedWriter socketWriter;
-    private String serverAddr;
 
     /****** SIGNALS *****/
 
@@ -218,7 +217,6 @@ public class FTPClient {
     public void connect(final Object... args) {
         final String ftpServer = (String) args[0];
         final int port = (int) args[1];
-        this.serverAddr = ftpServer;
 
         connectCommand.setData(ftpServer, port);
         controlService.submit(connectCommand);
@@ -262,7 +260,7 @@ public class FTPClient {
      * without any argument as we only have to show the current directory.
      */
     public void list(final Object... args) {
-        listCommand.setData(socketListener, socketWriter, dataService, serverAddr);
+        listCommand.setData(socketListener, socketWriter, dataService);
         controlService.submit(listCommand);
     }
 
@@ -273,7 +271,7 @@ public class FTPClient {
         final String fileName = (String) args[0];
         final Path downloadFolderPath = (Path) args[1];
 
-        retrieveCommand.setData(socketListener, socketWriter, fileName, downloadFolderPath, dataService, serverAddr);
+        retrieveCommand.setData(socketListener, socketWriter, fileName, downloadFolderPath, dataService);
         controlService.submit(retrieveCommand);
     }
 
@@ -281,12 +279,12 @@ public class FTPClient {
      * One argument, a string representing the absolute path to the file.
      */
     public void store(final Object... args) {
-        storeCommand.setData(socketListener, socketWriter, (Path) args[0], dataService, serverAddr);
+        storeCommand.setData(socketListener, socketWriter, (Path) args[0], dataService);
         controlService.submit(storeCommand);
     }
 
     public void nameList(final Object... args) {
-        nameListCommand.setData(socketListener, socketWriter, dataService, serverAddr);
+        nameListCommand.setData(socketListener, socketWriter, dataService);
         controlService.submit(nameListCommand);
     }
 
