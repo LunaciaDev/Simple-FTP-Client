@@ -3,7 +3,9 @@ package com.lunaciadev.SimpleFTPClient.core.commands;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.InputStreamReader;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.util.concurrent.ExecutorService;
 
 import com.badlogic.gdx.Gdx;
@@ -24,7 +26,7 @@ public class NameList extends Command implements Runnable {
     }
 
     public void setData(final BufferedReader socketListener, final BufferedWriter socketWriter,
-        final ExecutorService dataService) {
+            final ExecutorService dataService) {
         this.socketListener = socketListener;
         this.socketWriter = socketWriter;
         this.dataService = dataService;
@@ -62,32 +64,60 @@ public class NameList extends Command implements Runnable {
             dataService.submit(new Runnable() {
                 @Override
                 public void run() {
-                    try {
-                        final Socket dataSocket = new Socket(String.join(".", addr[0], addr[1], addr[2], addr[3]),
-                                Integer.parseInt(addr[4]) * 256 + Integer.parseInt(addr[5]));
-                        final BufferedReader dataReader = new BufferedReader(
-                                new InputStreamReader(dataSocket.getInputStream()));
-                        final Queue<String> response = new Queue<>();
-                        String temp;
+                    final InetSocketAddress socketAddress = new InetSocketAddress(
+                            String.join(".", addr[0], addr[1], addr[2], addr[3]),
+                            Integer.parseInt(addr[4]) * 256 + Integer.parseInt(addr[5]));
+                    int retryCount = 0;
+                    while (retryCount <= 2) {
+                        try {
+                            final Socket dataSocket = new Socket();
 
-                        while (!allDataReceived) {
-                            while ((temp = dataReader.readLine()) != null) {
-                                response.addLast(temp);
+                            dataSocket.connect(socketAddress, 10 * 1000); // 10s Socket Establish Timeout
+
+                            final BufferedReader dataReader = new BufferedReader(
+                                    new InputStreamReader(dataSocket.getInputStream()));
+                            final Queue<String> response = new Queue<>();
+                            String temp;
+
+                            while (!allDataReceived) {
+                                while ((temp = dataReader.readLine()) != null) {
+                                    response.addLast(temp);
+                                }
                             }
+
+                            Gdx.app.postRunnable(new Runnable() {
+                                @Override
+                                public void run() {
+                                    dataStruct.emit(response);
+                                }
+                            });
+
+                            dataSocket.close();
+                        } catch (final SocketTimeoutException e) {
+                            if (retryCount < 2) {
+                                Gdx.app.postRunnable(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        forwardControlResponse("[APP] PASV connection timed out. Retrying...");
+                                    }
+                                });
+                                retryCount++;
+                                continue;
+                            }
+
+                            Gdx.app.postRunnable(new Runnable() {
+                                @Override
+                                public void run() {
+                                    forwardControlResponse(
+                                            "[APP] Failed to establish PASV connection. App will stay frozen until a timeout is received from server.");
+                                }
+                            });
+                            return;
+                        } catch (final Exception e) {
+                            // TODO: handle exception
+                            Gdx.app.error("Exception", e.getMessage());
+                            e.printStackTrace();
                         }
-
-                        Gdx.app.postRunnable(new Runnable() {
-                            @Override
-                            public void run() {
-                                dataStruct.emit(response);
-                            }
-                        });
-
-                        dataSocket.close();
-                    } catch (final Exception e) {
-                        // TODO: handle exception
-                        Gdx.app.error("Exception", e.getMessage());
-                        e.printStackTrace();
                     }
                 }
             });

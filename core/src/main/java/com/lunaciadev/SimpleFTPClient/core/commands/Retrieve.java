@@ -4,7 +4,9 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.ExecutorService;
@@ -106,33 +108,61 @@ public class Retrieve extends Command implements Runnable {
             dataService.submit(new Runnable() {
                 @Override
                 public void run() {
-                    try (Socket dataSocket = new Socket(String.join(".", addr[0], addr[1], addr[2], addr[3]),
-                            Integer.parseInt(addr[4]) * 256 + Integer.parseInt(addr[5]));) {
+                    final InetSocketAddress socketAddress = new InetSocketAddress(
+                            String.join(".", addr[0], addr[1], addr[2], addr[3]),
+                            Integer.parseInt(addr[4]) * 256 + Integer.parseInt(addr[5]));
+                    int retryCount = 0;
+                    while (retryCount <= 2) {
+                        try {
+                            final Socket dataSocket = new Socket();
 
-                        final BufferedInputStream in = new BufferedInputStream(dataSocket.getInputStream());
+                            dataSocket.connect(socketAddress, 10 * 1000); // 10s Socket Establish Timeout
 
-                        // 8kB buffer. Has to do this to keep track of read bytes, transferTo would just
-                        // block indefinitely?
-                        final byte[] buffer = new byte[8192];
+                            final BufferedInputStream in = new BufferedInputStream(dataSocket.getInputStream());
 
-                        while (!allDataReceived) {
-                            while (in.read(buffer) != -1) {
-                                out.write(buffer);
+                            // 8kB buffer. Has to do this to keep track of read bytes, transferTo would just
+                            // block indefinitely?
+                            final byte[] buffer = new byte[8192];
+
+                            while (!allDataReceived) {
+                                while (in.read(buffer) != -1) {
+                                    out.write(buffer);
+                                }
                             }
+
+                            Gdx.app.postRunnable(new Runnable() {
+                                @Override
+                                public void run() {
+                                    checkResult(true);
+                                }
+                            });
+
+                            dataSocket.close();
+                        } catch (final SocketTimeoutException e) {
+                            if (retryCount < 2) {
+                                Gdx.app.postRunnable(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        forwardControlResponse("[APP] PASV connection timed out. Retrying...");
+                                    }
+                                });
+                                retryCount++;
+                                continue;
+                            }
+
+                            Gdx.app.postRunnable(new Runnable() {
+                                @Override
+                                public void run() {
+                                    forwardControlResponse(
+                                            "[APP] Failed to establish PASV connection. App will stay frozen until a timeout is received from server.");
+                                }
+                            });
+                            return;
+                        } catch (final Exception e) {
+                            // TODO: handle exception
+                            Gdx.app.error("Exception", e.getMessage());
+                            e.printStackTrace();
                         }
-
-                        Gdx.app.postRunnable(new Runnable() {
-                            @Override
-                            public void run() {
-                                checkResult(true);
-                            }
-                        });
-
-                        dataSocket.close();
-                    } catch (final Exception e) {
-                        // TODO: handle exception
-                        Gdx.app.error("Exception", e.getMessage());
-                        e.printStackTrace();
                     }
                 }
             });
