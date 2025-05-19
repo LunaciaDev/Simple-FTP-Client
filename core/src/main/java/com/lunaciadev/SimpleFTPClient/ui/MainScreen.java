@@ -41,6 +41,7 @@ public class MainScreen implements Screen {
 
     private final Signal downloadFile = new Signal();
     private final Signal changeDir = new Signal();
+    private final Signal makeDir = new Signal();
 
     public MainScreen(final DataPackage dataPackage) {
         this.stage = new Stage(new ScreenViewport());
@@ -121,6 +122,12 @@ public class MainScreen implements Screen {
         // CDUP
         controlPane.cdupButtonClicked.connect(ftpClient::changeToParentDirectory);
 
+        // MKD
+        controlPane.mkdirButtonClicked.connect(textDialog::onDialogRequest);
+        this.makeDir.connect(ftpClient::makeDirectory);
+        ftpClient.makeDirectoryCompleted.connect(textDialog::hideDialog);
+        ftpClient.makeDirectoryCompleted.connect(ftpClient::list);
+
         setLayout();
     }
 
@@ -132,6 +139,10 @@ public class MainScreen implements Screen {
 
             case CD:
                 changeDir.emit(args[1]);
+                break;
+
+            case MKD:
+                makeDir.emit(args[1]);
                 break;
         }
     }

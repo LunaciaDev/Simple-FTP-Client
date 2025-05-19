@@ -16,6 +16,7 @@ import com.lunaciadev.SimpleFTPClient.core.commands.Connect;
 import com.lunaciadev.SimpleFTPClient.core.commands.CurrentDirectory;
 import com.lunaciadev.SimpleFTPClient.core.commands.List;
 import com.lunaciadev.SimpleFTPClient.core.commands.Login;
+import com.lunaciadev.SimpleFTPClient.core.commands.MakeDirectory;
 import com.lunaciadev.SimpleFTPClient.core.commands.NameList;
 import com.lunaciadev.SimpleFTPClient.core.commands.Quit;
 import com.lunaciadev.SimpleFTPClient.core.commands.Retrieve;
@@ -138,6 +139,14 @@ public class FTPClient {
     public Signal changeDirectoryCompleted;
 
     /**
+     * Signal sent when {@link FTPClient#makeDirectory} finished.
+     * 
+     * @param status {@link Boolean} {@code True} if the command is successful,
+     *               {@code False} otherwise.
+     */
+    public Signal makeDirectoryCompleted;
+
+    /**
      * Emitted when any command receive an FTP Control Response.
      * 
      * @param response {@link String} The response.
@@ -159,6 +168,7 @@ public class FTPClient {
     private final CurrentDirectory currentDirectoryCommand;
     private final ChangeDirectory changeDirectoryCommand;
     private final ChangeParentDir changeParentDirCommand;
+    private final MakeDirectory makeDirectoryCommand;
 
     /****** END COMMANDS REGION ******/
 
@@ -178,6 +188,7 @@ public class FTPClient {
         currentDirectoryCommand = new CurrentDirectory();
         changeDirectoryCommand = new ChangeDirectory();
         changeParentDirCommand = new ChangeParentDir();
+        makeDirectoryCommand = new MakeDirectory();
 
         // Exposing completed signals
         accountCompleted = accountCommand.completed;
@@ -192,6 +203,7 @@ public class FTPClient {
         changeDirectoryCompleted = changeDirectoryCommand.completed;
         // these 2 are similar, so they should share the same signal. Less wiring!
         changeParentDirCommand.completed = changeDirectoryCompleted;
+        makeDirectoryCompleted = makeDirectoryCommand.completed;
 
         // Connect aggregate signals
         accountCommand.ftpControlReceived.connect(this::onFTPControlReceived);
@@ -205,6 +217,7 @@ public class FTPClient {
         currentDirectoryCommand.ftpControlReceived.connect(this::onFTPControlReceived);
         changeDirectoryCommand.ftpControlReceived.connect(this::onFTPControlReceived);
         changeParentDirCommand.ftpControlReceived.connect(this::onFTPControlReceived);
+        makeDirectoryCommand.ftpControlReceived.connect(this::onFTPControlReceived);
 
         // Internal connections
         connectCompleted.connect(this::onConnectCompleted);
@@ -302,6 +315,12 @@ public class FTPClient {
     public void changeToParentDirectory(final Object... args) {
         changeParentDirCommand.setData(socketListener, socketWriter);
         controlService.submit(changeParentDirCommand);
+    }
+
+    public void makeDirectory(final Object... args) {
+        final String dirname = (String) args[0];
+        makeDirectoryCommand.setData(socketListener, socketWriter, dirname);
+        controlService.submit(makeDirectoryCommand);
     }
 
     public void dispose() {

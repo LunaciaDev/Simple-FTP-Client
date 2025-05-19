@@ -35,7 +35,8 @@ public class GeneralDialog {
     /**
      * Emitted when the OK button is clicked.
      * 
-     * @param fileName {@link String} the submitted filename
+     * @param requestType {@link RequestType}
+     * @param fileName {@link String} the submitted string
      */
     public Signal submitButtonClicked = new Signal();
 

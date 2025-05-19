@@ -22,6 +22,7 @@ public class ControlPane {
     private final TextButton uploadButton;
     private final TextButton changeDirButton;
     private final TextButton cdupButton;
+    private final TextButton mkdirButton;
 
     private boolean isConnected;
     private final float stringHeight;
@@ -67,6 +68,11 @@ public class ControlPane {
      */
     public Signal cdupButtonClicked = new Signal();
 
+    /**
+     * Emitted when the make directory button is clicked.
+     */
+    public Signal mkdirButtonClicked = new Signal();
+
     /****** END SIGNALS SEGMENT ******/
 
     public ControlPane(final DataPackage dataPackage) {
@@ -76,14 +82,16 @@ public class ControlPane {
         refreshButton = new TextButton("Refresh", dataPackage.getSkin(), "no-highlight");
         downloadButton = new TextButton("Download", dataPackage.getSkin(), "no-highlight");
         uploadButton = new TextButton("Upload", dataPackage.getSkin(), "no-highlight");
+        mkdirButton = new TextButton("Make Directory", dataPackage.getSkin(), "no-highlight");
         changeDirButton = new TextButton("Change Directory", dataPackage.getSkin(), "no-highlight");
-        cdupButton = new TextButton("Move to Parent Directory", dataPackage.getSkin(), "no-highlight");
+        cdupButton = new TextButton("To Parent Directory", dataPackage.getSkin(), "no-highlight");
 
         stringHeight = connectButton.getStyle().font.getLineHeight() + 4f;
 
         refreshButton.setDisabled(true);
         downloadButton.setDisabled(true);
         uploadButton.setDisabled(true);
+        mkdirButton.setDisabled(true);
         changeDirButton.setDisabled(true);
         cdupButton.setDisabled(true);
 
@@ -120,6 +128,13 @@ public class ControlPane {
             }
         });
 
+        mkdirButton.addListener(new ChangeListener() {
+            @Override
+            public void changed(ChangeEvent event, Actor actor) {
+                mkdirButtonClicked.emit(RequestType.MKD);
+            }
+        });
+
         changeDirButton.addListener(new ChangeListener() {
             @Override
             public void changed(final ChangeEvent event, final Actor actor) {
@@ -148,6 +163,7 @@ public class ControlPane {
             refreshButton.setDisabled(false);
             downloadButton.setDisabled(false);
             uploadButton.setDisabled(false);
+            mkdirButton.setDisabled(false);
             changeDirButton.setDisabled(false);
             cdupButton.setDisabled(false);
         }
@@ -163,6 +179,7 @@ public class ControlPane {
             refreshButton.setDisabled(true);
             downloadButton.setDisabled(true);
             uploadButton.setDisabled(true);
+            mkdirButton.setDisabled(true);
             changeDirButton.setDisabled(true);
             cdupButton.setDisabled(true);
         }
@@ -175,6 +192,7 @@ public class ControlPane {
         group.add(refreshButton);
         group.add(downloadButton);
         group.add(uploadButton);
+        group.add(mkdirButton);
         group.add(changeDirButton);
         group.add(cdupButton);
         group.add().expandX();
