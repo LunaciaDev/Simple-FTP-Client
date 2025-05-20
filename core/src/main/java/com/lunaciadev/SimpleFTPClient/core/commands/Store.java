@@ -54,11 +54,7 @@ public class Store extends Command implements Runnable {
 
             forwardControlResponse("PASV");
 
-            final String pasvResponse = socketListener.readLine();
-
-            forwardControlResponse(pasvResponse);
-
-            parsedResponse = parseResponse(pasvResponse);
+            parsedResponse = listenForResponse(socketListener);
 
             switch (parsedResponse[0].charAt(0)) {
                 case '2':
@@ -76,11 +72,7 @@ public class Store extends Command implements Runnable {
 
             forwardControlResponse("TYPE I");
 
-            final String typeResponse = socketListener.readLine();
-
-            forwardControlResponse(typeResponse);
-
-            parsedResponse = parseResponse(typeResponse);
+            parsedResponse = listenForResponse(socketListener);
 
             switch (parsedResponse[0].charAt(0)) {
                 case '2':
@@ -162,11 +154,7 @@ public class Store extends Command implements Runnable {
             forwardControlResponse(storCommand);
 
             while (true) {
-                final String storResponse = socketListener.readLine();
-
-                forwardControlResponse(storResponse);
-
-                parsedResponse = parseResponse(storResponse);
+                parsedResponse = listenForResponse(socketListener);
 
                 switch (parsedResponse[0].charAt(0)) {
                     case '2':

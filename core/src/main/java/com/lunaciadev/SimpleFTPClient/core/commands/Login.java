@@ -45,11 +45,7 @@ public class Login extends Command implements Runnable {
 
             forwardControlResponse(userCmd);
 
-            final String userResponse = socketListener.readLine();
-
-            forwardControlResponse(userResponse);
-
-            parsedResponse = parseResponse(userResponse);
+            parsedResponse = listenForResponse(socketListener);
 
             switch (parsedResponse[0].charAt(0)) {
                 case '2':
@@ -72,11 +68,7 @@ public class Login extends Command implements Runnable {
 
             forwardControlResponse("PASS *****");
 
-            final String passResponse = socketListener.readLine();
-
-            forwardControlResponse(passResponse);
-
-            parsedResponse = parseResponse(passResponse);
+            parsedResponse = listenForResponse(socketListener);
 
             switch (parsedResponse[0].charAt(0)) {
                 case '2':

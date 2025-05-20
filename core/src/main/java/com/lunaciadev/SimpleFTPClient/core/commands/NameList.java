@@ -43,11 +43,7 @@ public class NameList extends Command implements Runnable {
             socketWriter.flush();
             forwardControlResponse("PASV\n");
 
-            final String pasvResponse = socketListener.readLine();
-
-            forwardControlResponse(pasvResponse);
-
-            parsedResponse = parseResponse(pasvResponse);
+            parsedResponse = listenForResponse(socketListener);
 
             switch (parsedResponse[0].charAt(0)) {
                 case '2':
@@ -127,10 +123,7 @@ public class NameList extends Command implements Runnable {
             forwardControlResponse("NLST");
 
             while (true) {
-                final String listResponse = socketListener.readLine();
-                forwardControlResponse(listResponse);
-
-                parsedResponse = parseResponse(listResponse);
+                parsedResponse = listenForResponse(socketListener);
 
                 switch (parsedResponse[0].charAt(0)) {
                     case '2':

@@ -125,7 +125,7 @@ public class ConnectDialog {
      */
     public void onConnectCommandFinished(final Object... args) {
         if (!(boolean) args[0]) {
-            errorLabel.setText("Cannot connect to the server. Please check the address and your Internet connection.");
+            errorLabel.setText("Cannot connect to the server. The server may be busy, or a problem with Internet.");
         }
     }
 

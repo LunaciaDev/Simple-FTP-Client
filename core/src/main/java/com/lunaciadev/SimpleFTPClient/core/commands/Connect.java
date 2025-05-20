@@ -35,16 +35,34 @@ public class Connect extends Command implements Runnable {
                     new OutputStreamWriter(controlSocket.getOutputStream()));
 
             // remove the welcome message.
-            final String response = socketReader.readLine();
+            String[] response = listenForResponse(socketReader);
 
-            forwardControlResponse(response);
-
-            Gdx.app.postRunnable(new Runnable() {
-                @Override
-                public void run() {
-                    completed.emit(true, controlSocket, socketReader, socketWriter, "");
+            while (true) {
+                switch (response[0].charAt(0)) {
+                    case '1':
+                        // server busy. Wait for a 2xx message.
+                        response = listenForResponse(socketReader);
+                        break;
+                    case '2':
+                        Gdx.app.postRunnable(new Runnable() {
+                            @Override
+                            public void run() {
+                                completed.emit(true, controlSocket, socketReader, socketWriter, "");
+                            }
+                        });
+                        return;
+                    case '4':
+                        Gdx.app.postRunnable(new Runnable() {
+                            @Override
+                            public void run() {
+                                completed.emit(false, null, null, null, "");
+                            }
+                        });
+                        return;
                 }
-            });
+            }
+
+            
         } catch (final Exception e) {
             // TODO handle exception
 

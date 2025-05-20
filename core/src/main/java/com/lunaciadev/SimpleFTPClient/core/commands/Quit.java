@@ -31,11 +31,7 @@ public class Quit extends Command implements Runnable {
 
             forwardControlResponse("QUIT");
 
-            final String quitResponse = socketListener.readLine();
-
-            forwardControlResponse(quitResponse);
-
-            parsedResponse = parseResponse(quitResponse);
+            parsedResponse = listenForResponse(socketListener);
 
             switch (parsedResponse[0].charAt(0)) {
                 case '2':

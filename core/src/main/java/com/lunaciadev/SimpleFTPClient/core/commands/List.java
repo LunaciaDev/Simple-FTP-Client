@@ -54,11 +54,7 @@ public class List extends Command implements Runnable {
             socketWriter.flush();
             forwardControlResponse("PASV");
 
-            final String pasvResponse = socketListener.readLine();
-
-            forwardControlResponse(pasvResponse);
-
-            parsedResponse = parseResponse(pasvResponse);
+            parsedResponse = listenForResponse(socketListener);
 
             switch (parsedResponse[0].charAt(0)) {
                 case '2':
@@ -139,10 +135,7 @@ public class List extends Command implements Runnable {
             socketWriter.flush();
             forwardControlResponse("LIST");
             while (true) {
-                final String listResponse = socketListener.readLine();
-                forwardControlResponse(listResponse);
-
-                parsedResponse = parseResponse(listResponse);
+                parsedResponse = listenForResponse(socketListener);
 
                 switch (parsedResponse[0].charAt(0)) {
                     case '2':

@@ -67,11 +67,7 @@ public class Retrieve extends Command implements Runnable {
 
             forwardControlResponse("PASV");
 
-            final String pasvResponse = socketListener.readLine();
-
-            forwardControlResponse(pasvResponse);
-
-            parsedResponse = parseResponse(pasvResponse);
+            parsedResponse = listenForResponse(socketListener);
 
             switch (parsedResponse[0].charAt(0)) {
                 case '2':
@@ -174,10 +170,7 @@ public class Retrieve extends Command implements Runnable {
             forwardControlResponse(retrieveCmd);
 
             while (true) {
-                final String retrResponse = socketListener.readLine();
-                forwardControlResponse(retrResponse);
-
-                parsedResponse = parseResponse(retrResponse);
+                parsedResponse = listenForResponse(socketListener);
 
                 switch (parsedResponse[0].charAt(0)) {
                     case '2':

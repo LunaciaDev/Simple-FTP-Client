@@ -36,9 +36,7 @@ public class CurrentDirectory extends Command implements Runnable {
             socketWriter.flush();
             forwardControlResponse(command);
 
-            final String response = socketListener.readLine();
-            parsedResponse = parseResponse(response);
-            forwardControlResponse(response);
+            parsedResponse = listenForResponse(socketListener);
 
             switch (parsedResponse[0].charAt(0)) {
                 case '2':
