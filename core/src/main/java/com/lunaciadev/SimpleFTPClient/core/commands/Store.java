@@ -110,14 +110,15 @@ public class Store extends Command implements Runnable {
                                 out.write(buffer);
                             }
 
-                            dataSocket.close();
-
                             Gdx.app.postRunnable(new Runnable() {
                                 @Override
                                 public void run() {
                                     checkResult(true);
                                 }
                             });
+
+                            dataSocket.close();
+                            return;
                         } catch (final SocketTimeoutException e) {
                             if (retryCount < 2) {
                                 Gdx.app.postRunnable(new Runnable() {
@@ -142,6 +143,8 @@ public class Store extends Command implements Runnable {
                             // TODO: handle exception
                             Gdx.app.error("Exception", e.getMessage());
                             e.printStackTrace();
+                            retryCount++;
+                            continue;
                         }
                     }
                 }

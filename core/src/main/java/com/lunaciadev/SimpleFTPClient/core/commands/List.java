@@ -126,6 +126,8 @@ public class List extends Command implements Runnable {
                             // TODO: handle exception
                             Gdx.app.error("Exception", e.getMessage());
                             e.printStackTrace();
+                            retryCount++;
+                            continue;
                         }
                     }
                 }

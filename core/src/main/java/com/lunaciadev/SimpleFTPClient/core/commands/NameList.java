@@ -89,6 +89,7 @@ public class NameList extends Command implements Runnable {
                             });
 
                             dataSocket.close();
+                            return;
                         } catch (final SocketTimeoutException e) {
                             if (retryCount < 2) {
                                 Gdx.app.postRunnable(new Runnable() {
@@ -113,6 +114,8 @@ public class NameList extends Command implements Runnable {
                             // TODO: handle exception
                             Gdx.app.error("Exception", e.getMessage());
                             e.printStackTrace();
+                            retryCount++;
+                            continue;
                         }
                     }
                 }
