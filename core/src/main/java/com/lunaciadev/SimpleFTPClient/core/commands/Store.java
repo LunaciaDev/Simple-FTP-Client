@@ -102,12 +102,11 @@ public class Store extends Command implements Runnable {
                             // 8kB buffer. Has to do this to keep track of read bytes, transferTo would just
                             // block indefinitely?
                             final byte[] buffer = new byte[8192];
+                            int byteRead;
 
-                            while (true) {
-                                if (in.read(buffer) == -1)
-                                    break;
-
-                                out.write(buffer);
+                            while ((byteRead = in.read(buffer)) != -1) {
+                                out.write(buffer, 0, byteRead);
+                                out.flush();
                             }
 
                             Gdx.app.postRunnable(new Runnable() {

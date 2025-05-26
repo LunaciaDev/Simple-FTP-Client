@@ -1,14 +1,15 @@
 package com.lunaciadev.SimpleFTPClient.core.commands;
 
 import java.io.BufferedInputStream;
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.net.SocketTimeoutException;
+import java.nio.channels.ClosedChannelException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.concurrent.ExecutorService;
 
 import com.badlogic.gdx.Gdx;
@@ -20,7 +21,6 @@ public class Retrieve extends Command implements Runnable {
     private BufferedReader socketListener;
     private BufferedWriter socketWriter;
     private ExecutorService dataService;
-    private volatile boolean allDataReceived = false;
     private boolean malformedData = false;
     private Path downloadFolder;
 
@@ -50,16 +50,9 @@ public class Retrieve extends Command implements Runnable {
          */
 
         try {
-            Files.createFile(downloadFolder.resolve(fileName));
-        } catch (final Exception e) {
-
-        }
-
-        try (BufferedOutputStream out = new BufferedOutputStream(
-                Files.newOutputStream(downloadFolder.resolve(fileName)));) {
             String[] parsedResponse;
             String[] addr;
-            allDataReceived = false;
+            Path filePath = downloadFolder.resolve(fileName);
             malformedData = false;
 
             socketWriter.write("PASV\r\n");
@@ -116,14 +109,21 @@ public class Retrieve extends Command implements Runnable {
 
                             final BufferedInputStream in = new BufferedInputStream(dataSocket.getInputStream());
 
+                            // create a new file, truncate if exists.
+                            Files.write(filePath, new byte[0], StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+
                             // 8kB buffer. Has to do this to keep track of read bytes, transferTo would just
                             // block indefinitely?
                             final byte[] buffer = new byte[8192];
+                            int byteRead = 0;
 
-                            while (!allDataReceived) {
-                                while (in.read(buffer) != -1) {
-                                    out.write(buffer);
+                            try {
+                                while ((byteRead = in.read(buffer)) != -1) {
+                                    Files.write(filePath, buffer, StandardOpenOption.WRITE, StandardOpenOption.APPEND);
                                 }
+                            } catch (ClosedChannelException e) {
+                                Gdx.app.error("Exception", Integer.toString(byteRead));
+                                e.printStackTrace();
                             }
 
                             Gdx.app.postRunnable(new Runnable() {
@@ -177,14 +177,12 @@ public class Retrieve extends Command implements Runnable {
 
                 switch (parsedResponse[0].charAt(0)) {
                     case '2':
-                        allDataReceived = true;
                         return;
 
                     case '1':
                         break;
 
                     default:
-                        allDataReceived = true;
                         malformedData = true;
                         return;
                 }
